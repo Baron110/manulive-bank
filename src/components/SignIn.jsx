@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Container, Paper, TextField, Button, Typography, Box,
-    Avatar, Grid, Link, InputAdornment, IconButton, Divider,
+    Avatar, Link, InputAdornment, IconButton,
     Checkbox, FormControlLabel, Alert, Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -66,6 +66,7 @@ function SignIn({ onSwitchToSignUp }) {
                     break;
                 default:
                     setError('Login failed. Please try again');
+                    break;
             }
         } finally {
             setLoading(false);

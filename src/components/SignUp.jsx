@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import {
     Container, Paper, TextField, Button, Typography, Box,
-    Avatar, Grid, Link, InputAdornment, IconButton, Divider,
+    Avatar, Grid, Link, InputAdornment, IconButton,
     Checkbox, FormControlLabel, Alert, Fade, Stepper, Step,
     StepLabel, Select, MenuItem, FormControl, InputLabel
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
     PersonAdd, Email, Lock, Visibility, VisibilityOff,
-    Badge, CalendarToday, Phone, Flag, CheckCircle,
-    ArrowForward, ArrowBack, AccountBalance, Security
+    Badge, CalendarToday, Phone, CheckCircle,
+    ArrowForward, ArrowBack, Security
 } from '@mui/icons-material';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
@@ -107,6 +107,9 @@ function SignUp({ onSwitchToLogin }) {
                     return false;
                 }
                 break;
+            default:
+                // Do nothing for other steps
+                break;
         }
         setError('');
         return true;
@@ -170,6 +173,7 @@ function SignUp({ onSwitchToLogin }) {
                     break;
                 default:
                     setError('Registration failed: ' + error.message);
+                    break;
             }
         } finally {
             setLoading(false);
