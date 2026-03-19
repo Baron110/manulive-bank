@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, query, where, getDocs } from 'firebase/firestore';
 
-// Material UI imports
+// Material UI imports - only what we actually use
 import {
     AppBar, Toolbar, Typography, Button, Container, Grid,
     Paper, Card, CardContent, TextField, Avatar, IconButton,
@@ -16,13 +16,13 @@ import { styled } from '@mui/material/styles';
 import {
     AccountBalance, Send, RequestPage, Payment, AddCard,
     Home, History, TrendingUp, Person, Notifications,
-    ArrowUpward, ArrowDownward, Restaurant, Work,
+    ArrowUpward, ArrowDownward, 
     Send as SendIcon, MoreHoriz, Logout, Close,
-    Receipt, QrCodeScanner, Edit, PhotoCamera,
+    Receipt, Edit, PhotoCamera,
     CalendarToday, Phone, Email, LocationOn, Flag,
     Wc, BusinessCenter, Fingerprint, Security,
-    Warning, CheckCircle, Info, Help, Lock,
-    AccountCircle, Badge, Cake, Public, Map
+    CheckCircle, Info, Lock,
+    Badge, Cake, Public, Map
 } from '@mui/icons-material';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import {
@@ -87,60 +87,34 @@ const ActionButton = styled(Button)(({ theme }) => ({
         transform: 'translateY(-2px)',
         boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
     },
-    transition: 'all 0.2s ease'
-}));
-
-const ProfileCard = styled(Paper)(({ theme }) => ({
-    background: 'white',
-    borderRadius: '24px',
-    padding: theme.spacing(3),
-    position: 'relative',
-    border: '1px solid rgba(0,0,0,0.05)'
-}));
-
-const BankOwnerBadge = styled(Box)(({ theme }) => ({
-    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-    color: '#0A1E3F',
-    padding: theme.spacing(0.5, 2),
-    borderRadius: '20px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    fontWeight: 600,
-    fontSize: '0.875rem'
+    transition: 'all 0.3s ease'
 }));
 
 function Dashboard() {
     const [userData, setUserData] = useState(null);
     const [balance, setBalance] = useState(350000);
-    const [transactions, setTransactions] = useState([]);
     const [message, setMessage] = useState({ show: false, text: '', type: 'success' });
     const [navValue, setNavValue] = useState(0);
     const [tabValue, setTabValue] = useState(0);
     
-    // Modal states
+    // Modal states - only the ones we use
     const [sendModal, setSendModal] = useState(false);
-    const [requestModal, setRequestModal] = useState(false);
-    const [payBillsModal, setPayBillsModal] = useState(false);
-    const [topUpModal, setTopUpModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
     
     // Transfer form states
-    const [recipientAccount, setRecipientAccount] = useState('');
-    const [recipientName, setRecipientName] = useState('');
+    const [recipientEmail, setRecipientEmail] = useState('');
     const [amount, setAmount] = useState('');
     const [transferPurpose, setTransferPurpose] = useState('');
     const [transferType, setTransferType] = useState('interac');
     const [transferStep, setTransferStep] = useState(0);
     
-    // Profile data - Laura Kreuk's info
+    // Profile data
     const profileData = {
         surname: 'Kreuk',
         middleName: 'Laura',
         lastName: 'Kristin',
         username: 'Kristin1982',
         email: 'kristinkreuk17@gmail.com',
-        pin: '1982',
         dob: '30/12/1982',
         phone: '+1 (604) 555-1234',
         country: 'Canada',
@@ -155,21 +129,13 @@ function Dashboard() {
         accountType: 'Premium Black'
     };
 
-    // Bank owner info
-    const bankOwner = {
-        name: 'Laura Kreuk',
-        title: 'Founder & CEO',
-        email: 'laura.kreuk@manulivebank.com',
-        since: '2024'
-    };
-
-    // Extended transaction history (50+ transactions)
+    // Generate transaction history
     const generateTransactionHistory = () => {
         const history = [];
-        const names = ['Sarah Jenkins', 'Acme Corp', 'Marcus Thorne', 'Netflix', 'Amazon', 'Starbucks', 'Whole Foods', 'Apple', 'Spotify', 'Uber', 'Rogers', 'Telus', 'BC Hydro', 'Vancouver City', 'Costco', 'Walmart', 'Tim Hortons', 'Lululemon', 'Arc\'teryx', 'MEC'];
-        const categories = ['DINING', 'SHOPPING', 'SALARY', 'TRANSFER', 'BILLS', 'ENTERTAINMENT', 'TRANSPORT', 'GROCERIES', 'UTILITIES', 'HEALTH'];
+        const names = ['Sarah Jenkins', 'Acme Corp', 'Marcus Thorne', 'Netflix', 'Amazon', 'Starbucks', 'Whole Foods'];
+        const categories = ['DINING', 'SHOPPING', 'SALARY', 'TRANSFER', 'BILLS'];
         
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 20; i++) {
             const date = new Date();
             date.setDate(date.getDate() - i);
             
@@ -184,7 +150,7 @@ function Dashboard() {
                 amount: type === 'received' ? amount : -amount,
                 category: categories[Math.floor(Math.random() * categories.length)],
                 type: type,
-                status: Math.random() > 0.9 ? 'pending' : 'completed',
+                status: 'completed',
                 reference: `TRX${Math.floor(Math.random() * 1000000)}`,
                 accountNumber: `****${Math.floor(Math.random() * 10000)}`
             });
@@ -192,7 +158,7 @@ function Dashboard() {
         return history.sort((a, b) => b.id - a.id);
     };
 
-    const [transactionHistory, setTransactionHistory] = useState(generateTransactionHistory());
+    const [transactionHistory] = useState(generateTransactionHistory());
 
     // Chart data
     const spendingData = {
@@ -235,51 +201,41 @@ function Dashboard() {
         ]
     };
 
+    // Load user data
     useEffect(() => {
-        loadUserData();
-    }, []);
-
-    const loadUserData = async () => {
-        const user = auth.currentUser;
-        if (user) {
-            try {
-                const docRef = doc(db, 'users', user.uid);
-                const docSnap = await getDoc(docRef);
-                
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    setUserData(data);
-                    setBalance(data.balance || 350000);
-                    setTransactions(data.transactions || []);
+        const loadUserData = async () => {
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    const docRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(docRef);
+                    
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        setUserData(data);
+                        setBalance(data.balance || 350000);
+                    }
+                } catch (error) {
+                    showMessage('Error loading data: ' + error.message, 'error');
                 }
-            } catch (error) {
-                showMessage('Error loading data: ' + error.message, 'error');
             }
-        }
-    };
+        };
+        
+        loadUserData();
+    }, []); // Empty dependency array is fine here - we only want to run once
 
     const handleSendMoney = () => {
-        // Professional restriction message
         showMessage(
-            '⛔ TRANSFER RESTRICTION: For your security, international transfers require additional verification. Please visit a MANULIVE branch or contact customer support at 1-800-MANULIVE to complete your verification process. We apologize for any inconvenience.',
+            '⛔ TRANSFER RESTRICTION: For your security, international transfers require additional verification. Please visit a MANULIVE branch or contact customer support.',
             'warning'
         );
-        
-        // Log the attempt
-        console.log('Transfer attempt:', {
-            to: recipientAccount,
-            name: recipientName,
-            amount: amount,
-            purpose: transferPurpose,
-            type: transferType,
-            time: new Date().toISOString()
-        });
+        setSendModal(false);
     };
 
     const showMessage = (text, type) => {
         setMessage({ show: true, text, type });
         setTimeout(() => {
-            setMessage({ ...message, show: false });
+            setMessage(prev => ({ ...prev, show: false }));
         }, 6000);
     };
 
@@ -303,7 +259,6 @@ function Dashboard() {
         switch(status) {
             case 'completed': return '#4CAF50';
             case 'pending': return '#FF9800';
-            case 'failed': return '#f44336';
             default: return '#999';
         }
     };
@@ -321,19 +276,14 @@ function Dashboard() {
                 borderBottomRightRadius: '24px'
             }}>
                 <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="h5" sx={{ 
-                            fontWeight: 700, 
-                            background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)', 
-                            WebkitBackgroundClip: 'text', 
-                            WebkitTextFillColor: 'transparent' 
-                        }}>
-                            MANULIVE BANK
-                        </Typography>
-                        <BankOwnerBadge>
-                            <Security sx={{ fontSize: 16 }} />
-                        </BankOwnerBadge>
-                    </Box>
+                    <Typography variant="h5" sx={{ 
+                        fontWeight: 700, 
+                        background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)', 
+                        WebkitBackgroundClip: 'text', 
+                        WebkitTextFillColor: 'transparent' 
+                    }}>
+                        MANULIVE BANK
+                    </Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <IconButton>
                             <Notifications />
@@ -351,7 +301,7 @@ function Dashboard() {
             </AppBar>
 
             <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                {/* Tabs for different views */}
+                {/* Tabs */}
                 <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
                     <Tab label="Dashboard" />
                     <Tab label="Analytics" />
@@ -396,19 +346,19 @@ function Dashboard() {
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setRequestModal(true)}>
+                                <ActionButton fullWidth>
                                     <RequestPage sx={{ color: '#0A1E3F', fontSize: 24 }} />
                                     <Typography variant="caption">REQUEST</Typography>
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setPayBillsModal(true)}>
+                                <ActionButton fullWidth>
                                     <Payment sx={{ color: '#0A1E3F', fontSize: 24 }} />
                                     <Typography variant="caption">PAY BILLS</Typography>
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setTopUpModal(true)}>
+                                <ActionButton fullWidth>
                                     <AddCard sx={{ color: '#0A1E3F', fontSize: 24 }} />
                                     <Typography variant="caption">TOP UP</Typography>
                                 </ActionButton>
@@ -528,39 +478,6 @@ function Dashboard() {
                                         <Typography variant="h4">{profileData.creditScore}</Typography>
                                         <LinearProgress variant="determinate" value={78.2} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
                                     </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Budget Utilization</Typography>
-                                        <Typography variant="h4">68%</Typography>
-                                        <LinearProgress variant="determinate" value={68} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Top Categories
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Dining</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(3450)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Shopping</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(2890)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Bills</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(2100)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Transport</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(850)}</Typography>
-                                    </Box>
                                 </Box>
                             </Paper>
                         </Grid>
@@ -571,7 +488,7 @@ function Dashboard() {
                 {tabValue === 2 && (
                     <Paper sx={{ p: 3, borderRadius: '20px' }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                            Complete Transaction History ({transactionHistory.length} transactions)
+                            Transaction History ({transactionHistory.length} transactions)
                         </Typography>
                         <TableContainer>
                             <Table>
@@ -579,8 +496,6 @@ function Dashboard() {
                                     <TableRow>
                                         <TableCell>Date & Time</TableCell>
                                         <TableCell>Description</TableCell>
-                                        <TableCell>Reference</TableCell>
-                                        <TableCell>Account</TableCell>
                                         <TableCell>Category</TableCell>
                                         <TableCell>Status</TableCell>
                                         <TableCell align="right">Amount</TableCell>
@@ -594,12 +509,6 @@ function Dashboard() {
                                                 <Typography variant="caption" color="text.secondary">{t.time}</Typography>
                                             </TableCell>
                                             <TableCell>{t.name}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption">{t.reference}</Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption">{t.accountNumber}</Typography>
-                                            </TableCell>
                                             <TableCell>
                                                 <Chip label={t.category} size="small" />
                                             </TableCell>
@@ -635,9 +544,9 @@ function Dashboard() {
                 {tabValue === 3 && (
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
-                            <ProfileCard>
+                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                 <Box sx={{ textAlign: 'center', mb: 3 }}>
-                                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2, bgcolor: '#0A1E3F' }}>
+                                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2, bgcolor: '#0A1E3F', fontSize: '3rem' }}>
                                         {profileData.surname.charAt(0)}{profileData.lastName.charAt(0)}
                                     </Avatar>
                                     <Typography variant="h5" sx={{ fontWeight: 600 }}>
@@ -646,7 +555,6 @@ function Dashboard() {
                                     <Typography color="text.secondary" gutterBottom>
                                         @{profileData.username}
                                     </Typography>
-                                    <Chip label={profileData.accountType} sx={{ mt: 1 }} />
                                 </Box>
                                 <Divider sx={{ my: 2 }} />
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -662,27 +570,11 @@ function Dashboard() {
                                         <LocationOn sx={{ color: '#666' }} />
                                         <Typography variant="body2">{profileData.fullAddress}</Typography>
                                     </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Cake sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{profileData.dob}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Flag sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{profileData.country}, {profileData.state}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Wc sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{profileData.gender}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <BusinessCenter sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{profileData.occupation}</Typography>
-                                    </Box>
                                 </Box>
-                            </ProfileCard>
+                            </Paper>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                            <ProfileCard>
+                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
                                     Account Details
                                 </Typography>
@@ -695,61 +587,15 @@ function Dashboard() {
                                         <Typography variant="body2" color="text.secondary">Member Since</Typography>
                                         <Typography variant="h6">{profileData.memberSince}</Typography>
                                     </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">PIN Code</Typography>
-                                        <Typography variant="h6">••••</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Credit Score</Typography>
-                                        <Typography variant="h6">{profileData.creditScore}</Typography>
-                                    </Grid>
                                 </Grid>
-                                
-                                <Divider sx={{ my: 3 }} />
-                                
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Security Settings
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Fingerprint sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Two-Factor Authentication</Typography>
-                                                <Typography variant="caption" color="text.secondary">Protect your account with 2FA</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">Enable</Button>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Lock sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Change PIN</Typography>
-                                                <Typography variant="caption" color="text.secondary">Last changed 30 days ago</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">Update</Button>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Security sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Login Activity</Typography>
-                                                <Typography variant="caption" color="text.secondary">Last login: Today, 10:30 AM</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">View</Button>
-                                    </Box>
-                                </Box>
-                            </ProfileCard>
+                            </Paper>
                         </Grid>
                     </Grid>
                 )}
             </Container>
 
-            {/* SEND MONEY MODAL - PROFESSIONAL TRANSFER FORM */}
-            <StyledModal
+            {/* SEND MONEY MODAL */}
+            <Modal
                 open={sendModal}
                 onClose={() => setSendModal(false)}
                 closeAfterTransition
@@ -757,7 +603,18 @@ function Dashboard() {
                 BackdropProps={{ timeout: 500 }}
             >
                 <Fade in={sendModal}>
-                    <ModalContent sx={{ maxWidth: '500px' }}>
+                    <Box sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'white',
+                        borderRadius: '24px',
+                        boxShadow: 24,
+                        p: 4,
+                        maxWidth: '400px',
+                        width: '90%'
+                    }}>
                         <IconButton 
                             sx={{ position: 'absolute', right: 8, top: 8 }}
                             onClick={() => setSendModal(false)}
@@ -766,181 +623,47 @@ function Dashboard() {
                         </IconButton>
                         
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>
-                            International Money Transfer
+                            Send Money
                         </Typography>
 
-                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>
-                            {transferSteps.map((label) => (
-                                <Step key={label}>
-                                    <StepLabel>{label}</StepLabel>
-                                </Step>
-                            ))}
-                        </Stepper>
+                        <TextField
+                            fullWidth
+                            label="Recipient Email"
+                            value={recipientEmail}
+                            onChange={(e) => setRecipientEmail(e.target.value)}
+                            sx={{ mb: 2 }}
+                        />
 
-                        {transferStep === 0 && (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Recipient Account Number"
-                                    value={recipientAccount}
-                                    onChange={(e) => setRecipientAccount(e.target.value)}
-                                    variant="outlined"
-                                    placeholder="MANXXXXXXXXXX"
-                                />
-                                <TextField
-                                    fullWidth
-                                    label="Recipient Full Name"
-                                    value={recipientName}
-                                    onChange={(e) => setRecipientName(e.target.value)}
-                                    variant="outlined"
-                                    placeholder="As appears on bank account"
-                                />
-                                <FormControl fullWidth>
-                                    <InputLabel>Transfer Type</InputLabel>
-                                    <Select
-                                        value={transferType}
-                                        label="Transfer Type"
-                                        onChange={(e) => setTransferType(e.target.value)}
-                                    >
-                                        <MenuItem value="interac">Interac e-Transfer</MenuItem>
-                                        <MenuItem value="wire">Wire Transfer</MenuItem>
-                                        <MenuItem value="international">International Wire</MenuItem>
-                                        <MenuItem value="swift">SWIFT Transfer</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <Button 
-                                    variant="contained"
-                                    onClick={() => setTransferStep(1)}
-                                    sx={{ mt: 2 }}
-                                >
-                                    Continue
-                                </Button>
-                            </Box>
-                        )}
+                        <TextField
+                            fullWidth
+                            label="Amount (CAD)"
+                            type="number"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            sx={{ mb: 3 }}
+                            InputProps={{
+                                startAdornment: <Typography sx={{ mr: 1 }}>$</Typography>
+                            }}
+                        />
 
-                        {transferStep === 1 && (
-                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                <TextField
-                                    fullWidth
-                                    label="Amount (CAD)"
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    variant="outlined"
-                                    InputProps={{
-                                        startAdornment: <Typography sx={{ mr: 1, color: '#666' }}>$</Typography>
-                                    }}
-                                />
-                                <FormControl fullWidth>
-                                    <InputLabel>Purpose of Transfer</InputLabel>
-                                    <Select
-                                        value={transferPurpose}
-                                        label="Purpose of Transfer"
-                                        onChange={(e) => setTransferPurpose(e.target.value)}
-                                    >
-                                        <MenuItem value="personal">Personal/Gift</MenuItem>
-                                        <MenuItem value="business">Business Payment</MenuItem>
-                                        <MenuItem value="rent">Rent/Mortgage</MenuItem>
-                                        <MenuItem value="education">Education</MenuItem>
-                                        <MenuItem value="investment">Investment</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <TextField
-                                    fullWidth
-                                    label="Additional Notes"
-                                    multiline
-                                    rows={2}
-                                    placeholder="Optional message"
-                                />
-                                <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-                                    <Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button>
-                                    <Button variant="contained" onClick={() => setTransferStep(2)}>Continue</Button>
-                                </Box>
-                            </Box>
-                        )}
-
-                        {transferStep === 2 && (
-                            <Box>
-                                <Typography variant="h6" gutterBottom>Review Transfer Details</Typography>
-                                <Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={6}>
-                                            <Typography variant="caption" color="text.secondary">To Account</Typography>
-                                            <Typography>{recipientAccount}</Typography>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Typography variant="caption" color="text.secondary">Recipient</Typography>
-                                            <Typography>{recipientName}</Typography>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Typography variant="caption" color="text.secondary">Amount</Typography>
-                                            <Typography variant="h6">{formatCurrency(parseFloat(amount) || 0)}</Typography>
-                                        </Grid>
-                                        <Grid item xs={6}>
-                                            <Typography variant="caption" color="text.secondary">Type</Typography>
-                                            <Typography>{transferType}</Typography>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Typography variant="caption" color="text.secondary">Purpose</Typography>
-                                            <Typography>{transferPurpose}</Typography>
-                                        </Grid>
-                                    </Grid>
-                                </Paper>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button>
-                                    <Button variant="contained" onClick={() => setTransferStep(3)}>Continue</Button>
-                                </Box>
-                            </Box>
-                        )}
-
-                        {transferStep === 3 && (
-                            <Box>
-                                <Alert severity="warning" sx={{ mb: 3 }}>
-                                    <Typography variant="body1" fontWeight={600}>Security Verification Required</Typography>
-                                    <Typography variant="body2">For your protection, please verify your identity</Typography>
-                                </Alert>
-                                
-                                <TextField
-                                    fullWidth
-                                    label="PIN Code"
-                                    type="password"
-                                    placeholder="Enter your 4-digit PIN"
-                                    sx={{ mb: 2 }}
-                                />
-                                
-                                <RadioGroup row sx={{ mb: 2 }}>
-                                    <FormControlLabel value="sms" control={<Radio />} label="SMS Code" />
-                                    <FormControlLabel value="email" control={<Radio />} label="Email Code" />
-                                    <FormControlLabel value="app" control={<Radio />} label="Authenticator" />
-                                </RadioGroup>
-
-                                <Alert severity="info" sx={{ mb: 3 }}>
-                                    <Typography variant="body2">
-                                        ⚠️ International transfers are currently restricted for new accounts. 
-                                        Please contact customer support to enable this feature.
-                                    </Typography>
-                                </Alert>
-
-                                <Button 
-                                    fullWidth
-                                    variant="contained"
-                                    onClick={handleSendMoney}
-                                    sx={{ 
-                                        bgcolor: '#0A1E3F',
-                                        '&:hover': { bgcolor: '#1A3B5E' },
-                                        py: 1.5
-                                    }}
-                                >
-                                    Complete Transfer
-                                </Button>
-                            </Box>
-                        )}
-                    </ModalContent>
+                        <Button 
+                            fullWidth
+                            variant="contained"
+                            onClick={handleSendMoney}
+                            sx={{ 
+                                bgcolor: '#0A1E3F',
+                                '&:hover': { bgcolor: '#1A3B5E' },
+                                py: 1.5
+                            }}
+                        >
+                            Send Money
+                        </Button>
+                    </Box>
                 </Fade>
-            </StyledModal>
+            </Modal>
 
             {/* PROFILE MODAL */}
-            <StyledModal
+            <Modal
                 open={profileModal}
                 onClose={() => setProfileModal(false)}
                 closeAfterTransition
@@ -948,7 +671,18 @@ function Dashboard() {
                 BackdropProps={{ timeout: 500 }}
             >
                 <Fade in={profileModal}>
-                    <ModalContent sx={{ maxWidth: '400px' }}>
+                    <Box sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        bgcolor: 'white',
+                        borderRadius: '24px',
+                        boxShadow: 24,
+                        p: 4,
+                        maxWidth: '400px',
+                        width: '90%'
+                    }}>
                         <IconButton 
                             sx={{ position: 'absolute', right: 8, top: 8 }}
                             onClick={() => setProfileModal(false)}
@@ -963,22 +697,14 @@ function Dashboard() {
                             <Typography variant="h5" sx={{ fontWeight: 600 }}>
                                 {profileData.surname} {profileData.lastName}
                             </Typography>
-                            <Typography color="text.secondary" gutterBottom>
+                            <Typography color="text.secondary">
                                 {profileData.occupation}
                             </Typography>
-                            <BankOwnerBadge sx={{ mt: 1 }}>
-                                <CheckCircle sx={{ fontSize: 14 }} />
-                                Verified Account
-                            </BankOwnerBadge>
                         </Box>
 
                         <Divider sx={{ my: 2 }} />
                         
-                        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                            Bank Owner Information
-                        </Typography>
-                        
-                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 3 }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Badge sx={{ color: '#666' }} />
                                 <Box>
@@ -991,13 +717,6 @@ function Dashboard() {
                                 <Box>
                                     <Typography variant="body2" color="text.secondary">Email</Typography>
                                     <Typography>{profileData.email}</Typography>
-                                </Box>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Phone sx={{ color: '#666' }} />
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary">Phone</Typography>
-                                    <Typography>{profileData.phone}</Typography>
                                 </Box>
                             </Box>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -1014,43 +733,10 @@ function Dashboard() {
                                     <Typography>{profileData.country} 🇨🇦</Typography>
                                 </Box>
                             </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Map sx={{ color: '#666' }} />
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary">State/City</Typography>
-                                    <Typography>{profileData.state}, {profileData.city}</Typography>
-                                </Box>
-                            </Box>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <BusinessCenter sx={{ color: '#666' }} />
-                                <Box>
-                                    <Typography variant="body2" color="text.secondary">Occupation</Typography>
-                                    <Typography>{profileData.occupation}</Typography>
-                                </Box>
-                            </Box>
                         </Box>
-
-                        <Divider sx={{ my: 2 }} />
-
-                        <Box sx={{ display: 'flex', gap: 2 }}>
-                            <Button 
-                                fullWidth 
-                                variant="outlined"
-                                startIcon={<Edit />}
-                            >
-                                Edit Profile
-                            </Button>
-                            <Button 
-                                fullWidth 
-                                variant="contained"
-                                sx={{ bgcolor: '#0A1E3F' }}
-                            >
-                                View Full
-                            </Button>
-                        </Box>
-                    </ModalContent>
+                    </Box>
                 </Fade>
-            </StyledModal>
+            </Modal>
 
             {/* Bottom Navigation */}
             <Paper sx={{ 
@@ -1080,40 +766,15 @@ function Dashboard() {
             <Snackbar
                 open={message.show}
                 autoHideDuration={6000}
-                onClose={() => setMessage({ ...message, show: false })}
+                onClose={() => setMessage(prev => ({ ...prev, show: false }))}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
-                <Alert 
-                    severity={message.type} 
-                    variant="filled"
-                    sx={{ 
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                        maxWidth: '500px'
-                    }}
-                >
+                <Alert severity={message.type} variant="filled">
                     {message.text}
                 </Alert>
             </Snackbar>
         </Box>
     );
 }
-
-// StyledModal component
-const StyledModal = styled(Modal)({
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-});
-
-const ModalContent = styled(Paper)(({ theme }) => ({
-    backgroundColor: 'white',
-    borderRadius: '24px',
-    padding: theme.spacing(4),
-    maxWidth: '500px',
-    width: '90%',
-    maxHeight: '80vh',
-    overflow: 'auto',
-    position: 'relative',
-}));
 
 export default Dashboard;
