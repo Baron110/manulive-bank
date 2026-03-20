@@ -1,23 +1,23 @@
 {
-  "homepage": "https://Baron110.github.io/manulive-bank",
   "name": "manulive-bank",
+  "homepage": "https://Baron110.github.io/manulive-bank",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
-    "@mui/icons-material": "^7.3.9",
-    "@mui/material": "^7.3.9",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.14.0",
+    "@mui/material": "^5.14.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
-    "chart.js": "^4.5.1",
-    "firebase": "^12.11.0",
-    "react": "^19.2.4",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.4",
-    "react-router-dom": "^7.13.1",
+    "chart.js": "^4.4.0",
+    "firebase": "^10.7.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-countup": "^6.5.3",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
@@ -25,12 +25,13 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {
@@ -46,6 +47,6 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^6.3.0"
+    "gh-pages": "^6.0.0"
   }
 }
