@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Container, Paper, TextField, Button, Typography, Box,
-    Avatar, Link, InputAdornment, IconButton,
+    Avatar, Grid, Link, InputAdornment, IconButton,
     Checkbox, FormControlLabel, Alert, Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -12,7 +12,6 @@ import {
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 
-// Styled components
 const StyledPaper = styled(Paper)(({ theme }) => ({
     background: 'white',
     borderRadius: '32px',
@@ -84,7 +83,6 @@ function SignIn({ onSwitchToSignUp }) {
             <Container maxWidth="sm">
                 <Fade in={true} timeout={1000}>
                     <StyledPaper elevation={0}>
-                        {/* Header */}
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
                             <Avatar sx={{ 
                                 width: 80, 
@@ -95,26 +93,28 @@ function SignIn({ onSwitchToSignUp }) {
                             }}>
                                 <AccountBalance sx={{ fontSize: 40 }} />
                             </Avatar>
-                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#0A1E3F' }}>
-                                Welcome Back
+                            <Typography 
+                                variant="h4" 
+                                sx={{ 
+                                    fontWeight: 700, 
+                                    color: '#0A1E3F',
+                                    fontFamily: '"Playfair Display", "Georgia", serif',
+                                    letterSpacing: '-0.5px'
+                                }}
+                            >
+                                QuinCore Bank
                             </Typography>
                             <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
-                                Sign in to your MANULIVE account
+                                Welcome back to elite banking
                             </Typography>
                         </Box>
 
-                        {/* Error Message */}
                         {error && (
-                            <Alert 
-                                severity="error" 
-                                sx={{ mb: 3, borderRadius: '12px' }}
-                                onClose={() => setError('')}
-                            >
+                            <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }} onClose={() => setError('')}>
                                 {error}
                             </Alert>
                         )}
 
-                        {/* Sign In Form */}
                         <form onSubmit={handleSubmit}>
                             <TextField
                                 fullWidth
@@ -149,10 +149,7 @@ function SignIn({ onSwitchToSignUp }) {
                                     ),
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                edge="end"
-                                            >
+                                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
                                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
@@ -160,93 +157,34 @@ function SignIn({ onSwitchToSignUp }) {
                                 }}
                             />
 
-                            {/* Remember Me & Forgot Password */}
-                            <Box sx={{ 
-                                display: 'flex', 
-                                justifyContent: 'space-between', 
-                                alignItems: 'center',
-                                mb: 3
-                            }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                                 <FormControlLabel
-                                    control={
-                                        <Checkbox 
-                                            checked={rememberMe}
-                                            onChange={(e) => setRememberMe(e.target.checked)}
-                                            sx={{ color: '#0A1E3F' }}
-                                        />
-                                    }
+                                    control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} sx={{ color: '#0A1E3F' }} />}
                                     label="Remember me"
                                 />
-                                <Link 
-                                    href="#" 
-                                    sx={{ 
-                                        color: '#0A1E3F',
-                                        textDecoration: 'none',
-                                        '&:hover': { textDecoration: 'underline' }
-                                    }}
-                                >
-                                    Forgot password?
-                                </Link>
+                                <Link href="#" sx={{ color: '#0A1E3F', textDecoration: 'none' }}>Forgot password?</Link>
                             </Box>
 
-                            {/* Sign In Button */}
-                            <GradientButton
-                                fullWidth
-                                type="submit"
-                                disabled={loading}
-                                endIcon={<ArrowForward />}
-                            >
+                            <GradientButton fullWidth type="submit" disabled={loading} endIcon={<ArrowForward />}>
                                 {loading ? 'Signing in...' : 'Sign In'}
                             </GradientButton>
 
-                            {/* Security Note */}
-                            <Box sx={{ 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                gap: 1, 
-                                mt: 2,
-                                p: 1.5,
-                                bgcolor: '#F8FAFD',
-                                borderRadius: '12px'
-                            }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, p: 1.5, bgcolor: '#F8FAFD', borderRadius: '12px' }}>
                                 <Security sx={{ color: '#4CAF50', fontSize: 20 }} />
-                                <Typography variant="caption" color="text.secondary">
-                                    Secure 256-bit encryption · Your data is protected
-                                </Typography>
+                                <Typography variant="caption" color="text.secondary">Secure 256-bit encryption · Your data is protected</Typography>
                             </Box>
 
-                            {/* Sign Up Link */}
                             <Box sx={{ textAlign: 'center', mt: 3 }}>
                                 <Typography variant="body2" color="text.secondary">
                                     Don't have an account?{' '}
-                                    <Link
-                                        href="#"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            onSwitchToSignUp();
-                                        }}
-                                        sx={{ 
-                                            color: '#0A1E3F',
-                                            fontWeight: 600,
-                                            textDecoration: 'none',
-                                            '&:hover': { textDecoration: 'underline' }
-                                        }}
-                                    >
+                                    <Link href="#" onClick={(e) => { e.preventDefault(); onSwitchToSignUp(); }} sx={{ color: '#0A1E3F', fontWeight: 600 }}>
                                         Create Account
                                     </Link>
                                 </Typography>
                             </Box>
 
-                            {/* Bank Info */}
-                            <Box sx={{ 
-                                textAlign: 'center', 
-                                mt: 4,
-                                pt: 2,
-                                borderTop: '1px solid #E0E7FF'
-                            }}>
-                                <Typography variant="caption" color="text.secondary">
-                                    🇨🇦 MANULIVE BANK · Vancouver, Canada
-                                </Typography>
+                            <Box sx={{ textAlign: 'center', mt: 4, pt: 2, borderTop: '1px solid #E0E7FF' }}>
+                                <Typography variant="caption" color="text.secondary">🌍 QuinCore Bank · Global Private Banking</Typography>
                             </Box>
                         </form>
                     </StyledPaper>

@@ -314,41 +314,39 @@ function Dashboard() {
         <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
             {/* Top Header */}
             <AppBar position="static" sx={{ 
-                bgcolor: 'white', 
-                color: '#1A2B3C', 
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                borderBottomLeftRadius: '24px',
-                borderBottomRightRadius: '24px'
-            }}>
-                <Toolbar sx={{ justifyContent: 'space-between' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="h5" sx={{ 
-                            fontWeight: 700, 
-                            background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)', 
-                            WebkitBackgroundClip: 'text', 
-                            WebkitTextFillColor: 'transparent' 
-                        }}>
-                            MANULIVE BANK
-                        </Typography>
-                        <BankOwnerBadge>
-                            <Security sx={{ fontSize: 16 }} />
-                        </BankOwnerBadge>
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton>
-                            <Notifications />
-                        </IconButton>
-                        <IconButton onClick={handleLogout} sx={{ color: '#dc004e' }}>
-                            <Logout />
-                        </IconButton>
-                        <IconButton onClick={() => setProfileModal(true)}>
-                            <Avatar sx={{ bgcolor: '#1A3B5E' }}>
-                                {profileData.surname.charAt(0)}
-                            </Avatar>
-                        </IconButton>
-                    </Box>
-                </Toolbar>
-            </AppBar>
+    bgcolor: 'white', 
+    color: '#1A2B3C', 
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    borderBottomLeftRadius: '24px',
+    borderBottomRightRadius: '24px'
+}}>
+    <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Typography 
+            variant="h5" 
+            sx={{ 
+                fontWeight: 700, 
+                color: '#0A1E3F',
+                fontFamily: '"Playfair Display", "Georgia", serif',
+                letterSpacing: '-0.5px'
+            }}
+        >
+            QuinCore Bank
+        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton>
+                <Notifications />
+            </IconButton>
+            <IconButton onClick={handleLogout} sx={{ color: '#dc004e' }}>
+                <Logout />
+            </IconButton>
+            <IconButton onClick={() => setProfileModal(true)}>
+                <Avatar sx={{ bgcolor: '#1A3B5E' }}>
+                    {userData?.firstName?.charAt(0) || userData?.fullName?.charAt(0) || 'U'}
+                </Avatar>
+            </IconButton>
+        </Box>
+    </Toolbar>
+</AppBar>s
 
             <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
                 {/* Tabs for different views */}
