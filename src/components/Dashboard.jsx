@@ -118,7 +118,7 @@ function Dashboard() {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setUserData(data);
-                    setBalance(data.balance || 10000);
+                    setBalance(data.balance || 0);
                     setTransactions(data.transactions || []);
                     setCardApplication(data.cardApplications?.[0] || null);
                     setIssuedCard(data.issuedCards?.[0] || null);
@@ -136,6 +136,22 @@ function Dashboard() {
     const showMessage = (text, type) => {
         setMessage({ show: true, text, type });
         setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 4000);
+    };
+
+    const getCurrencySymbol = () => {
+        const symbols = {
+            'CAD': '$',
+            'USD': '$',
+            'GBP': '£',
+            'AUD': '$',
+            'EUR': '€'
+        };
+        return symbols[userData?.currency] || '$';
+    };
+
+    const formatCurrency = (amount) => {
+        const symbol = getCurrencySymbol();
+        return `${symbol}${amount.toLocaleString()}`;
     };
 
     const handleTransfer = async () => {
@@ -190,7 +206,7 @@ function Dashboard() {
             });
 
             setBalance(prev => prev - transferAmount);
-            showMessage(`✅ Successfully sent $${transferAmount.toLocaleString()} CAD to ${recipientEmail}`, 'success');
+            showMessage(`✅ Successfully sent ${formatCurrency(transferAmount)} to ${recipientEmail}`, 'success');
             setSendModal(false);
             setRecipientEmail('');
             setAmount('');
@@ -222,7 +238,7 @@ function Dashboard() {
             });
 
             setBalance(prev => prev + depositAmountNum);
-            showMessage(`💰 Successfully deposited $${depositAmountNum.toLocaleString()} CAD`, 'success');
+            showMessage(`💰 Successfully deposited ${formatCurrency(depositAmountNum)}`, 'success');
             setDepositModal(false);
             setDepositAmount('');
             await loadUserData();
@@ -292,25 +308,6 @@ function Dashboard() {
         }
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-CA', {
-            style: 'currency',
-            currency: 'CAD',
-        }).format(amount);
-    };
-
-    // Generate sample transactions for demo if none exist
-    const generateSampleTransactions = () => {
-        if (transactions.length === 0) {
-            return [
-                { id: 1, name: 'Welcome Bonus', date: 'Mar 22, 2024', time: '10:30 AM', amount: 10000, type: 'deposit', status: 'completed' }
-            ];
-        }
-        return transactions;
-    };
-
-    const displayTransactions = transactions.length > 0 ? transactions : generateSampleTransactions();
-
     // Chart data
     const chartData = {
         spending: {
@@ -354,12 +351,11 @@ function Dashboard() {
             </AppBar>
 
             <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                {/* WELCOME SECTION - REAL USER DATA */}
+                {/* WELCOME SECTION - FIXED: Only Welcome + Account Number */}
                 <Paper sx={{ p: 3, mb: 3, bgcolor: '#0A1E3F', color: 'white', borderRadius: '20px' }}>
                     <Typography variant="h4">Welcome, {userData?.fullName || userData?.firstName || 'User'}!</Typography>
                     <Typography variant="subtitle1">{userData?.email}</Typography>
-                    <Typography variant="body2">Account: {userData?.accountNumber}</Typography>
-                    <Typography variant="body2">Country: {userData?.country || 'Canada'}</Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>Account Number: {userData?.accountNumber}</Typography>
                 </Paper>
 
                 {/* TABS */}
@@ -379,6 +375,7 @@ function Dashboard() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Chip icon={<ArrowUpward sx={{ fontSize: 16 }} />} label="+2.4% this month" size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
                                 <Typography variant="body2" sx={{ opacity: 0.8 }}>Premium Account</Typography>
+                                <Typography variant="body2" sx={{ opacity: 0.8 }}>• {userData?.currency || 'CAD'}</Typography>
                             </Box>
                         </BalanceCard>
 
@@ -417,51 +414,64 @@ function Dashboard() {
 
                         <Paper sx={{ p: 3, bgcolor: 'white', borderRadius: '20px' }}>
                             <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 2 }}>Recent Activity</Typography>
-                            {displayTransactions.slice().reverse().slice(0, 5).map((t) => (
-                                <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderBottom: '1px solid #eee' }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Avatar sx={{ bgcolor: t.type === 'received' || t.type === 'deposit' ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)', color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336' }}>
-                                            {t.type === 'received' ? <ArrowDownward /> : t.type === 'deposit' ? <AttachMoney /> : <ArrowUpward />}
-                                        </Avatar>
-                                        <Box>
-                                            <Typography>{t.type === 'received' ? `From ${t.from}` : t.type === 'deposit' ? 'Deposit' : `To ${t.to}`}</Typography>
-                                            <Typography variant="caption" sx={{ color: '#888' }}>{t.date} • {t.time}</Typography>
+                            {transactions.length === 0 ? (
+                                <Typography sx={{ color: '#888', textAlign: 'center', py: 4 }}>No transactions yet</Typography>
+                            ) : (
+                                transactions.slice().reverse().slice(0, 5).map((t) => (
+                                    <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderBottom: '1px solid #eee' }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <Avatar sx={{ bgcolor: t.type === 'received' || t.type === 'deposit' ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)', color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336' }}>
+                                                {t.type === 'received' ? <ArrowDownward /> : t.type === 'deposit' ? <AttachMoney /> : <ArrowUpward />}
+                                            </Avatar>
+                                            <Box>
+                                                <Typography>{t.type === 'received' ? `From ${t.from}` : t.type === 'deposit' ? 'Deposit' : t.type === 'bill_payment' ? `Bill Payment: ${t.to}` : `To ${t.to}`}</Typography>
+                                                <Typography variant="caption" sx={{ color: '#888' }}>{t.date} • {t.time}</Typography>
+                                            </Box>
                                         </Box>
+                                        <Typography sx={{ color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336', fontWeight: 600 }}>
+                                            {t.type === 'received' || t.type === 'deposit' ? '+' : '-'}{formatCurrency(t.amount)}
+                                        </Typography>
                                     </Box>
-                                    <Typography sx={{ color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336', fontWeight: 600 }}>
-                                        {t.type === 'received' || t.type === 'deposit' ? '+' : '-'}{formatCurrency(t.amount)}
-                                    </Typography>
-                                </Box>
-                            ))}
+                                ))
+                            )}
                         </Paper>
                     </>
                 )}
 
-                {/* ========== TRANSACTIONS TAB ========== */}
+                {/* ========== TRANSACTIONS TAB - FULL HISTORY ========== */}
                 {tabValue === 1 && (
                     <Paper sx={{ p: 3, bgcolor: 'white', borderRadius: '20px' }}>
-                        <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 3 }}>Transaction History</Typography>
-                        <TableContainer>
-                            <Table>
+                        <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 3 }}>Transaction History ({transactions.length} transactions)</Typography>
+                        <TableContainer sx={{ maxHeight: '500px' }}>
+                            <Table stickyHeader>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell sx={{ color: '#888' }}>Date</TableCell>
-                                        <TableCell sx={{ color: '#888' }}>Description</TableCell>
-                                        <TableCell sx={{ color: '#888' }}>Status</TableCell>
-                                        <TableCell align="right" sx={{ color: '#888' }}>Amount</TableCell>
+                                        <TableCell sx={{ color: '#888', bgcolor: '#F5F8FF' }}>Date</TableCell>
+                                        <TableCell sx={{ color: '#888', bgcolor: '#F5F8FF' }}>Description</TableCell>
+                                        <TableCell sx={{ color: '#888', bgcolor: '#F5F8FF' }}>Status</TableCell>
+                                        <TableCell align="right" sx={{ color: '#888', bgcolor: '#F5F8FF' }}>Amount</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
-                                    {displayTransactions.slice().reverse().map((t) => (
-                                        <TableRow key={t.id}>
-                                            <TableCell>{t.date}<br /><Typography variant="caption" sx={{ color: '#888' }}>{t.time}</Typography></TableCell>
-                                            <TableCell>{t.type === 'received' ? `Received from ${t.from}` : t.type === 'deposit' ? 'Deposit' : `Sent to ${t.to}`}</TableCell>
-                                            <TableCell><Chip label={t.status || 'completed'} size="small" sx={{ bgcolor: 'rgba(76,175,80,0.2)', color: '#4CAF50' }} /></TableCell>
-                                            <TableCell align="right" sx={{ color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336', fontWeight: 600 }}>
-                                                {t.type === 'received' || t.type === 'deposit' ? '+' : '-'}{formatCurrency(t.amount)}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
+                                    {transactions.length === 0 ? (
+                                        <TableRow><TableCell colSpan={4} sx={{ textAlign: 'center', color: '#888' }}>No transactions yet</TableCell></TableRow>
+                                    ) : (
+                                        transactions.slice().reverse().map((t) => (
+                                            <TableRow key={t.id}>
+                                                <TableCell>{t.date}<br /><Typography variant="caption" sx={{ color: '#888' }}>{t.time}</Typography></TableCell>
+                                                <TableCell>
+                                                    {t.type === 'received' ? `Received from ${t.from}` : 
+                                                     t.type === 'deposit' ? 'Deposit' : 
+                                                     t.type === 'bill_payment' ? `Bill Payment: ${t.to}` : 
+                                                     `Sent to ${t.to}`}
+                                                </TableCell>
+                                                <TableCell><Chip label={t.status || 'completed'} size="small" sx={{ bgcolor: 'rgba(76,175,80,0.2)', color: '#4CAF50' }} /></TableCell>
+                                                <TableCell align="right" sx={{ color: t.type === 'received' || t.type === 'deposit' ? '#4CAF50' : '#F44336', fontWeight: 600 }}>
+                                                    {t.type === 'received' || t.type === 'deposit' ? '+' : '-'}{formatCurrency(t.amount)}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
                                 </TableBody>
                             </Table>
                         </TableContainer>
@@ -506,7 +516,7 @@ function Dashboard() {
                     </Grid>
                 )}
 
-                {/* ========== PROFILE TAB - REAL USER DATA ========== */}
+                {/* ========== PROFILE TAB ========== */}
                 {tabValue === 3 && (
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
@@ -518,7 +528,8 @@ function Dashboard() {
                                 <Typography sx={{ color: '#888' }}>{userData?.email}</Typography>
                                 <Typography sx={{ mt: 1 }}>Account: {userData?.accountNumber}</Typography>
                                 <Typography sx={{ color: '#0A1E3F', mt: 1 }}>Balance: {formatCurrency(balance)}</Typography>
-                                <Chip label={userData?.tier || 'Premium'} sx={{ mt: 2, bgcolor: '#0A1E3F', color: 'white' }} />
+                                <Typography sx={{ mt: 1 }}>Currency: {userData?.currency} ({getCurrencySymbol()})</Typography>
+                                <Chip label={userData?.country || 'Canada'} sx={{ mt: 2, bgcolor: '#0A1E3F', color: 'white' }} />
                             </Paper>
                         </Grid>
                         <Grid item xs={12} md={8}>
@@ -539,7 +550,7 @@ function Dashboard() {
                                         <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Full Name</Typography><Typography>{userData?.fullName || userData?.firstName + ' ' + userData?.lastName}</Typography></Grid>
                                         <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Email</Typography><Typography>{userData?.email}</Typography></Grid>
                                         <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Phone</Typography><Typography>{userData?.phone || 'Not set'}</Typography></Grid>
-                                        <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Country</Typography><Typography>{userData?.country || 'Not set'}</Typography></Grid>
+                                        <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Country</Typography><Typography>{userData?.country || 'Not set'} • {userData?.currency}</Typography></Grid>
                                         <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Date of Birth</Typography><Typography>{userData?.dateOfBirth || 'Not set'}</Typography></Grid>
                                         <Grid item xs={6}><Typography variant="caption" sx={{ color: '#666' }}>Address</Typography><Typography>{userData?.address || 'Not set'}</Typography></Grid>
                                         <Grid item xs={12}><Typography variant="caption" sx={{ color: '#666' }}>Account Number</Typography><Typography>{userData?.accountNumber}</Typography></Grid>
@@ -558,7 +569,7 @@ function Dashboard() {
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setSendModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
                         <TextField fullWidth label="Recipient Email" value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} sx={{ mb: 2 }} />
-                        <TextField fullWidth label="Amount (CAD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 3 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} />
+                        <TextField fullWidth label={`Amount (${userData?.currency || 'CAD'})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 3 }} InputProps={{ startAdornment: <InputAdornment position="start">{getCurrencySymbol()}</InputAdornment> }} />
                         <GoldButton fullWidth onClick={handleTransfer}>Send Money</GoldButton>
                     </Box>
                 </Fade>
@@ -570,7 +581,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: '400px' } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setDepositModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Deposit Funds</Typography>
-                        <TextField fullWidth label="Amount (CAD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 3 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} />
+                        <TextField fullWidth label={`Amount (${userData?.currency || 'CAD'})`} type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 3 }} InputProps={{ startAdornment: <InputAdornment position="start">{getCurrencySymbol()}</InputAdornment> }} />
                         <GoldButton fullWidth onClick={handleDeposit}>Deposit</GoldButton>
                     </Box>
                 </Fade>
@@ -601,6 +612,7 @@ function Dashboard() {
                             <Divider sx={{ my: 2 }} />
                             <Typography variant="body2"><strong>Phone:</strong> {userData?.phone || 'Not set'}</Typography>
                             <Typography variant="body2"><strong>Country:</strong> {userData?.country || 'Not set'}</Typography>
+                            <Typography variant="body2"><strong>Currency:</strong> {userData?.currency} ({getCurrencySymbol()})</Typography>
                             <Typography variant="body2"><strong>Account:</strong> {userData?.accountNumber}</Typography>
                             <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
                             <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => setProfileModal(false)}>Close</GoldButton>
