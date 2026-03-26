@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
     Container, Paper, TextField, Button, Typography, Box,
-    Avatar, Grid, Link, InputAdornment, IconButton,
+    Avatar, Link, InputAdornment, IconButton,
     Checkbox, FormControlLabel, Alert, Fade
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
@@ -24,7 +24,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 const GradientButton = styled(Button)(({ theme }) => ({
     background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)',
     color: 'white',
-    padding: '12px',
+    padding: '14px',
     borderRadius: '16px',
     textTransform: 'none',
     fontSize: '1rem',
@@ -110,7 +110,11 @@ function SignIn({ onSwitchToSignUp }) {
                         </Box>
 
                         {error && (
-                            <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }} onClose={() => setError('')}>
+                            <Alert 
+                                severity="error" 
+                                sx={{ mb: 3, borderRadius: '12px' }}
+                                onClose={() => setError('')}
+                            >
                                 {error}
                             </Alert>
                         )}
@@ -149,7 +153,10 @@ function SignIn({ onSwitchToSignUp }) {
                                     ),
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                                            <IconButton
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                            >
                                                 {showPassword ? <VisibilityOff /> : <Visibility />}
                                             </IconButton>
                                         </InputAdornment>
@@ -157,34 +164,88 @@ function SignIn({ onSwitchToSignUp }) {
                                 }}
                             />
 
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                            <Box sx={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                mb: 3
+                            }}>
                                 <FormControlLabel
-                                    control={<Checkbox checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} sx={{ color: '#0A1E3F' }} />}
+                                    control={
+                                        <Checkbox 
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                            sx={{ color: '#0A1E3F' }}
+                                        />
+                                    }
                                     label="Remember me"
                                 />
-                                <Link href="#" sx={{ color: '#0A1E3F', textDecoration: 'none' }}>Forgot password?</Link>
+                                <Link 
+                                    href="#" 
+                                    sx={{ 
+                                        color: '#0A1E3F',
+                                        textDecoration: 'none',
+                                        '&:hover': { textDecoration: 'underline' }
+                                    }}
+                                >
+                                    Forgot password?
+                                </Link>
                             </Box>
 
-                            <GradientButton fullWidth type="submit" disabled={loading} endIcon={<ArrowForward />}>
+                            <GradientButton
+                                fullWidth
+                                type="submit"
+                                disabled={loading}
+                                endIcon={<ArrowForward />}
+                            >
                                 {loading ? 'Signing in...' : 'Sign In'}
                             </GradientButton>
 
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 2, p: 1.5, bgcolor: '#F8FAFD', borderRadius: '12px' }}>
+                            <Box sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 1, 
+                                mt: 2,
+                                p: 1.5,
+                                bgcolor: '#F8FAFD',
+                                borderRadius: '12px'
+                            }}>
                                 <Security sx={{ color: '#4CAF50', fontSize: 20 }} />
-                                <Typography variant="caption" color="text.secondary">Secure 256-bit encryption · Your data is protected</Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                    Secure 256-bit encryption · Your data is protected
+                                </Typography>
                             </Box>
 
                             <Box sx={{ textAlign: 'center', mt: 3 }}>
                                 <Typography variant="body2" color="text.secondary">
                                     Don't have an account?{' '}
-                                    <Link href="#" onClick={(e) => { e.preventDefault(); onSwitchToSignUp(); }} sx={{ color: '#0A1E3F', fontWeight: 600 }}>
+                                    <Link
+                                        href="#"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            onSwitchToSignUp();
+                                        }}
+                                        sx={{ 
+                                            color: '#0A1E3F',
+                                            fontWeight: 600,
+                                            textDecoration: 'none',
+                                            '&:hover': { textDecoration: 'underline' }
+                                        }}
+                                    >
                                         Create Account
                                     </Link>
                                 </Typography>
                             </Box>
 
-                            <Box sx={{ textAlign: 'center', mt: 4, pt: 2, borderTop: '1px solid #E0E7FF' }}>
-                                <Typography variant="caption" color="text.secondary">🌍 QuinCore Bank · Global Private Banking</Typography>
+                            <Box sx={{ 
+                                textAlign: 'center', 
+                                mt: 4,
+                                pt: 2,
+                                borderTop: '1px solid #E0E7FF'
+                            }}>
+                                <Typography variant="caption" color="text.secondary">
+                                    🌍 QuinCore Bank · Global Private Banking
+                                </Typography>
                             </Box>
                         </form>
                     </StyledPaper>
