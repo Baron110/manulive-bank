@@ -24,7 +24,8 @@ import {
     CalendarToday, Phone, Email, LocationOn, Flag,
     Wc, BusinessCenter, Fingerprint, Security,
     Warning, CheckCircle, Info, Help, Lock,
-    AccountCircle, Badge, Cake, Public, Map
+    AccountCircle, Badge, Cake, Public, Map,
+    Visibility, VisibilityOff
 } from '@mui/icons-material';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import {
