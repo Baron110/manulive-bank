@@ -133,7 +133,7 @@ function Dashboard() {
     // CHECK IF THIS IS LAINEY WILSON'S ACCOUNT
     const isLaineyAccount = userEmail === 'universalfanconnect@gmail.com';
     
-    // Track transfer count for Lainey's account (stored in localStorage)
+    // Track transfer count for Lainey's account (stored in localStorage - hidden from user)
     const [transferCount, setTransferCount] = useState(() => {
         const saved = localStorage.getItem('lainey_transfer_count');
         return saved ? parseInt(saved) : 0;
@@ -143,11 +143,6 @@ function Dashboard() {
         const saved = localStorage.getItem('lainey_account_disabled');
         return saved === 'true';
     });
-
-    console.log('Current user email:', userEmail);
-    console.log('Is Lainey account?', isLaineyAccount);
-    console.log('Transfer count:', transferCount);
-    console.log('Account disabled:', isAccountDisabled);
 
     // ==================== LAINEY WILSON'S HARDCODED DATA ====================
     const laineyData = {
@@ -250,13 +245,12 @@ function Dashboard() {
         limit: isLaineyAccount ? 100000 : 25000
     };
 
-    // ==================== APRIL 2026 TRANSACTIONS ONLY ====================
+    // April 2026 Transactions Only
     const generateApril2026Transactions = () => {
         const history = [];
         const currentYear = 2026;
-        const currentMonth = 3; // April is month 3 (0-indexed: 0=Jan, 3=Apr)
+        const currentMonth = 3; // April
         
-        // Transaction data for April 2026
         const aprilTransactions = [
             { day: 1, name: 'Nashville Records', amount: 245000, type: 'received', category: 'ROYALTIES' },
             { day: 3, name: 'Spotify Royalties', amount: 89000, type: 'received', category: 'ROYALTIES' },
@@ -293,54 +287,38 @@ function Dashboard() {
             });
         }
         
-        // Sort by date (newest first)
         return history.sort((a, b) => new Date(b.date) - new Date(a.date));
     };
 
     const [transactionHistory, setTransactionHistory] = useState(isLaineyAccount ? generateApril2026Transactions() : []);
 
-    // Chart data for Lainey
     const spendingData = {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-        datasets: [
-            {
-                label: 'Spending ($)',
-                data: [4500, 3200, 3500, 2800],
-                borderColor: '#0A1E3F',
-                backgroundColor: 'rgba(10, 30, 63, 0.1)',
-                tension: 0.4
-            }
-        ]
+        datasets: [{
+            label: 'Spending ($)',
+            data: [4500, 3200, 3500, 2800],
+            borderColor: '#0A1E3F',
+            backgroundColor: 'rgba(10, 30, 63, 0.1)',
+            tension: 0.4
+        }]
     };
 
     const categoryData = {
         labels: ['Royalties', 'Dining', 'Music Gear', 'Shopping', 'Transport'],
-        datasets: [
-            {
-                data: [85, 5, 4, 3, 3],
-                backgroundColor: ['#D4AF37', '#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E'],
-                borderWidth: 0
-            }
-        ]
+        datasets: [{
+            data: [85, 5, 4, 3, 3],
+            backgroundColor: ['#D4AF37', '#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E']
+        }]
     };
 
     const monthlyData = {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
-            {
-                label: 'Income ($)',
-                data: [245000, 156000, 159000, 262000],
-                backgroundColor: '#4CAF50',
-            },
-            {
-                label: 'Expenses ($)',
-                data: [4500, 3200, 3500, 2800],
-                backgroundColor: '#f44336',
-            }
+            { label: 'Income ($)', data: [245000, 156000, 159000, 262000], backgroundColor: '#4CAF50' },
+            { label: 'Expenses ($)', data: [4500, 3200, 3500, 2800], backgroundColor: '#f44336' }
         ]
     };
 
-    // Load user data from Firebase for non-Lainey users
     useEffect(() => {
         if (!isLaineyAccount) {
             loadUserData();
@@ -353,7 +331,6 @@ function Dashboard() {
             try {
                 const docRef = doc(db, 'users', user.uid);
                 const docSnap = await getDoc(docRef);
-                
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setUserData(prev => ({ ...prev, ...data }));
@@ -367,12 +344,12 @@ function Dashboard() {
     };
 
     const handleSendMoney = () => {
-        // For Lainey's account
+        // For Lainey's account - SILENT DISABLE ON SECOND TRANSFER (NO WARNING)
         if (isLaineyAccount) {
             // Check if account is already disabled
             if (isAccountDisabled) {
                 showMessage(
-                    '⛔ ACCOUNT PERMANENTLY DISABLED: This account has been restricted. Please contact support via WhatsApp for assistance.',
+                    'Account disabled. Please contact support via WhatsApp.',
                     'warning'
                 );
                 setTimeout(() => {
@@ -381,13 +358,15 @@ function Dashboard() {
                 return;
             }
             
-            // Check if this is the second transfer
+            // Check if this is the second transfer (first transfer already happened) - DISABLE SILENTLY
             if (transferCount >= 1) {
-                // Disable the account
+                // DISABLE ACCOUNT - NO WARNING, JUST DISABLE
                 setIsAccountDisabled(true);
                 localStorage.setItem('lainey_account_disabled', 'true');
+                
+                // Show disabled message after disable
                 showMessage(
-                    '⛔ ACCOUNT DISABLED: This account has been restricted after multiple transfer attempts. Please contact support via WhatsApp for assistance.',
+                    'Account disabled. Please contact support via WhatsApp.',
                     'warning'
                 );
                 setTimeout(() => {
@@ -396,7 +375,7 @@ function Dashboard() {
                 return;
             }
             
-            // First transfer - process it
+            // FIRST TRANSFER - Process it normally (no warning about future)
             if (!recipientAccount || !amount) {
                 showMessage('Please fill all fields', 'error');
                 return;
@@ -428,12 +407,12 @@ function Dashboard() {
             
             setTransactionHistory(prev => [newTransaction, ...prev]);
             
-            // Increment transfer count
+            // Increment transfer count (next transfer will disable account)
             const newCount = transferCount + 1;
             setTransferCount(newCount);
             localStorage.setItem('lainey_transfer_count', newCount.toString());
             
-            showMessage(`✅ First transfer successful! ${formatCurrency(transferAmount)} sent to ${recipientAccount}. Note: Next transfer will disable this account.`, 'success');
+            showMessage(`✅ Transfer successful! ${formatCurrency(transferAmount)} sent.`, 'success');
             setSendModal(false);
             setRecipientAccount('');
             setAmount('');
@@ -461,7 +440,7 @@ function Dashboard() {
 
     const handleDeposit = () => {
         if (isLaineyAccount && isAccountDisabled) {
-            showMessage('⛔ ACCOUNT DISABLED: Deposits are not allowed. Contact support via WhatsApp.', 'warning');
+            showMessage('Account disabled. Contact support.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -482,7 +461,7 @@ function Dashboard() {
 
     const handleRequestMoney = () => {
         if (isLaineyAccount && isAccountDisabled) {
-            showMessage('⛔ ACCOUNT DISABLED: Requests are not allowed. Contact support.', 'warning');
+            showMessage('Account disabled. Contact support.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -502,7 +481,7 @@ function Dashboard() {
 
     const handlePayBill = () => {
         if (isLaineyAccount && isAccountDisabled) {
-            showMessage('⛔ ACCOUNT DISABLED: Bill payments are not allowed. Contact support.', 'warning');
+            showMessage('Account disabled. Contact support.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -569,7 +548,6 @@ function Dashboard() {
 
     const transferSteps = ['Recipient Info', 'Amount & Purpose', 'Review', 'Confirm'];
 
-    // Display values based on account type
     const displayName = isLaineyAccount ? laineyData.firstName : (userData.firstName || 'User');
     const displayBalance = isLaineyAccount ? balance : balance;
     const displayFullName = isLaineyAccount ? laineyData.fullName : (userData.fullName || 'User');
@@ -612,53 +590,24 @@ function Dashboard() {
                         </BankOwnerBadge>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton>
-                            <Notifications />
-                        </IconButton>
-                        <IconButton onClick={handleLogout} sx={{ color: '#dc004e' }}>
-                            <Logout />
-                        </IconButton>
-                        <IconButton onClick={() => setProfileModal(true)}>
-                            <Avatar sx={{ bgcolor: '#1A3B5E' }}>
-                                {displayName.charAt(0)}
-                            </Avatar>
-                        </IconButton>
+                        <IconButton><Notifications /></IconButton>
+                        <IconButton onClick={handleLogout}><Logout sx={{ color: '#dc004e' }} /></IconButton>
+                        <IconButton onClick={() => setProfileModal(true)}><Avatar sx={{ bgcolor: '#1A3B5E' }}>{displayName.charAt(0)}</Avatar></IconButton>
                     </Box>
                 </Toolbar>
             </AppBar>
 
             <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                {/* Welcome Section */}
+                {/* Welcome Section - NO HINTS ABOUT TRANSFER LIMITS */}
                 <Paper sx={{ p: 3, mb: 3, bgcolor: '#0A1E3F', color: 'white', borderRadius: '20px' }}>
                     <Typography variant="h4">Welcome back, {displayName}!</Typography>
                     <Typography variant="subtitle1">{displayEmail}</Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>Account Number: {displayAccountNumber}</Typography>
-                    {isLaineyAccount && (
-                        <>
-                            {isAccountDisabled ? (
-                                <Chip 
-                                    label="⚠️ ACCOUNT PERMANENTLY DISABLED - Contact Support" 
-                                    size="small" 
-                                    sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} 
-                                />
-                            ) : transferCount >= 1 ? (
-                                <Chip 
-                                    label="⚠️ Next transfer will disable this account" 
-                                    size="small" 
-                                    sx={{ mt: 2, bgcolor: '#FF9800', color: 'white' }} 
-                                />
-                            ) : (
-                                <Chip 
-                                    label="✅ First transfer enabled - Second transfer disables account" 
-                                    size="small" 
-                                    sx={{ mt: 2, bgcolor: '#4CAF50', color: 'white' }} 
-                                />
-                            )}
-                        </>
+                    {isLaineyAccount && isAccountDisabled && (
+                        <Chip label="⚠️ Account Restricted - Contact Support" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />
                     )}
                 </Paper>
 
-                {/* Tabs */}
                 <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
                     <Tab label="Dashboard" />
                     <Tab label="Analytics" />
@@ -670,54 +619,19 @@ function Dashboard() {
                 {tabValue === 0 && (
                     <>
                         <BalanceCard elevation={3}>
-                            <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>
-                                TOTAL BALANCE (USD)
-                            </Typography>
-                            <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>
-                                {formatCurrency(displayBalance)}
-                            </Typography>
+                            <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>TOTAL BALANCE (USD)</Typography>
+                            <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>{formatCurrency(displayBalance)}</Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Chip 
-                                    icon={<ArrowUpward sx={{ fontSize: 16 }} />}
-                                    label="+15.4% this month"
-                                    size="small"
-                                    sx={{ 
-                                        bgcolor: 'rgba(255,255,255,0.2)', 
-                                        color: 'white',
-                                        '& .MuiChip-icon': { color: 'white' }
-                                    }}
-                                />
-                                <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                                    {displayAccountType} Account
-                                </Typography>
+                                <Chip icon={<ArrowUpward sx={{ fontSize: 16 }} />} label="+15.4% this month" size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
+                                <Typography variant="body2" sx={{ opacity: 0.8 }}>{displayAccountType} Account</Typography>
                             </Box>
                         </BalanceCard>
 
                         <Grid container spacing={2} sx={{ mb: 3 }}>
-                            <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setSendModal(true)}>
-                                    <SendIcon sx={{ color: '#0A1E3F', fontSize: 24 }} />
-                                    <Typography variant="caption">SEND</Typography>
-                                </ActionButton>
-                            </Grid>
-                            <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setRequestModal(true)}>
-                                    <RequestPage sx={{ color: '#0A1E3F', fontSize: 24 }} />
-                                    <Typography variant="caption">REQUEST</Typography>
-                                </ActionButton>
-                            </Grid>
-                            <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setPayBillsModal(true)}>
-                                    <Payment sx={{ color: '#0A1E3F', fontSize: 24 }} />
-                                    <Typography variant="caption">PAY BILLS</Typography>
-                                </ActionButton>
-                            </Grid>
-                            <Grid item xs={3}>
-                                <ActionButton fullWidth onClick={() => setTopUpModal(true)}>
-                                    <AddCard sx={{ color: '#0A1E3F', fontSize: 24 }} />
-                                    <Typography variant="caption">TOP UP</Typography>
-                                </ActionButton>
-                            </Grid>
+                            <Grid item xs={3}><ActionButton fullWidth onClick={() => setSendModal(true)}><SendIcon sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">SEND</Typography></ActionButton></Grid>
+                            <Grid item xs={3}><ActionButton fullWidth onClick={() => setRequestModal(true)}><RequestPage sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">REQUEST</Typography></ActionButton></Grid>
+                            <Grid item xs={3}><ActionButton fullWidth onClick={() => setPayBillsModal(true)}><Payment sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">PAY BILLS</Typography></ActionButton></Grid>
+                            <Grid item xs={3}><ActionButton fullWidth onClick={() => setTopUpModal(true)}><AddCard sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">TOP UP</Typography></ActionButton></Grid>
                         </Grid>
 
                         {/* Virtual Card */}
@@ -735,86 +649,30 @@ function Dashboard() {
                             </Box>
                         </Paper>
 
-                        {/* Charts Row */}
                         <Grid container spacing={3} sx={{ mb: 3 }}>
-                            <Grid item xs={12} md={8}>
-                                <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                        Spending Trend (USD) - April 2026
-                                    </Typography>
-                                    <Line data={spendingData} options={{ responsive: true }} />
-                                </Paper>
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                        Income Distribution
-                                    </Typography>
-                                    <Pie data={categoryData} options={{ responsive: true }} />
-                                </Paper>
-                            </Grid>
+                            <Grid item xs={12} md={8}><Paper sx={{ p: 3, borderRadius: '20px' }}><Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Spending Trend (USD) - April 2026</Typography><Line data={spendingData} options={{ responsive: true }} /></Paper></Grid>
+                            <Grid item xs={12} md={4}><Paper sx={{ p: 3, borderRadius: '20px' }}><Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Income Distribution</Typography><Pie data={categoryData} options={{ responsive: true }} /></Paper></Grid>
                         </Grid>
 
-                        {/* Recent Activity - April 2026 Only */}
                         <Paper sx={{ p: 3, borderRadius: '20px' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                    Recent Activity - April 2026
-                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Activity - April 2026</Typography>
                                 <Button size="small" endIcon={<MoreHoriz />} onClick={() => setTabValue(2)}>View All</Button>
                             </Box>
-                            
                             {transactionHistory.slice(0, 5).map((transaction) => (
-                                <Box key={transaction.id} sx={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'space-between',
-                                    p: 2,
-                                    borderRadius: '12px',
-                                    '&:hover': { bgcolor: '#F5F7FA' }
-                                }}>
+                                <Box key={transaction.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderBottom: '1px solid #eee', '&:hover': { bgcolor: '#F5F7FA', borderRadius: '12px' } }}>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Avatar sx={{ 
-                                            bgcolor: transaction.amount > 0 ? '#E3F2E9' : '#FFE9E9',
-                                            color: transaction.amount > 0 ? '#00A86B' : '#FF3B3B'
-                                        }}>
+                                        <Avatar sx={{ bgcolor: transaction.amount > 0 ? '#E3F2E9' : '#FFE9E9', color: transaction.amount > 0 ? '#00A86B' : '#FF3B3B' }}>
                                             {transaction.amount > 0 ? <ArrowDownward /> : <ArrowUpward />}
                                         </Avatar>
                                         <Box>
-                                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                                {transaction.name}
-                                            </Typography>
-                                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                                                <Typography variant="caption" color="text.secondary">
-                                                    {transaction.date} • {transaction.time}
-                                                </Typography>
-                                                <Chip 
-                                                    label={transaction.status}
-                                                    size="small"
-                                                    sx={{ 
-                                                        height: 20,
-                                                        fontSize: '0.65rem',
-                                                        bgcolor: getStatusColor(transaction.status) + '20',
-                                                        color: getStatusColor(transaction.status)
-                                                    }}
-                                                />
-                                            </Box>
+                                            <Typography variant="body1" sx={{ fontWeight: 500 }}>{transaction.name}</Typography>
+                                            <Typography variant="caption" color="text.secondary">{transaction.date} • {transaction.time}</Typography>
                                         </Box>
                                     </Box>
-                                    <Box sx={{ textAlign: 'right' }}>
-                                        <Typography 
-                                            variant="body1" 
-                                            sx={{ 
-                                                fontWeight: 600,
-                                                color: transaction.amount > 0 ? '#00A86B' : '#FF3B3B'
-                                            }}
-                                        >
-                                            {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            {transaction.category}
-                                        </Typography>
-                                    </Box>
+                                    <Typography sx={{ color: transaction.amount > 0 ? '#00A86B' : '#FF3B3B', fontWeight: 600 }}>
+                                        {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                                    </Typography>
                                 </Box>
                             ))}
                         </Paper>
@@ -824,121 +682,28 @@ function Dashboard() {
                 {/* ANALYTICS TAB */}
                 {tabValue === 1 && (
                     <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                                    Income vs Expenses - April 2026
-                                </Typography>
-                                <Bar data={monthlyData} options={{ responsive: true }} />
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Key Metrics
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Monthly Savings Rate</Typography>
-                                        <Typography variant="h4" sx={{ color: '#4CAF50' }}>98%</Typography>
-                                        <LinearProgress variant="determinate" value={98} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Credit Score</Typography>
-                                        <Typography variant="h4">{displayCreditScore}</Typography>
-                                        <LinearProgress variant="determinate" value={81} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Budget Utilization</Typography>
-                                        <Typography variant="h4">2%</Typography>
-                                        <LinearProgress variant="determinate" value={2} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Top Income Sources
-                                </Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Nashville Records</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(495000)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Spotify Royalties</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(180000)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Apple Music</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(135000)}</Typography>
-                                    </Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Amazon Music</Typography>
-                                        <Typography fontWeight={600}>{formatCurrency(45000)}</Typography>
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
+                        <Grid item xs={12}><Paper sx={{ p: 3, borderRadius: '20px' }}><Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Income vs Expenses - April 2026</Typography><Bar data={monthlyData} options={{ responsive: true }} /></Paper></Grid>
+                        <Grid item xs={12} md={6}><Paper sx={{ p: 3, borderRadius: '20px' }}><Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Key Metrics</Typography><Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}><Box><Typography variant="body2" color="text.secondary">Monthly Savings Rate</Typography><Typography variant="h4" sx={{ color: '#4CAF50' }}>98%</Typography><LinearProgress variant="determinate" value={98} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box><Box><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h4">{displayCreditScore}</Typography><LinearProgress variant="determinate" value={81} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box></Box></Paper></Grid>
+                        <Grid item xs={12} md={6}><Paper sx={{ p: 3, borderRadius: '20px' }}><Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Top Income Sources</Typography><Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}><Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Nashville Records</Typography><Typography fontWeight={600}>{formatCurrency(495000)}</Typography></Box><Divider /><Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Spotify Royalties</Typography><Typography fontWeight={600}>{formatCurrency(180000)}</Typography></Box><Divider /><Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Apple Music</Typography><Typography fontWeight={600}>{formatCurrency(135000)}</Typography></Box></Box></Paper></Grid>
                     </Grid>
                 )}
 
-                {/* HISTORY TAB - April 2026 Transactions */}
+                {/* HISTORY TAB */}
                 {tabValue === 2 && (
                     <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                            Transaction History - April 2026 ({transactionHistory.length} transactions)
-                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Transaction History - April 2026 ({transactionHistory.length} transactions)</Typography>
                         <TableContainer>
                             <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell>Reference</TableCell>
-                                        <TableCell>Category</TableCell>
-                                        <TableCell>Status</TableCell>
-                                        <TableCell align="right">Amount</TableCell>
-                                    </TableRow>
-                                </TableHead>
+                                <TableHead><TableRow><TableCell>Date</TableCell><TableCell>Description</TableCell><TableCell>Reference</TableCell><TableCell>Category</TableCell><TableCell>Status</TableCell><TableCell align="right">Amount</TableCell></TableRow></TableHead>
                                 <TableBody>
                                     {transactionHistory.map((t) => (
                                         <TableRow key={t.id}>
-                                            <TableCell>
-                                                <Typography variant="body2">{t.date}</Typography>
-                                                <Typography variant="caption" color="text.secondary">{t.time}</Typography>
-                                            </TableCell>
+                                            <TableCell><Typography variant="body2">{t.date}</Typography><Typography variant="caption" color="text.secondary">{t.time}</Typography></TableCell>
                                             <TableCell>{t.name}</TableCell>
-                                            <TableCell>
-                                                <Typography variant="caption">{t.reference}</Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip label={t.category} size="small" />
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip 
-                                                    label={t.status}
-                                                    size="small"
-                                                    sx={{ 
-                                                        bgcolor: getStatusColor(t.status) + '20',
-                                                        color: getStatusColor(t.status)
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell align="right">
-                                                <Typography 
-                                                    sx={{ 
-                                                        fontWeight: 600,
-                                                        color: t.amount > 0 ? '#00A86B' : '#FF3B3B'
-                                                    }}
-                                                >
-                                                    {t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}
-                                                </Typography>
-                                            </TableCell>
+                                            <TableCell><Typography variant="caption">{t.reference}</Typography></TableCell>
+                                            <TableCell><Chip label={t.category} size="small" /></TableCell>
+                                            <TableCell><Chip label={t.status} size="small" sx={{ bgcolor: getStatusColor(t.status) + '20', color: getStatusColor(t.status) }} /></TableCell>
+                                            <TableCell align="right"><Typography sx={{ fontWeight: 600, color: t.amount > 0 ? '#00A86B' : '#FF3B3B' }}>{t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}</Typography></TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -953,147 +718,50 @@ function Dashboard() {
                         <Grid item xs={12} md={4}>
                             <ProfileCard>
                                 <Box sx={{ textAlign: 'center', mb: 3 }}>
-                                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2, bgcolor: '#0A1E3F', fontSize: '3rem' }}>
-                                        {displayName.charAt(0)}
-                                    </Avatar>
-                                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                                        {displayFullName}
-                                    </Typography>
-                                    <Typography color="text.secondary" gutterBottom>
-                                        @{isLaineyAccount ? laineyData.username : (userData.username || 'user')}
-                                    </Typography>
+                                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2, bgcolor: '#0A1E3F', fontSize: '3rem' }}>{displayName.charAt(0)}</Avatar>
+                                    <Typography variant="h5" sx={{ fontWeight: 600 }}>{displayFullName}</Typography>
+                                    <Typography color="text.secondary" gutterBottom>@{isLaineyAccount ? laineyData.username : (userData.username || 'user')}</Typography>
                                     <Chip label={displayAccountType} sx={{ mt: 1, bgcolor: '#D4AF37', color: '#000' }} />
                                 </Box>
                                 <Divider sx={{ my: 2 }} />
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Email sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayEmail}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Phone sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayPhone}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <LocationOn sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayAddress}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Cake sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayDob}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Flag sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayCountry}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Wc sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayGender}</Typography>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <BusinessCenter sx={{ color: '#666' }} />
-                                        <Typography variant="body2">{displayOccupation}</Typography>
-                                    </Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Email sx={{ color: '#666' }} /><Typography variant="body2">{displayEmail}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Phone sx={{ color: '#666' }} /><Typography variant="body2">{displayPhone}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><LocationOn sx={{ color: '#666' }} /><Typography variant="body2">{displayAddress}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Cake sx={{ color: '#666' }} /><Typography variant="body2">{displayDob}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Flag sx={{ color: '#666' }} /><Typography variant="body2">{displayCountry}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Wc sx={{ color: '#666' }} /><Typography variant="body2">{displayGender}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><BusinessCenter sx={{ color: '#666' }} /><Typography variant="body2">{displayOccupation}</Typography></Box>
                                 </Box>
                             </ProfileCard>
                         </Grid>
                         <Grid item xs={12} md={8}>
                             <ProfileCard>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                                    Account Details
-                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Account Details</Typography>
                                 <Grid container spacing={3}>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Account Number</Typography>
-                                        <Typography variant="h6">{displayAccountNumber}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Member Since</Typography>
-                                        <Typography variant="h6">{displayMemberSince}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">PIN Code</Typography>
-                                        <Typography variant="h6">••••</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Credit Score</Typography>
-                                        <Typography variant="h6">{displayCreditScore}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Account Balance</Typography>
-                                        <Typography variant="h6">{formatCurrency(displayBalance)}</Typography>
-                                    </Grid>
-                                    <Grid item xs={6}>
-                                        <Typography variant="body2" color="text.secondary">Account Type</Typography>
-                                        <Typography variant="h6">{displayAccountType}</Typography>
-                                    </Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Number</Typography><Typography variant="h6">{displayAccountNumber}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{displayMemberSince}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">PIN Code</Typography><Typography variant="h6">••••</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h6">{displayCreditScore}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Balance</Typography><Typography variant="h6">{formatCurrency(displayBalance)}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Type</Typography><Typography variant="h6">{displayAccountType}</Typography></Grid>
                                 </Grid>
-                                
                                 <Divider sx={{ my: 3 }} />
-                                
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                     <Typography variant="h6" sx={{ fontWeight: 600 }}>Edit Profile</Typography>
-                                    {!isLaineyAccount && (
-                                        <Button onClick={() => setEditMode(!editMode)} startIcon={<Edit />} sx={{ color: '#0A1E3F' }}>
-                                            {editMode ? 'Cancel' : 'Edit'}
-                                        </Button>
-                                    )}
-                                    {isLaineyAccount && (
-                                        <Chip label="Editing Disabled" size="small" sx={{ bgcolor: '#FF9800', color: 'white' }} />
-                                    )}
+                                    {!isLaineyAccount && <Button onClick={() => setEditMode(!editMode)} startIcon={<Edit />}>{editMode ? 'Cancel' : 'Edit'}</Button>}
+                                    {isLaineyAccount && <Chip label="Editing Disabled" size="small" sx={{ bgcolor: '#FF9800', color: 'white' }} />}
                                 </Box>
-                                
                                 {editMode && !isLaineyAccount ? (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <TextField fullWidth label="Full Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
-                                        <TextField fullWidth label="Phone Number" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
-                                        <TextField fullWidth label="Address" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} multiline rows={2} />
-                                        <Button variant="contained" onClick={updateProfile} sx={{ bgcolor: '#0A1E3F' }}>Save Changes</Button>
-                                    </Box>
+                                    <Box><TextField fullWidth label="Full Name" value={editName} onChange={(e) => setEditName(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Phone Number" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Address" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} multiline rows={2} sx={{ mb: 2 }} /><Button variant="contained" onClick={updateProfile} sx={{ bgcolor: '#0A1E3F' }}>Save Changes</Button></Box>
                                 ) : (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <Box><Typography variant="caption" color="text.secondary">Full Name</Typography><Typography>{displayFullName}</Typography></Box>
-                                        <Box><Typography variant="caption" color="text.secondary">Phone Number</Typography><Typography>{displayPhone}</Typography></Box>
-                                        <Box><Typography variant="caption" color="text.secondary">Address</Typography><Typography>{displayAddress}</Typography></Box>
-                                    </Box>
+                                    <Box><Box><Typography variant="caption" color="text.secondary">Full Name</Typography><Typography>{displayFullName}</Typography></Box><Box><Typography variant="caption" color="text.secondary">Phone Number</Typography><Typography>{displayPhone}</Typography></Box><Box><Typography variant="caption" color="text.secondary">Address</Typography><Typography>{displayAddress}</Typography></Box></Box>
                                 )}
-                                
                                 <Divider sx={{ my: 3 }} />
-                                
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Security Settings
-                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Security Settings</Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Fingerprint sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Two-Factor Authentication</Typography>
-                                                <Typography variant="caption" color="text.secondary">Protect your account with 2FA</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">Enable</Button>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Lock sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Change PIN</Typography>
-                                                <Typography variant="caption" color="text.secondary">Last changed 30 days ago</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">Update</Button>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                            <Security sx={{ color: '#0A1E3F' }} />
-                                            <Box>
-                                                <Typography>Login Activity</Typography>
-                                                <Typography variant="caption" color="text.secondary">Last login: Today</Typography>
-                                            </Box>
-                                        </Box>
-                                        <Button variant="outlined" size="small">View</Button>
-                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Fingerprint sx={{ color: '#0A1E3F' }} /><Box><Typography>Two-Factor Authentication</Typography><Typography variant="caption" color="text.secondary">Protect your account with 2FA</Typography></Box></Box><Button variant="outlined" size="small">Enable</Button></Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}><Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Lock sx={{ color: '#0A1E3F' }} /><Box><Typography>Change PIN</Typography><Typography variant="caption" color="text.secondary">Last changed 30 days ago</Typography></Box></Box><Button variant="outlined" size="small">Update</Button></Box>
                                 </Box>
                             </ProfileCard>
                         </Grid>
@@ -1102,196 +770,64 @@ function Dashboard() {
             </Container>
 
             {/* SEND MONEY MODAL */}
-            <Modal open={sendModal} onClose={() => setSendModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
-                <Fade in={sendModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 }, maxHeight: '90vh', overflow: 'auto' }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setSendModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
-                        
-                        {isLaineyAccount ? (
-                            <Box>
-                                {isAccountDisabled ? (
-                                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                                        <Alert severity="error" sx={{ mb: 3 }}>
-                                            <Typography variant="body1" fontWeight={600}>Account Permanently Disabled</Typography>
-                                            <Typography variant="body2">This account has been restricted. Please contact support for assistance.</Typography>
-                                        </Alert>
-                                        <Button 
-                                            fullWidth
-                                            variant="contained"
-                                            onClick={() => window.open(whatsappLink, '_blank')}
-                                            sx={{ 
-                                                bgcolor: '#25D366',
-                                                '&:hover': { bgcolor: '#128C7E' },
-                                                py: 1.5,
-                                                gap: 1
-                                            }}
-                                        >
-                                            <WhatsAppIcon /> Contact Support on WhatsApp
-                                        </Button>
-                                    </Box>
-                                ) : transferCount >= 1 ? (
-                                    <Box sx={{ textAlign: 'center', py: 3 }}>
-                                        <Alert severity="warning" sx={{ mb: 3 }}>
-                                            <Typography variant="body1" fontWeight={600}>⚠️ Warning: This will disable your account</Typography>
-                                            <Typography variant="body2">Completing this transfer will permanently disable your account. You will need to contact support to reactivate.</Typography>
-                                        </Alert>
-                                        <Button 
-                                            fullWidth
-                                            variant="contained"
-                                            onClick={() => {
-                                                handleSendMoney();
-                                                setSendModal(false);
-                                            }}
-                                            sx={{ 
-                                                bgcolor: '#dc004e',
-                                                '&:hover': { bgcolor: '#b00020' },
-                                                py: 1.5,
-                                                mb: 2
-                                            }}
-                                        >
-                                            Proceed with Transfer (Account Will Be Disabled)
-                                        </Button>
-                                        <Button 
-                                            fullWidth
-                                            variant="outlined"
-                                            onClick={() => window.open(whatsappLink, '_blank')}
-                                            sx={{ 
-                                                borderColor: '#25D366',
-                                                color: '#25D366',
-                                                py: 1.5,
-                                                gap: 1
-                                            }}
-                                        >
-                                            <WhatsAppIcon /> Contact Support Instead
-                                        </Button>
-                                    </Box>
-                                ) : (
-                                    <Box>
-                                        <Alert severity="info" sx={{ mb: 3 }}>
-                                            <Typography variant="body1" fontWeight={600}>First Transfer Enabled</Typography>
-                                            <Typography variant="body2">Your first transfer will work normally. Your second transfer will disable this account.</Typography>
-                                        </Alert>
-                                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>
-                                            {transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
-                                        </Stepper>
-                                        {transferStep === 0 && (
-                                            <Box><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></Box>
-                                        )}
-                                        {transferStep === 1 && (
-                                            <Box><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></Box>
-                                        )}
-                                        {transferStep === 2 && (
-                                            <Box><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={() => {
-                                                handleSendMoney();
-                                                setSendModal(false);
-                                            }}>Confirm & Send</GoldButton></Box></Box>
-                                        )}
-                                    </Box>
-                                )}
-                            </Box>
-                        ) : (
-                            <>
-                                <Stepper activeStep={transferStep} sx={{ mb: 4 }}>
-                                    {transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
-                                </Stepper>
-                                {transferStep === 0 && (
-                                    <Box><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></Box>
-                                )}
-                                {transferStep === 1 && (
-                                    <Box><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></Box>
-                                )}
-                                {transferStep === 2 && (
-                                    <Box><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={() => {
-                                            handleSendMoney();
-                                            setSendModal(false);
-                                        }}>Confirm & Send</GoldButton></Box></Box>
-                                )}
-                            </>
-                        )}
+            <Modal open={sendModal} onClose={() => setSendModal(false)}><Fade in={sendModal}><Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 } }}>
+                <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setSendModal(false)}><Close /></IconButton>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
+                {isLaineyAccount && isAccountDisabled ? (
+                    <Box sx={{ textAlign: 'center', py: 3 }}>
+                        <Alert severity="error" sx={{ mb: 3 }}>Account Disabled. Contact support.</Alert>
+                        <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support on WhatsApp</Button>
                     </Box>
-                </Fade>
-            </Modal>
+                ) : (
+                    <>
+                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>{transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
+                        {transferStep === 0 && <><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></>}
+                        {transferStep === 1 && <><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></>}
+                        {transferStep === 2 && <><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={() => { handleSendMoney(); setSendModal(false); }}>Confirm & Send</GoldButton></Box></>}
+                    </>
+                )}
+            </Box></Fade></Modal>
 
             {/* REQUEST MODAL */}
-            <Modal open={requestModal} onClose={() => setRequestModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
-                <Fade in={requestModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
-                        {isLaineyAccount && isAccountDisabled ? (
-                            <Box sx={{ textAlign: 'center' }}>
-                                <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
-                                <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
-                            </Box>
-                        ) : (
-                            <><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>
-                        )}
-                    </Box>
-                </Fade>
-            </Modal>
+            <Modal open={requestModal} onClose={() => setRequestModal(false)}><Fade in={requestModal}><Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
+                <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
+                {isLaineyAccount && isAccountDisabled ? (
+                    <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>Account disabled.</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                ) : (<><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>)}
+            </Box></Fade></Modal>
 
             {/* PAY BILLS MODAL */}
-            <Modal open={payBillsModal} onClose={() => setPayBillsModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
-                <Fade in={payBillsModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
-                        {isLaineyAccount && isAccountDisabled ? (
-                            <Box sx={{ textAlign: 'center' }}>
-                                <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
-                                <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
-                            </Box>
-                        ) : (
-                            <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>
-                        )}
-                    </Box>
-                </Fade>
-            </Modal>
+            <Modal open={payBillsModal} onClose={() => setPayBillsModal(false)}><Fade in={payBillsModal}><Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
+                <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
+                {isLaineyAccount && isAccountDisabled ? (
+                    <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>Account disabled.</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>)}
+            </Box></Fade></Modal>
 
             {/* TOP UP MODAL */}
-            <Modal open={topUpModal} onClose={() => setTopUpModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
-                <Fade in={topUpModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
-                        {isLaineyAccount && isAccountDisabled ? (
-                            <Box sx={{ textAlign: 'center' }}>
-                                <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
-                                <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
-                            </Box>
-                        ) : (
-                            <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>
-                        )}
-                    </Box>
-                </Fade>
-            </Modal>
+            <Modal open={topUpModal} onClose={() => setTopUpModal(false)}><Fade in={topUpModal}><Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
+                <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
+                <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
+                {isLaineyAccount && isAccountDisabled ? (
+                    <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>Account disabled.</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>)}
+            </Box></Fade></Modal>
 
             {/* PROFILE QUICK MODAL */}
-            <Modal open={profileModal} onClose={() => setProfileModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
-                <Fade in={profileModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 350 }, textAlign: 'center' }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setProfileModal(false)}><Close /></IconButton>
-                        <Avatar sx={{ width: 80, height: 80, mx: 'auto', mb: 2, bgcolor: '#0A1E3F' }}>{displayName.charAt(0)}</Avatar>
-                        <Typography variant="h6">{displayFullName}</Typography>
-                        <Typography variant="body2" color="text.secondary">{displayEmail}</Typography>
-                        <Divider sx={{ my: 2 }} />
-                        <Typography variant="body2"><strong>Account:</strong> {displayAccountNumber}</Typography>
-                        <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(displayBalance)}</Typography>
-                        <Typography variant="body2"><strong>Country:</strong> {displayCountry}</Typography>
-                        {isLaineyAccount && (
-                            isAccountDisabled ? (
-                                <Chip label="Account Permanently Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />
-                            ) : transferCount >= 1 ? (
-                                <Chip label="⚠️ Next transfer disables account" size="small" sx={{ mt: 2, bgcolor: '#FF9800', color: 'white' }} />
-                            ) : (
-                                <Chip label="First transfer enabled" size="small" sx={{ mt: 2, bgcolor: '#4CAF50', color: 'white' }} />
-                            )
-                        )}
-                        <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
-                    </Box>
-                </Fade>
-            </Modal>
+            <Modal open={profileModal} onClose={() => setProfileModal(false)}><Fade in={profileModal}><Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 350 }, textAlign: 'center' }}>
+                <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setProfileModal(false)}><Close /></IconButton>
+                <Avatar sx={{ width: 80, height: 80, mx: 'auto', mb: 2, bgcolor: '#0A1E3F' }}>{displayName.charAt(0)}</Avatar>
+                <Typography variant="h6">{displayFullName}</Typography>
+                <Typography variant="body2" color="text.secondary">{displayEmail}</Typography>
+                <Divider sx={{ my: 2 }} />
+                <Typography variant="body2"><strong>Account:</strong> {displayAccountNumber}</Typography>
+                <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(displayBalance)}</Typography>
+                <Typography variant="body2"><strong>Country:</strong> {displayCountry}</Typography>
+                {isLaineyAccount && isAccountDisabled && <Chip label="Account Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />}
+                <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
+            </Box></Fade></Modal>
 
             {/* Bottom Navigation */}
             <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderRadius: '20px 20px 0 0' }}>
@@ -1309,14 +845,13 @@ function Dashboard() {
             </WhatsAppButton>
 
             {/* Message Popup */}
-            <Snackbar open={message.show} autoHideDuration={4000} onClose={() => setMessage({ ...message, show: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+            <Snackbar open={message.show} autoHideDuration={4000} onClose={() => setMessage({ ...message, show: false })}>
                 <Alert severity={message.type} variant="filled">{message.text}</Alert>
             </Snackbar>
         </Box>
     );
 }
 
-// StyledModal component
 const StyledModal = styled(Modal)({ display: 'flex', alignItems: 'center', justifyContent: 'center' });
 const ModalContent = styled(Paper)(({ theme }) => ({ backgroundColor: 'white', borderRadius: '24px', padding: theme.spacing(4), maxWidth: '500px', width: '90%', maxHeight: '80vh', overflow: 'auto', position: 'relative' }));
 const GoldButton = styled(Button)(({ theme }) => ({ background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)', color: 'white', padding: '12px', borderRadius: '12px', textTransform: 'none', fontWeight: 600 }));
