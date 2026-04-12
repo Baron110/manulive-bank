@@ -258,15 +258,6 @@ function Dashboard() {
             { day: 7, name: 'Amazon Music', amount: 45000, type: 'received', category: 'ROYALTIES' },
             { day: 10, name: 'The Grand Ole Opry', amount: 35000, type: 'received', category: 'PERFORMANCE' },
             { day: 12, name: 'Nashville Restaurant', amount: 4500, type: 'sent', category: 'DINING' },
-            { day: 14, name: 'Guitar Center', amount: 3200, type: 'sent', category: 'MUSIC GEAR' },
-            { day: 16, name: 'Starbucks', amount: 45, type: 'sent', category: 'DINING' },
-            { day: 18, name: 'Uber Rides', amount: 280, type: 'sent', category: 'TRANSPORT' },
-            { day: 20, name: 'Spotify Royalties', amount: 91000, type: 'received', category: 'ROYALTIES' },
-            { day: 22, name: 'Whole Foods', amount: 350, type: 'sent', category: 'GROCERIES' },
-            { day: 24, name: 'Amazon', amount: 1200, type: 'sent', category: 'SHOPPING' },
-            { day: 26, name: 'Apple Music', amount: 68000, type: 'received', category: 'ROYALTIES' },
-            { day: 28, name: 'Nashville Records', amount: 250000, type: 'received', category: 'ROYALTIES' },
-            { day: 30, name: 'SoundCloud', amount: 12000, type: 'received', category: 'ROYALTIES' }
         ];
         
         for (let i = 0; i < aprilTransactions.length; i++) {
