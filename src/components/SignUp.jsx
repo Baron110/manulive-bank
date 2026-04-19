@@ -20,8 +20,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
     borderRadius: '32px',
     padding: theme.spacing(4),
     boxShadow: '0 20px 60px rgba(0,0,0,0.1)',
-    position: 'relative',
-    overflow: 'hidden',
     maxHeight: '90vh',
     overflowY: 'auto',
 }));
@@ -38,11 +36,9 @@ const GradientButton = styled(Button)(({ theme }) => ({
         background: 'linear-gradient(135deg, #1A3B5E 0%, #2A4B7E 100%)',
         transform: 'translateY(-2px)',
         boxShadow: '0 8px 20px rgba(10,30,63,0.3)'
-    },
-    transition: 'all 0.3s ease'
+    }
 }));
 
-// Country data with currency
 const countries = [
     { name: 'Canada', currency: 'CAD', symbol: '$', flag: '🇨🇦' },
     { name: 'USA', currency: 'USD', symbol: '$', flag: '🇺🇸' },
@@ -59,7 +55,6 @@ function SignUp({ onSwitchToLogin }) {
     const [showPassword, setShowPassword] = useState(false);
     const [agreeTerms, setAgreeTerms] = useState(false);
 
-    // Form data - REAL user data
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -127,67 +122,11 @@ function SignUp({ onSwitchToLogin }) {
         return countries.find(c => c.name === formData.country) || countries[0];
     };
 
-    const generateSampleTransactions = (initialBalance, currencySymbol) => {
+    const generateInitialTransactions = (initialBalance) => {
         const transactions = [];
-        const types = ['deposit', 'sent', 'received', 'bill_payment'];
-        const merchants = ['Amazon', 'Netflix', 'Starbucks', 'Uber', 'Apple', 'Spotify', 'McDonald\'s', 'Walmart', 'Costco', 'Tim Hortons'];
         
-        // Add 50 sample transactions
-        for (let i = 0; i < 50; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const type = types[Math.floor(Math.random() * types.length)];
-            const amount = Math.floor(Math.random() * 500) + 10;
-            const merchant = merchants[Math.floor(Math.random() * merchants.length)];
-            
-            if (type === 'deposit') {
-                transactions.push({
-                    id: Date.now() + i,
-                    type: 'deposit',
-                    amount: Math.floor(Math.random() * 2000) + 100,
-                    date: date.toLocaleDateString(),
-                    time: date.toLocaleTimeString(),
-                    status: 'completed',
-                    description: 'Deposit'
-                });
-            } else if (type === 'sent') {
-                transactions.push({
-                    id: Date.now() + i,
-                    type: 'sent',
-                    amount: amount,
-                    to: merchant,
-                    date: date.toLocaleDateString(),
-                    time: date.toLocaleTimeString(),
-                    status: 'completed',
-                    description: `Payment to ${merchant}`
-                });
-            } else if (type === 'received') {
-                transactions.push({
-                    id: Date.now() + i,
-                    type: 'received',
-                    amount: amount,
-                    from: merchant,
-                    date: date.toLocaleDateString(),
-                    time: date.toLocaleTimeString(),
-                    status: 'completed',
-                    description: `Received from ${merchant}`
-                });
-            } else {
-                transactions.push({
-                    id: Date.now() + i,
-                    type: 'bill_payment',
-                    amount: amount,
-                    to: merchant + ' Bill',
-                    date: date.toLocaleDateString(),
-                    time: date.toLocaleTimeString(),
-                    status: 'completed',
-                    description: `Bill payment to ${merchant}`
-                });
-            }
-        }
-        
-        // Add welcome deposit at the beginning
-        transactions.unshift({
+        // Add welcome deposit
+        transactions.push({
             id: Date.now(),
             type: 'deposit',
             amount: initialBalance,
@@ -196,9 +135,6 @@ function SignUp({ onSwitchToLogin }) {
             status: 'completed',
             description: 'Welcome Deposit'
         });
-        
-        // Sort by date (newest first)
-        transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         return transactions;
     };
@@ -220,10 +156,9 @@ function SignUp({ onSwitchToLogin }) {
             const selectedCountry = getSelectedCountry();
             const initialBalance = parseFloat(formData.initialDeposit);
             
-            // Generate transaction history
-            const transactions = generateSampleTransactions(initialBalance, selectedCountry.symbol);
+            const initialTransactions = generateInitialTransactions(initialBalance);
             
-            // Generate virtual card
+            // Create virtual card
             const virtualCard = {
                 id: Date.now(),
                 cardType: 'debit',
@@ -236,7 +171,6 @@ function SignUp({ onSwitchToLogin }) {
                 limit: 25000
             };
 
-            // Save to Firebase
             await setDoc(doc(db, 'users', user.uid), {
                 uid: user.uid,
                 firstName: formData.firstName,
@@ -251,9 +185,9 @@ function SignUp({ onSwitchToLogin }) {
                 address: formData.address,
                 balance: initialBalance,
                 accountNumber: accountNumber,
-                accountType: 'Premium',
+                accountType: 'Standard',
                 createdAt: new Date().toISOString(),
-                transactions: transactions,
+                transactions: initialTransactions,
                 issuedCards: [virtualCard],
                 cardApplications: []
             });
@@ -285,24 +219,10 @@ function SignUp({ onSwitchToLogin }) {
                 <Fade in={true} timeout={1000}>
                     <StyledPaper elevation={0}>
                         <Box sx={{ textAlign: 'center', mb: 4 }}>
-                            <Avatar sx={{ 
-                                width: 80, 
-                                height: 80, 
-                                bgcolor: '#0A1E3F', 
-                                margin: '0 auto 16px',
-                                boxShadow: '0 8px 20px rgba(10,30,63,0.2)'
-                            }}>
+                            <Avatar sx={{ width: 80, height: 80, bgcolor: '#0A1E3F', margin: '0 auto 16px' }}>
                                 <PersonAdd sx={{ fontSize: 40 }} />
                             </Avatar>
-                            <Typography 
-                                variant="h4" 
-                                sx={{ 
-                                    fontWeight: 700, 
-                                    color: '#0A1E3F',
-                                    fontFamily: '"Playfair Display", "Georgia", serif',
-                                    letterSpacing: '-0.5px'
-                                }}
-                            >
+                            <Typography variant="h4" sx={{ fontWeight: 700, color: '#0A1E3F', fontFamily: '"Playfair Display", serif' }}>
                                 QuinCore Bank
                             </Typography>
                             <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
@@ -317,88 +237,24 @@ function SignUp({ onSwitchToLogin }) {
                         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>{error}</Alert>}
                         {success && <Alert severity="success" sx={{ mb: 3, borderRadius: '12px' }}>{success}</Alert>}
 
-                        {/* Step 1: Account Info */}
                         {activeStep === 0 && (
                             <Box>
-                                <TextField
-                                    fullWidth
-                                    name="email"
-                                    label="Email Address"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    sx={{ mb: 2 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Email sx={{ color: '#0A1E3F' }} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    name="password"
-                                    label="Password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    sx={{ mb: 2 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Lock sx={{ color: '#0A1E3F' }} />
-                                            </InputAdornment>
-                                        ),
-                                        endAdornment: (
-                                            <InputAdornment position="end">
-                                                <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
-                                <TextField
-                                    fullWidth
-                                    name="confirmPassword"
-                                    label="Confirm Password"
-                                    type="password"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    sx={{ mb: 2 }}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <Lock sx={{ color: '#0A1E3F' }} />
-                                            </InputAdornment>
-                                        ),
-                                    }}
-                                />
+                                <TextField fullWidth name="email" label="Email Address" value={formData.email} onChange={handleChange} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start"><Email sx={{ color: '#0A1E3F' }} /></InputAdornment> }} />
+                                <TextField fullWidth name="password" label="Password" type={showPassword ? 'text' : 'password'} value={formData.password} onChange={handleChange} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start"><Lock sx={{ color: '#0A1E3F' }} /></InputAdornment>, endAdornment: <InputAdornment position="end"><IconButton onClick={() => setShowPassword(!showPassword)}>{showPassword ? <VisibilityOff /> : <Visibility />}</IconButton></InputAdornment> }} />
+                                <TextField fullWidth name="confirmPassword" label="Confirm Password" type="password" value={formData.confirmPassword} onChange={handleChange} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start"><Lock sx={{ color: '#0A1E3F' }} /></InputAdornment> }} />
                             </Box>
                         )}
 
-                        {/* Step 2: Personal Details */}
                         {activeStep === 1 && (
                             <Grid container spacing={2}>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth name="firstName" label="First Name" value={formData.firstName} onChange={handleChange} />
-                                </Grid>
-                                <Grid item xs={12} sm={6}>
-                                    <TextField fullWidth name="lastName" label="Last Name" value={formData.lastName} onChange={handleChange} />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField fullWidth name="phone" label="Phone Number" value={formData.phone} onChange={handleChange} />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField fullWidth name="dateOfBirth" label="Date of Birth" type="date" value={formData.dateOfBirth} onChange={handleChange} InputLabelProps={{ shrink: true }} />
-                                </Grid>
-                                <Grid item xs={12}>
-                                    <TextField fullWidth name="address" label="Full Address" value={formData.address} onChange={handleChange} multiline rows={2} />
-                                </Grid>
+                                <Grid item xs={12} sm={6}><TextField fullWidth name="firstName" label="First Name" value={formData.firstName} onChange={handleChange} /></Grid>
+                                <Grid item xs={12} sm={6}><TextField fullWidth name="lastName" label="Last Name" value={formData.lastName} onChange={handleChange} /></Grid>
+                                <Grid item xs={12}><TextField fullWidth name="phone" label="Phone Number" value={formData.phone} onChange={handleChange} /></Grid>
+                                <Grid item xs={12}><TextField fullWidth name="dateOfBirth" label="Date of Birth" type="date" value={formData.dateOfBirth} onChange={handleChange} InputLabelProps={{ shrink: true }} /></Grid>
+                                <Grid item xs={12}><TextField fullWidth name="address" label="Full Address" value={formData.address} onChange={handleChange} multiline rows={2} /></Grid>
                             </Grid>
                         )}
 
-                        {/* Step 3: Deposit & Country */}
                         {activeStep === 2 && (
                             <Box>
                                 <Paper sx={{ p: 3, bgcolor: '#F8FAFD', borderRadius: '16px', mb: 3 }}>
@@ -408,15 +264,8 @@ function SignUp({ onSwitchToLogin }) {
                                     
                                     <FormControl fullWidth sx={{ mb: 3 }}>
                                         <InputLabel>Country</InputLabel>
-                                        <Select
-                                            name="country"
-                                            value={formData.country}
-                                            onChange={handleChange}
-                                            label="Country"
-                                        >
-                                            {countries.map(c => (
-                                                <MenuItem key={c.name} value={c.name}>{c.flag} {c.name} ({c.currency} {c.symbol})</MenuItem>
-                                            ))}
+                                        <Select name="country" value={formData.country} onChange={handleChange} label="Country">
+                                            {countries.map(c => <MenuItem key={c.name} value={c.name}>{c.flag} {c.name} ({c.currency} {c.symbol})</MenuItem>)}
                                         </Select>
                                     </FormControl>
                                     
@@ -427,10 +276,8 @@ function SignUp({ onSwitchToLogin }) {
                                         type="number"
                                         value={formData.initialDeposit}
                                         onChange={handleChange}
-                                        InputProps={{
-                                            startAdornment: <InputAdornment position="start">{selectedCountry.symbol}</InputAdornment>
-                                        }}
-                                        helperText={`Enter any amount to start your account with ${selectedCountry.symbol}`}
+                                        InputProps={{ startAdornment: <InputAdornment position="start">{selectedCountry.symbol}</InputAdornment> }}
+                                        helperText={`Enter any amount to start your account`}
                                     />
                                 </Paper>
                                 
@@ -441,35 +288,18 @@ function SignUp({ onSwitchToLogin }) {
                                         <li>💵 Currency: {selectedCountry.currency} ({selectedCountry.symbol})</li>
                                         <li>💰 Initial Balance: {selectedCountry.symbol}{formData.initialDeposit || '0'}</li>
                                         <li>💳 Virtual Card: Instant access</li>
-                                        <li>📊 50+ Sample Transactions</li>
                                     </ul>
                                 </Alert>
                             </Box>
                         )}
 
-                        {/* Step 4: Verify */}
                         {activeStep === 3 && (
                             <Box>
                                 <Paper sx={{ p: 3, bgcolor: '#F8FAFD', borderRadius: '16px', mb: 3 }}>
-                                    <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 2 }}>
-                                        Terms & Conditions
-                                    </Typography>
-                                    <FormControlLabel
-                                        control={
-                                            <Checkbox 
-                                                checked={agreeTerms}
-                                                onChange={(e) => setAgreeTerms(e.target.checked)}
-                                                sx={{ color: '#0A1E3F' }}
-                                            />
-                                        }
-                                        label="I agree to the Terms & Conditions and Privacy Policy"
-                                    />
-                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                                        <Security sx={{ color: '#4CAF50' }} />
-                                        <Typography variant="body2">Your data is protected with 256-bit encryption</Typography>
-                                    </Box>
+                                    <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 2 }}>Terms & Conditions</Typography>
+                                    <FormControlLabel control={<Checkbox checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} sx={{ color: '#0A1E3F' }} />} label="I agree to the Terms & Conditions and Privacy Policy" />
+                                    <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}><Security sx={{ color: '#4CAF50' }} /><Typography variant="body2">Your data is protected with 256-bit encryption</Typography></Box>
                                 </Paper>
-                                
                                 <Alert severity="success" sx={{ borderRadius: '12px' }}>
                                     <Typography variant="body2" fontWeight={600}>Review Your Account Details:</Typography>
                                     <ul>
@@ -483,47 +313,19 @@ function SignUp({ onSwitchToLogin }) {
                             </Box>
                         )}
 
-                        {/* Navigation Buttons */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                            <Button
-                                onClick={handleBack}
-                                disabled={activeStep === 0}
-                                startIcon={<ArrowBack />}
-                                sx={{ color: '#0A1E3F' }}
-                            >
-                                Back
-                            </Button>
-                            
+                            <Button onClick={handleBack} disabled={activeStep === 0} startIcon={<ArrowBack />} sx={{ color: '#0A1E3F' }}>Back</Button>
                             {activeStep === steps.length - 1 ? (
-                                <GradientButton
-                                    onClick={handleSubmit}
-                                    disabled={loading}
-                                    endIcon={<CheckCircle />}
-                                >
-                                    {loading ? 'Creating Account...' : 'Create Account'}
-                                </GradientButton>
+                                <GradientButton onClick={handleSubmit} disabled={loading} endIcon={<CheckCircle />}>{loading ? 'Creating Account...' : 'Create Account'}</GradientButton>
                             ) : (
-                                <GradientButton
-                                    onClick={handleNext}
-                                    endIcon={<ArrowForward />}
-                                >
-                                    Continue
-                                </GradientButton>
+                                <GradientButton onClick={handleNext} endIcon={<ArrowForward />}>Continue</GradientButton>
                             )}
                         </Box>
 
-                        {/* Sign In Link */}
                         <Box sx={{ textAlign: 'center', mt: 3 }}>
                             <Typography variant="body2" color="text.secondary">
                                 Already have an account?{' '}
-                                <Link
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        onSwitchToLogin();
-                                    }}
-                                    sx={{ color: '#0A1E3F', fontWeight: 600 }}
-                                >
+                                <Link href="#" onClick={(e) => { e.preventDefault(); onSwitchToLogin(); }} sx={{ color: '#0A1E3F', fontWeight: 600 }}>
                                     Sign In
                                 </Link>
                             </Typography>
