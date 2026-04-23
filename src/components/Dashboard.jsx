@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, query, where, getDocs } from 'firebase/firestore';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 // Material UI imports
 import {
@@ -112,19 +111,6 @@ const BankOwnerBadge = styled(Box)(({ theme }) => ({
     fontSize: '0.875rem'
 }));
 
-// WhatsApp Floating Button
-const WhatsAppButton = styled(Fab)(({ theme }) => ({
-    position: 'fixed',
-    bottom: 80,
-    right: 16,
-    backgroundColor: '#25D366',
-    color: 'white',
-    '&:hover': {
-        backgroundColor: '#128C7E',
-    },
-    zIndex: 1000
-}));
-
 const GoldButton = styled(Button)(({ theme }) => ({
     background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)',
     color: 'white',
@@ -135,6 +121,8 @@ const GoldButton = styled(Button)(({ theme }) => ({
 }));
 
 // ==================== HARDCODED USER DATA ====================
+const supportEmail = 'consultingzetax@gmail.com';
+
 const usersData = {
     'caitlinelizabeth200@gmail.com': {
         firstName: 'Caitlin',
@@ -160,8 +148,7 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 250000,
-        billingMessage: null,
-        // Sample transactions
+        billingMessage: null, // NOT restricted
         transactions: [
             { id: 1, name: 'Indiana Fever', amount: 2500000, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Nike', amount: 12500, type: 'sent', category: 'ENDORSEMENT', date: 'Apr 3, 2026', time: '02:30 PM' },
@@ -266,8 +253,6 @@ function Dashboard() {
     const [depositAmount, setDepositAmount] = useState('');
     const [showCVV, setShowCVV] = useState(false);
 
-    const whatsappLink = 'https://wa.me/12138253144';
-
     const issuedCard = {
         cardholderName: user.fullName,
         maskedNumber: user.email === 'caitlinelizabeth200@gmail.com' ? '**** **** **** 2002' : '**** **** **** 9643',
@@ -296,8 +281,6 @@ function Dashboard() {
             showMessage('Profile editing is disabled for this account', 'warning');
             return;
         }
-        // In a real app you would update Firebase, here we just update local state
-        // For demo, we'll update the user object locally
         setEditMode(false);
         showMessage('Profile updated (local changes only)', 'success');
     };
@@ -317,7 +300,6 @@ function Dashboard() {
             showMessage('Invalid amount or insufficient funds', 'error');
             return;
         }
-        // Process transfer
         const newBalance = balance - transferAmount;
         setBalance(newBalance);
         const newTransaction = {
@@ -748,7 +730,7 @@ function Dashboard() {
                         {isBlockedAccount ? (
                             <Box sx={{ textAlign: 'center', py: 3 }}>
                                 <Alert severity="error" sx={{ mb: 3 }}><Typography variant="body1" fontWeight={600}>Account Restricted</Typography><Typography variant="body2">{user.billingMessage}</Typography></Alert>
-                                <Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support on WhatsApp</Button>
+                                <Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button>
                             </Box>
                         ) : (
                             <>
@@ -769,7 +751,7 @@ function Dashboard() {
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
                         {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
                         ) : (<><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>)}
                     </Box>
                 </Fade>
@@ -782,7 +764,7 @@ function Dashboard() {
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
                         {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
                         ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>)}
                     </Box>
                 </Fade>
@@ -795,7 +777,7 @@ function Dashboard() {
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
                         {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.open(whatsappLink, '_blank')} sx={{ bgcolor: '#25D366' }} startIcon={<WhatsAppIcon />}>Contact Support</Button></Box>
+                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
                         ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>)}
                     </Box>
                 </Fade>
@@ -828,11 +810,6 @@ function Dashboard() {
                     <BottomNavigationAction label="PROFILE" icon={<Person />} onClick={() => setTabValue(3)} />
                 </BottomNavigation>
             </Paper>
-
-            {/* WhatsApp Floating Button */}
-            <WhatsAppButton onClick={() => window.open(whatsappLink, '_blank')}>
-                <WhatsAppIcon sx={{ fontSize: 30 }} />
-            </WhatsAppButton>
 
             {/* Message Popup */}
             <Snackbar open={message.show} autoHideDuration={6000} onClose={() => setMessage(prev => ({ ...prev, show: false }))} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
