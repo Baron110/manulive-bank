@@ -24,7 +24,7 @@ import {
     Wc, BusinessCenter, Fingerprint, Security,
     Warning, CheckCircle, Info, Help, Lock,
     AccountCircle, Badge, Cake, Public, Map,
-    Visibility, VisibilityOff
+    Visibility, VisibilityOff, Email as EmailIcon
 } from '@mui/icons-material';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import {
@@ -148,7 +148,7 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 250000,
-        billingMessage: null, // NOT restricted
+        billingMessage: null,
         transactions: [
             { id: 1, name: 'Indiana Fever', amount: 2500000, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Nike', amount: 12500, type: 'sent', category: 'ENDORSEMENT', date: 'Apr 3, 2026', time: '02:30 PM' },
@@ -225,6 +225,7 @@ function Dashboard() {
     const userEmail = currentUser?.email || '';
     const user = usersData[userEmail] || defaultUser;
     const isBlockedAccount = !!user.billingMessage;
+    const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
 
     const [balance, setBalance] = useState(user.balance);
     const [transactions, setTransactions] = useState(user.transactions);
@@ -480,6 +481,12 @@ function Dashboard() {
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <IconButton><Notifications /></IconButton>
+                        {/* Support email button - only for Caitlin */}
+                        {isCaitlin && (
+                            <IconButton onClick={() => window.location.href = `mailto:${supportEmail}`}>
+                                <EmailIcon />
+                            </IconButton>
+                        )}
                         <IconButton onClick={handleLogout}><Logout sx={{ color: '#dc004e' }} /></IconButton>
                         <IconButton onClick={() => setProfileModal(true)}>
                             <Avatar sx={{ bgcolor: '#1A3B5E' }}>{user.firstName.charAt(0)}</Avatar>
