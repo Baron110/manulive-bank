@@ -224,7 +224,7 @@ function Dashboard() {
     const currentUser = auth.currentUser;
     const userEmail = currentUser?.email || '';
     const user = usersData[userEmail] || defaultUser;
-    const isBlockedAccount = !!user.billingMessage;
+    const hasBillingMessage = !!user.billingMessage; // true only for Dolly
     const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
 
     const [balance, setBalance] = useState(user.balance);
@@ -278,20 +278,31 @@ function Dashboard() {
     };
 
     const updateProfile = () => {
-        if (isBlockedAccount) {
-            showMessage('Profile editing is disabled for this account', 'warning');
-            return;
-        }
         setEditMode(false);
         showMessage('Profile updated (local changes only)', 'success');
     };
 
+    // ---- Helper to display billing message if needed ----
+    const handleBillingMessage = () => {
+        if (hasBillingMessage) {
+            showMessage(user.billingMessage, 'error');
+            return true;
+        }
+        return false;
+    };
+
     const handleSendMoney = () => {
-        if (isBlockedAccount) {
+        // After the user has filled all fields (reached final step), show billing message if Dolly
+        if (hasBillingMessage) {
             showMessage(user.billingMessage, 'error');
             setSendModal(false);
+            setTransferStep(0);
+            setRecipientAccount('');
+            setAmount('');
             return;
         }
+
+        // Normal send for Caitlin
         if (!recipientAccount || !amount) {
             showMessage('Please fill all fields', 'error');
             return;
@@ -322,7 +333,7 @@ function Dashboard() {
     };
 
     const handleDeposit = () => {
-        if (isBlockedAccount) {
+        if (hasBillingMessage) {
             showMessage(user.billingMessage, 'error');
             setTopUpModal(false);
             return;
@@ -351,7 +362,7 @@ function Dashboard() {
     };
 
     const handleRequestMoney = () => {
-        if (isBlockedAccount) {
+        if (hasBillingMessage) {
             showMessage(user.billingMessage, 'error');
             setRequestModal(false);
             return;
@@ -367,7 +378,7 @@ function Dashboard() {
     };
 
     const handlePayBill = () => {
-        if (isBlockedAccount) {
+        if (hasBillingMessage) {
             showMessage(user.billingMessage, 'error');
             setPayBillsModal(false);
             return;
@@ -481,7 +492,6 @@ function Dashboard() {
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <IconButton><Notifications /></IconButton>
-                        {/* Support email button - only for Caitlin */}
                         {isCaitlin && (
                             <IconButton onClick={() => window.location.href = `mailto:${supportEmail}`}>
                                 <EmailIcon />
@@ -496,14 +506,11 @@ function Dashboard() {
             </AppBar>
 
             <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                {/* Welcome Section */}
+                {/* Welcome Section - No restriction banner for Dolly */}
                 <Paper sx={{ p: 3, mb: 3, bgcolor: '#0A1E3F', color: 'white', borderRadius: '20px' }}>
                     <Typography variant="h4">Welcome back, {user.firstName}!</Typography>
                     <Typography variant="subtitle1">{user.email}</Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>Account Number: {user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' : 'DP19469643'}</Typography>
-                    {isBlockedAccount && (
-                        <Chip label="⚠️ Account Restricted - Contact Support" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />
-                    )}
                 </Paper>
 
                 {/* Tabs */}
@@ -689,10 +696,9 @@ function Dashboard() {
                                 <Divider sx={{ my: 3 }} />
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                     <Typography variant="h6" sx={{ fontWeight: 600 }}>Edit Profile</Typography>
-                                    {!isBlockedAccount && <Button onClick={() => setEditMode(!editMode)} startIcon={<Edit />}>{editMode ? 'Cancel' : 'Edit'}</Button>}
-                                    {isBlockedAccount && <Chip label="Editing Disabled" size="small" sx={{ bgcolor: '#FF9800', color: 'white' }} />}
+                                    <Button onClick={() => setEditMode(!editMode)} startIcon={<Edit />}>{editMode ? 'Cancel' : 'Edit'}</Button>
                                 </Box>
-                                {editMode && !isBlockedAccount ? (
+                                {editMode ? (
                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                         <TextField fullWidth label="Full Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
                                         <TextField fullWidth label="Phone Number" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
@@ -734,19 +740,10 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 }, maxHeight: '90vh', overflow: 'auto' }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setSendModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
-                        {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center', py: 3 }}>
-                                <Alert severity="error" sx={{ mb: 3 }}><Typography variant="body1" fontWeight={600}>Account Restricted</Typography><Typography variant="body2">{user.billingMessage}</Typography></Alert>
-                                <Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button>
-                            </Box>
-                        ) : (
-                            <>
-                                <Stepper activeStep={transferStep} sx={{ mb: 4 }}>{transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
-                                {transferStep === 0 && (<><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></>)}
-                                {transferStep === 1 && (<><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></>)}
-                                {transferStep === 2 && (<><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton></Box></>)}
-                            </>
-                        )}
+                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>{transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
+                        {transferStep === 0 && (<><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></>)}
+                        {transferStep === 1 && (<><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></>)}
+                        {transferStep === 2 && (<><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton></Box></>)}
                     </Box>
                 </Fade>
             </Modal>
@@ -757,9 +754,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
-                        {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
-                        ) : (<><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>)}
+                        <><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -770,9 +765,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
-                        {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
-                        ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>)}
+                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -783,9 +776,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
-                        {isBlockedAccount ? (
-                            <Box sx={{ textAlign: 'center' }}><Alert severity="warning" sx={{ mb: 3 }}>{user.billingMessage}</Alert><Button fullWidth variant="contained" onClick={() => window.location.href = `mailto:${supportEmail}`} sx={{ bgcolor: '#dc004e' }}>Contact Support</Button></Box>
-                        ) : (<><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>)}
+                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -802,7 +793,6 @@ function Dashboard() {
                         <Typography variant="body2"><strong>Account:</strong> {user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' : 'DP19469643'}</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
                         <Typography variant="body2"><strong>Country:</strong> {user.country}</Typography>
-                        {isBlockedAccount && <Chip label="Account Restricted" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />}
                         <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
                     </Box>
                 </Fade>
