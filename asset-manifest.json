@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/manulive-bank/static/css/main.e6c13ad2.css",
-    "main.js": "/manulive-bank/static/js/main.2e41b93c.js",
+    "main.js": "/manulive-bank/static/js/main.97155e74.js",
     "static/js/453.6abe6c0c.chunk.js": "/manulive-bank/static/js/453.6abe6c0c.chunk.js",
     "index.html": "/manulive-bank/index.html",
     "main.e6c13ad2.css.map": "/manulive-bank/static/css/main.e6c13ad2.css.map",
-    "main.2e41b93c.js.map": "/manulive-bank/static/js/main.2e41b93c.js.map",
+    "main.97155e74.js.map": "/manulive-bank/static/js/main.97155e74.js.map",
     "453.6abe6c0c.chunk.js.map": "/manulive-bank/static/js/453.6abe6c0c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.2e41b93c.js"
+    "static/js/main.97155e74.js"
   ]
 }
