@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, query, where, getDocs } from 'firebase/firestore';
 
-// Material UI imports
+// Material UI imports (same as before – kept intact)
 import {
     AppBar, Toolbar, Typography, Button, Container, Grid,
     Paper, Card, CardContent, TextField, Avatar, IconButton,
@@ -142,7 +142,7 @@ const usersData = {
         accountType: 'Platinum Elite',
         occupation: 'Basketball Player',
         gender: 'Female',
-        memberSince: 'April 2024',
+        memberSince: 'April 2026',
         creditScore: 780,
         pin: '2002',
         cardDesign: 'platinum',
@@ -186,7 +186,6 @@ const usersData = {
             { id: 3, name: 'Dollywood Foundation', amount: 5000, type: 'sent', category: 'CHARITY', date: 'Apr 4, 2026', time: '01:00 PM' }
         ]
     },
-    // Updated Perry Novela
     'powelleva08@gmail.com': {
         firstName: 'Perry',
         lastName: 'Novela',
@@ -217,7 +216,6 @@ const usersData = {
             { id: 2, name: 'Fabric Purchase', amount: 3200, type: 'sent', category: 'MATERIALS', date: 'Apr 5, 2026', time: '02:30 PM' }
         ]
     },
-    // New user: John Markey
     'johnmarkey195@gmail.com': {
         firstName: 'John',
         lastName: 'Markey',
@@ -236,7 +234,7 @@ const usersData = {
         accountType: 'Gold Elite',
         occupation: 'geotechnical eng',
         gender: 'Male',
-        memberSince: 'April 2024',
+        memberSince: 'April 2026',
         creditScore: 720,
         pin: '350000',
         cardDesign: 'gold',
@@ -246,6 +244,36 @@ const usersData = {
         transactions: [
             { id: 1, name: 'Salary Deposit', amount: 8500, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Engineering Tools', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'Apr 3, 2026', time: '02:00 PM' }
+        ]
+    },
+    // NEW USER: Miranda Kim Jessica
+    'kimmirandajessica@gmail.com': {
+        firstName: 'Miranda',
+        lastName: 'Jessica',
+        fullName: 'Miranda Kim Jessica',
+        email: 'kimmirandajessica@gmail.com',
+        username: 'Jessica12',
+        phone: '+1 (615) 349-0644',
+        country: 'United States',
+        state: 'Tennessee',
+        city: 'TN',
+        address: '2912 Leatherwood Dr, Nashville, TN 37214',
+        dateOfBirth: '15/02/1993',
+        balance: 700000,
+        currency: 'USD',
+        currencySymbol: '$',
+        accountType: 'Gold Elite',
+        occupation: '', // empty as provided
+        gender: 'Female',
+        memberSince: 'April 2026',
+        creditScore: 700,
+        pin: '1209',
+        cardDesign: 'gold',
+        cardType: 'credit',
+        cardLimit: 150000,
+        billingMessage: 'Unable to process transaction due to unpaid maintenance fees of $20,000 kindly contact your account manager to clear up fees and charges.',
+        transactions: [
+            { id: 1, name: 'Initial Deposit', amount: 700000, type: 'deposit', category: 'DEPOSIT', date: 'Apr 1, 2026', time: '09:00 AM' }
         ]
     }
 };
@@ -285,9 +313,8 @@ function Dashboard() {
     const user = usersData[userEmail] || defaultUser;
     const hasBillingMessage = !!user.billingMessage;
     const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
-    const isHardcoded = !!usersData[userEmail]; // true for Caitlin, Dolly, Perry, John
+    const isHardcoded = !!usersData[userEmail]; // true for all hardcoded users
 
-    // Persistence key for localStorage
     const storageKey = `quincore_user_${userEmail}`;
 
     const [balance, setBalance] = useState(user.balance);
@@ -322,7 +349,8 @@ function Dashboard() {
         maskedNumber: user.email === 'caitlinelizabeth200@gmail.com' ? '**** **** **** 2002' : 
                        user.email === 'dollyrparton945@gmail.com' ? '**** **** **** 9643' : 
                        user.email === 'powelleva08@gmail.com' ? '**** **** **** 3690' :
-                       '**** **** **** 3500',  // for John
+                       user.email === 'johnmarkey195@gmail.com' ? '**** **** **** 3500' :
+                       '**** **** **** 1209', // for Miranda
         expiryDate: '12/27',
         cvv: '***',
         cardDesign: user.cardDesign,
@@ -352,7 +380,6 @@ function Dashboard() {
         showMessage('Profile updated (local changes only)', 'success');
     };
 
-    // Helper to save to localStorage for hardcoded users
     const saveToStorage = (newBalance, newTransactions) => {
         if (isHardcoded) {
             const data = { balance: newBalance, transactions: newTransactions };
@@ -360,7 +387,6 @@ function Dashboard() {
         }
     };
 
-    // Load from localStorage on mount (for hardcoded users only)
     useEffect(() => {
         if (isHardcoded) {
             const saved = localStorage.getItem(storageKey);
@@ -369,11 +395,9 @@ function Dashboard() {
                 setBalance(data.balance);
                 setTransactions(data.transactions);
             } else {
-                // Initialize storage with default data
                 saveToStorage(user.balance, user.transactions);
             }
         } else {
-            // For non-hardcoded users, load from Firebase (existing logic)
             const loadFirebaseUser = async () => {
                 const userDoc = auth.currentUser;
                 if (userDoc) {
@@ -536,7 +560,7 @@ function Dashboard() {
 
     const transferSteps = ['Recipient Info', 'Amount & Purpose', 'Review', 'Confirm'];
 
-    // Chart data (dynamic based on user type)
+    // Chart data (add Miranda's values)
     const spendingData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
@@ -544,6 +568,7 @@ function Dashboard() {
             data: user.email === 'caitlinelizabeth200@gmail.com' ? [120000, 190000, 150000, 220000, 180000, 240000] :
                    user.email === 'powelleva08@gmail.com' ? [25000, 32000, 28000, 35000, 30000, 40000] :
                    user.email === 'johnmarkey195@gmail.com' ? [8000, 9500, 7200, 11000, 9800, 10500] :
+                   user.email === 'kimmirandajessica@gmail.com' ? [5000, 6000, 5500, 7000, 6500, 8000] :
                    [12000, 19000, 15000, 22000, 18000, 24000],
             borderColor: '#0A1E3F',
             backgroundColor: 'rgba(10,30,63,0.1)',
@@ -555,11 +580,13 @@ function Dashboard() {
         labels: user.email === 'caitlinelizabeth200@gmail.com' ? ['Music', 'Dining', 'Shopping', 'Travel', 'Bills'] :
                 user.email === 'powelleva08@gmail.com' ? ['Fashion', 'Materials', 'Rent', 'Marketing', 'Other'] :
                 user.email === 'johnmarkey195@gmail.com' ? ['Engineering', 'Living', 'Transport', 'Bills', 'Other'] :
+                user.email === 'kimmirandajessica@gmail.com' ? ['Living', 'Bills', 'Transport', 'Shopping', 'Other'] :
                 ['Dining', 'Shopping', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
             data: user.email === 'caitlinelizabeth200@gmail.com' ? [45, 20, 15, 12, 8] :
                   user.email === 'powelleva08@gmail.com' ? [40, 25, 15, 10, 10] :
                   user.email === 'johnmarkey195@gmail.com' ? [35, 25, 20, 12, 8] :
+                  user.email === 'kimmirandajessica@gmail.com' ? [30, 25, 20, 15, 10] :
                   [30, 25, 20, 15, 10],
             backgroundColor: ['#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E', '#4A6BBE']
         }]
@@ -573,6 +600,7 @@ function Dashboard() {
                 data: user.email === 'caitlinelizabeth200@gmail.com' ? [850000, 920000, 880000, 950000] :
                        user.email === 'powelleva08@gmail.com' ? [150000, 180000, 160000, 200000] :
                        user.email === 'johnmarkey195@gmail.com' ? [8500, 9200, 8800, 9500] :
+                       user.email === 'kimmirandajessica@gmail.com' ? [7000, 7200, 7100, 7300] :
                        [85000, 92000, 88000, 95000],
                 backgroundColor: '#4CAF50',
             },
@@ -581,13 +609,14 @@ function Dashboard() {
                 data: user.email === 'caitlinelizabeth200@gmail.com' ? [120000, 98000, 110000, 105000] :
                        user.email === 'powelleva08@gmail.com' ? [25000, 32000, 28000, 30000] :
                        user.email === 'johnmarkey195@gmail.com' ? [6200, 6800, 6400, 7100] :
+                       user.email === 'kimmirandajessica@gmail.com' ? [4500, 4800, 4700, 5000] :
                        [62000, 68000, 64000, 71000],
                 backgroundColor: '#f44336',
             }
         ]
     };
 
-    // ----- JSX (identical to your working version, now with persistence) -----
+    // ------ JSX (same layout, only data differs) ------
     return (
         <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
             {/* Top Header */}
@@ -639,11 +668,11 @@ function Dashboard() {
                         user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
                         user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
+                        user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                         'DEMO0000'
                     }</Typography>
                 </Paper>
 
-                {/* Tabs */}
                 <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
                     <Tab label="Dashboard" />
                     <Tab label="Analytics" />
@@ -662,6 +691,7 @@ function Dashboard() {
                                     user.email === 'caitlinelizabeth200@gmail.com' ? "+15.4% this month" :
                                     user.email === 'powelleva08@gmail.com' ? "+8.2% this month" :
                                     user.email === 'johnmarkey195@gmail.com' ? "+3.1% this month" :
+                                    user.email === 'kimmirandajessica@gmail.com' ? "+2.0% this month" :
                                     "+2.4% this month"
                                 } size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
                                 <Typography variant="body2" sx={{ opacity: 0.8 }}>{user.accountType} Account</Typography>
@@ -675,7 +705,6 @@ function Dashboard() {
                             <Grid item xs={3}><ActionButton fullWidth onClick={() => setTopUpModal(true)}><AddCard sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">TOP UP</Typography></ActionButton></Grid>
                         </Grid>
 
-                        {/* Virtual Card */}
                         <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, background: user.cardDesign === 'gold' ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)', color: user.cardDesign === 'gold' ? '#000000' : 'white' }}>
                             <Typography variant="caption" sx={{ letterSpacing: 2, opacity: 0.7 }}>{user.cardDesign?.toUpperCase()} CREDIT CARD</Typography>
                             <Typography variant="h5" sx={{ fontFamily: 'monospace', letterSpacing: 2, mt: 2 }}>{issuedCard.maskedNumber}</Typography>
@@ -690,7 +719,6 @@ function Dashboard() {
                             </Box>
                         </Paper>
 
-                        {/* Charts Row */}
                         <Grid container spacing={3} sx={{ mb: 3 }}>
                             <Grid item xs={12} md={8}>
                                 <Paper sx={{ p: 3, borderRadius: '20px' }}>
@@ -706,7 +734,6 @@ function Dashboard() {
                             </Grid>
                         </Grid>
 
-                        {/* Recent Activity */}
                         <Paper sx={{ p: 3, borderRadius: '20px' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Activity</Typography>
@@ -748,11 +775,13 @@ function Dashboard() {
                                     <Box><Typography variant="body2" color="text.secondary">Monthly Savings Rate</Typography><Typography variant="h4" sx={{ color: '#4CAF50' }}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? '72%' :
                                         user.email === 'powelleva08@gmail.com' ? '68%' :
-                                        user.email === 'johnmarkey195@gmail.com' ? '35%' : '24%'
+                                        user.email === 'johnmarkey195@gmail.com' ? '35%' :
+                                        user.email === 'kimmirandajessica@gmail.com' ? '30%' : '24%'
                                     }</Typography><LinearProgress variant="determinate" value={
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 72 :
                                         user.email === 'powelleva08@gmail.com' ? 68 :
-                                        user.email === 'johnmarkey195@gmail.com' ? 35 : 24
+                                        user.email === 'johnmarkey195@gmail.com' ? 35 :
+                                        user.email === 'kimmirandajessica@gmail.com' ? 30 : 24
                                     } sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                     <Box><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h4">{user.creditScore}</Typography><LinearProgress variant="determinate" value={user.creditScore / 10} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                 </Box>
@@ -765,22 +794,26 @@ function Dashboard() {
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 'Music Royalties' :
                                         user.email === 'powelleva08@gmail.com' ? 'Fashion Sales' :
-                                        user.email === 'johnmarkey195@gmail.com' ? 'Salary' : 'Dining'
+                                        user.email === 'johnmarkey195@gmail.com' ? 'Salary' :
+                                        user.email === 'kimmirandajessica@gmail.com' ? 'Initial Deposit' : 'Dining'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(245000) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(150000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(8500) :
+                                        user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(700000) :
                                         formatCurrency(3450)
                                     }</Typography></Box>
                                     <Divider />
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 'Dining' :
                                         user.email === 'powelleva08@gmail.com' ? 'Materials' :
-                                        user.email === 'johnmarkey195@gmail.com' ? 'Engineering Tools' : 'Shopping'
+                                        user.email === 'johnmarkey195@gmail.com' ? 'Engineering Tools' :
+                                        user.email === 'kimmirandajessica@gmail.com' ? 'Living' : 'Shopping'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(45600) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(52000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(1200) :
+                                        user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) : // no second transaction yet
                                         formatCurrency(2890)
                                     }</Typography></Box>
                                 </Box>
@@ -839,7 +872,7 @@ function Dashboard() {
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Cake sx={{ color: '#666' }} /><Typography variant="body2">{user.dateOfBirth}</Typography></Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Flag sx={{ color: '#666' }} /><Typography variant="body2">{user.country}, {user.state}</Typography></Box>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Wc sx={{ color: '#666' }} /><Typography variant="body2">{user.gender}</Typography></Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><BusinessCenter sx={{ color: '#666' }} /><Typography variant="body2">{user.occupation}</Typography></Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><BusinessCenter sx={{ color: '#666' }} /><Typography variant="body2">{user.occupation || 'Not specified'}</Typography></Box>
                                 </Box>
                             </ProfileCard>
                         </Grid>
@@ -852,6 +885,7 @@ function Dashboard() {
                                         user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
                                         user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
+                                        user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                                         'DEMO0000'
                                     }</Typography></Grid>
                                     <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{user.memberSince}</Typography></Grid>
@@ -901,7 +935,7 @@ function Dashboard() {
                 )}
             </Container>
 
-            {/* SEND MONEY MODAL */}
+            {/* SEND MONEY MODAL (same as before) */}
             <Modal open={sendModal} onClose={() => setSendModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={sendModal}>
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 }, maxHeight: '90vh', overflow: 'auto' }}>
@@ -962,6 +996,7 @@ function Dashboard() {
                             user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
                             user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                             user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
+                            user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                             'DEMO0000'
                         }</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
