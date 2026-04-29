@@ -142,7 +142,7 @@ const usersData = {
         accountType: 'Platinum Elite',
         occupation: 'Basketball Player',
         gender: 'Female',
-        memberSince: 'April 2026',
+        memberSince: 'April 2024',
         creditScore: 780,
         pin: '2002',
         cardDesign: 'platinum',
