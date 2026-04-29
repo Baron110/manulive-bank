@@ -236,7 +236,7 @@ const usersData = {
         accountType: 'Gold Elite',
         occupation: 'geotechnical eng',
         gender: 'Male',
-        memberSince: 'April 2026',
+        memberSince: 'April 2024',
         creditScore: 720,
         pin: '350000',
         cardDesign: 'gold',
