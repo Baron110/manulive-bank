@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, query, where, getDocs } from 'firebase/firestore';
 
-// Material UI imports (same as before – kept intact)
+// Material UI imports
 import {
     AppBar, Toolbar, Typography, Button, Container, Grid,
     Paper, Card, CardContent, TextField, Avatar, IconButton,
@@ -52,7 +52,7 @@ ChartJS.register(
     BarElement
 );
 
-// Styled components (unchanged)
+// Styled components
 const BalanceCard = styled(Paper)(({ theme }) => ({
     background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)',
     color: 'white',
@@ -124,6 +124,7 @@ const GoldButton = styled(Button)(({ theme }) => ({
 const supportEmail = 'consultingzetax@gmail.com';
 
 const usersData = {
+    // CAITLIN CLARK - DISABLED ACCOUNT
     'caitlinelizabeth200@gmail.com': {
         firstName: 'Caitlin',
         lastName: 'Clark',
@@ -139,7 +140,7 @@ const usersData = {
         balance: 10000000,
         currency: 'USD',
         currencySymbol: '$',
-        accountType: 'Platinum Elite',
+        accountType: 'Platinum Elite (Disabled)',
         occupation: 'Basketball Player',
         gender: 'Female',
         memberSince: 'April 2026',
@@ -148,7 +149,8 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 250000,
-        billingMessage: null,
+        billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
+        isDisabled: true,
         transactions: [
             { id: 1, name: 'Indiana Fever', amount: 2500000, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Nike', amount: 12500, type: 'sent', category: 'ENDORSEMENT', date: 'Apr 3, 2026', time: '02:30 PM' },
@@ -246,7 +248,6 @@ const usersData = {
             { id: 2, name: 'Engineering Tools', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'Apr 3, 2026', time: '02:00 PM' }
         ]
     },
-    // NEW USER: Miranda Kim Jessica
     'kimmirandajessica@gmail.com': {
         firstName: 'Miranda',
         lastName: 'Jessica',
@@ -263,7 +264,7 @@ const usersData = {
         currency: 'USD',
         currencySymbol: '$',
         accountType: 'Gold Elite',
-        occupation: '', // empty as provided
+        occupation: '',
         gender: 'Female',
         memberSince: 'April 2026',
         creditScore: 700,
@@ -313,7 +314,7 @@ function Dashboard() {
     const user = usersData[userEmail] || defaultUser;
     const hasBillingMessage = !!user.billingMessage;
     const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
-    const isHardcoded = !!usersData[userEmail]; // true for all hardcoded users
+    const isHardcoded = !!usersData[userEmail];
 
     const storageKey = `quincore_user_${userEmail}`;
 
@@ -346,11 +347,11 @@ function Dashboard() {
 
     const issuedCard = {
         cardholderName: user.fullName,
-        maskedNumber: user.email === 'caitlinelizabeth200@gmail.com' ? '**** **** **** 2002' : 
-                       user.email === 'dollyrparton945@gmail.com' ? '**** **** **** 9643' : 
+        maskedNumber: user.email === 'caitlinelizabeth200@gmail.com' ? '**** **** **** 2002' :
+                       user.email === 'dollyrparton945@gmail.com' ? '**** **** **** 9643' :
                        user.email === 'powelleva08@gmail.com' ? '**** **** **** 3690' :
                        user.email === 'johnmarkey195@gmail.com' ? '**** **** **** 3500' :
-                       '**** **** **** 1209', // for Miranda
+                       '**** **** **** 1209',
         expiryDate: '12/27',
         cvv: '***',
         cardDesign: user.cardDesign,
@@ -560,7 +561,7 @@ function Dashboard() {
 
     const transferSteps = ['Recipient Info', 'Amount & Purpose', 'Review', 'Confirm'];
 
-    // Chart data (add Miranda's values)
+    // Chart data
     const spendingData = {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
@@ -616,7 +617,6 @@ function Dashboard() {
         ]
     };
 
-    // ------ JSX (same layout, only data differs) ------
     return (
         <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
             {/* Top Header */}
@@ -671,6 +671,14 @@ function Dashboard() {
                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                         'DEMO0000'
                     }</Typography>
+                    {/* DISABLED BADGE - shows for Caitlin */}
+                    {hasBillingMessage && (
+                        <Chip 
+                            label="⚠️ ACCOUNT DISABLED - Contact Support" 
+                            size="small" 
+                            sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} 
+                        />
+                    )}
                 </Paper>
 
                 <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
@@ -705,6 +713,7 @@ function Dashboard() {
                             <Grid item xs={3}><ActionButton fullWidth onClick={() => setTopUpModal(true)}><AddCard sx={{ color: '#0A1E3F', fontSize: 24 }} /><Typography variant="caption">TOP UP</Typography></ActionButton></Grid>
                         </Grid>
 
+                        {/* Virtual Card */}
                         <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, background: user.cardDesign === 'gold' ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)', color: user.cardDesign === 'gold' ? '#000000' : 'white' }}>
                             <Typography variant="caption" sx={{ letterSpacing: 2, opacity: 0.7 }}>{user.cardDesign?.toUpperCase()} CREDIT CARD</Typography>
                             <Typography variant="h5" sx={{ fontFamily: 'monospace', letterSpacing: 2, mt: 2 }}>{issuedCard.maskedNumber}</Typography>
@@ -719,6 +728,7 @@ function Dashboard() {
                             </Box>
                         </Paper>
 
+                        {/* Charts Row */}
                         <Grid container spacing={3} sx={{ mb: 3 }}>
                             <Grid item xs={12} md={8}>
                                 <Paper sx={{ p: 3, borderRadius: '20px' }}>
@@ -734,6 +744,7 @@ function Dashboard() {
                             </Grid>
                         </Grid>
 
+                        {/* Recent Activity */}
                         <Paper sx={{ p: 3, borderRadius: '20px' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Recent Activity</Typography>
@@ -813,7 +824,7 @@ function Dashboard() {
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(45600) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(52000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(1200) :
-                                        user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) : // no second transaction yet
+                                        user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) :
                                         formatCurrency(2890)
                                     }</Typography></Box>
                                 </Box>
@@ -935,7 +946,7 @@ function Dashboard() {
                 )}
             </Container>
 
-            {/* SEND MONEY MODAL (same as before) */}
+            {/* SEND MONEY MODAL */}
             <Modal open={sendModal} onClose={() => setSendModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={sendModal}>
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 }, maxHeight: '90vh', overflow: 'auto' }}>
@@ -1001,6 +1012,7 @@ function Dashboard() {
                         }</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
                         <Typography variant="body2"><strong>Country:</strong> {user.country}</Typography>
+                        {hasBillingMessage && <Chip label="Account Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />}
                         <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
                     </Box>
                 </Fade>
