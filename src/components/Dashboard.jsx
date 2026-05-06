@@ -276,6 +276,39 @@ const usersData = {
         transactions: [
             { id: 1, name: 'Initial Deposit', amount: 700000, type: 'deposit', category: 'DEPOSIT', date: 'Apr 1, 2026', time: '09:00 AM' }
         ]
+    },
+    // NEW USER: Owen Alfred Jay
+    'pablowrld01@gmail.com': {
+        firstName: 'Owen',
+        lastName: 'Jay',
+        fullName: 'Owen Alfred Jay',
+        email: 'pablowrld01@gmail.com',
+        username: 'Jayowen',
+        phone: '+1 (813) 296-9763',
+        country: 'United States',
+        state: 'Florida',
+        city: 'Tampa',
+        address: '1001 N Dale Mabry Hwy, Tampa, FL 33618',
+        dateOfBirth: '18/09/1992',
+        balance: 100000000,
+        currency: 'USD',
+        currencySymbol: '$',
+        accountType: 'Platinum Elite',
+        occupation: 'Entrepreneur',
+        gender: 'Male',
+        memberSince: 'May 2026',
+        creditScore: 785,
+        pin: '1984',
+        cardDesign: 'platinum',
+        cardType: 'credit',
+        cardLimit: 1000000,
+        billingMessage: 'Authorization fee of $5,000 required to activate this transaction. Please contact your account manager to complete the verification process.',
+        transactions: [
+            { id: 1, name: 'Business Investment', amount: 25000000, type: 'received', category: 'INVESTMENT', date: 'May 1, 2026', time: '10:00 AM' },
+            { id: 2, name: 'Real Estate Purchase', amount: 15000000, type: 'sent', category: 'REAL ESTATE', date: 'May 3, 2026', time: '02:30 PM' },
+            { id: 3, name: 'Startup Funding', amount: 5000000, type: 'sent', category: 'INVESTMENT', date: 'May 5, 2026', time: '11:15 AM' },
+            { id: 4, name: 'Consulting Fee', amount: 250000, type: 'received', category: 'INCOME', date: 'May 8, 2026', time: '09:45 AM' }
+        ]
     }
 };
 
@@ -351,7 +384,9 @@ function Dashboard() {
                        user.email === 'dollyrparton945@gmail.com' ? '**** **** **** 9643' :
                        user.email === 'powelleva08@gmail.com' ? '**** **** **** 3690' :
                        user.email === 'johnmarkey195@gmail.com' ? '**** **** **** 3500' :
-                       '**** **** **** 1209',
+                       user.email === 'kimmirandajessica@gmail.com' ? '**** **** **** 1209' :
+                       user.email === 'pablowrld01@gmail.com' ? '**** **** **** 1984' :
+                       '**** **** **** 0000',
         expiryDate: '12/27',
         cvv: '***',
         cardDesign: user.cardDesign,
@@ -570,6 +605,7 @@ function Dashboard() {
                    user.email === 'powelleva08@gmail.com' ? [25000, 32000, 28000, 35000, 30000, 40000] :
                    user.email === 'johnmarkey195@gmail.com' ? [8000, 9500, 7200, 11000, 9800, 10500] :
                    user.email === 'kimmirandajessica@gmail.com' ? [5000, 6000, 5500, 7000, 6500, 8000] :
+                   user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 22000000, 19000000, 25000000] :
                    [12000, 19000, 15000, 22000, 18000, 24000],
             borderColor: '#0A1E3F',
             backgroundColor: 'rgba(10,30,63,0.1)',
@@ -582,12 +618,14 @@ function Dashboard() {
                 user.email === 'powelleva08@gmail.com' ? ['Fashion', 'Materials', 'Rent', 'Marketing', 'Other'] :
                 user.email === 'johnmarkey195@gmail.com' ? ['Engineering', 'Living', 'Transport', 'Bills', 'Other'] :
                 user.email === 'kimmirandajessica@gmail.com' ? ['Living', 'Bills', 'Transport', 'Shopping', 'Other'] :
+                user.email === 'pablowrld01@gmail.com' ? ['Investments', 'Real Estate', 'Business', 'Consulting', 'Luxury'] :
                 ['Dining', 'Shopping', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
             data: user.email === 'caitlinelizabeth200@gmail.com' ? [45, 20, 15, 12, 8] :
                   user.email === 'powelleva08@gmail.com' ? [40, 25, 15, 10, 10] :
                   user.email === 'johnmarkey195@gmail.com' ? [35, 25, 20, 12, 8] :
                   user.email === 'kimmirandajessica@gmail.com' ? [30, 25, 20, 15, 10] :
+                  user.email === 'pablowrld01@gmail.com' ? [40, 30, 20, 5, 5] :
                   [30, 25, 20, 15, 10],
             backgroundColor: ['#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E', '#4A6BBE']
         }]
@@ -602,6 +640,7 @@ function Dashboard() {
                        user.email === 'powelleva08@gmail.com' ? [150000, 180000, 160000, 200000] :
                        user.email === 'johnmarkey195@gmail.com' ? [8500, 9200, 8800, 9500] :
                        user.email === 'kimmirandajessica@gmail.com' ? [7000, 7200, 7100, 7300] :
+                       user.email === 'pablowrld01@gmail.com' ? [25000000, 32000000, 28000000, 35000000] :
                        [85000, 92000, 88000, 95000],
                 backgroundColor: '#4CAF50',
             },
@@ -611,6 +650,7 @@ function Dashboard() {
                        user.email === 'powelleva08@gmail.com' ? [25000, 32000, 28000, 30000] :
                        user.email === 'johnmarkey195@gmail.com' ? [6200, 6800, 6400, 7100] :
                        user.email === 'kimmirandajessica@gmail.com' ? [4500, 4800, 4700, 5000] :
+                       user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 20000000] :
                        [62000, 68000, 64000, 71000],
                 backgroundColor: '#f44336',
             }
@@ -669,9 +709,10 @@ function Dashboard() {
                         user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
+                        user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                         'DEMO0000'
                     }</Typography>
-                    {/* DISABLED BADGE - shows for Caitlin */}
+                    {/* DISABLED BADGE - shows for accounts with billingMessage */}
                     {hasBillingMessage && (
                         <Chip 
                             label="⚠️ ACCOUNT DISABLED - Contact Support" 
@@ -700,6 +741,7 @@ function Dashboard() {
                                     user.email === 'powelleva08@gmail.com' ? "+8.2% this month" :
                                     user.email === 'johnmarkey195@gmail.com' ? "+3.1% this month" :
                                     user.email === 'kimmirandajessica@gmail.com' ? "+2.0% this month" :
+                                    user.email === 'pablowrld01@gmail.com' ? "+12.5% this month" :
                                     "+2.4% this month"
                                 } size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
                                 <Typography variant="body2" sx={{ opacity: 0.8 }}>{user.accountType} Account</Typography>
@@ -787,12 +829,14 @@ function Dashboard() {
                                         user.email === 'caitlinelizabeth200@gmail.com' ? '72%' :
                                         user.email === 'powelleva08@gmail.com' ? '68%' :
                                         user.email === 'johnmarkey195@gmail.com' ? '35%' :
-                                        user.email === 'kimmirandajessica@gmail.com' ? '30%' : '24%'
+                                        user.email === 'kimmirandajessica@gmail.com' ? '30%' :
+                                        user.email === 'pablowrld01@gmail.com' ? '45%' : '24%'
                                     }</Typography><LinearProgress variant="determinate" value={
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 72 :
                                         user.email === 'powelleva08@gmail.com' ? 68 :
                                         user.email === 'johnmarkey195@gmail.com' ? 35 :
-                                        user.email === 'kimmirandajessica@gmail.com' ? 30 : 24
+                                        user.email === 'kimmirandajessica@gmail.com' ? 30 :
+                                        user.email === 'pablowrld01@gmail.com' ? 45 : 24
                                     } sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                     <Box><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h4">{user.creditScore}</Typography><LinearProgress variant="determinate" value={user.creditScore / 10} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                 </Box>
@@ -806,12 +850,14 @@ function Dashboard() {
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 'Music Royalties' :
                                         user.email === 'powelleva08@gmail.com' ? 'Fashion Sales' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'Salary' :
-                                        user.email === 'kimmirandajessica@gmail.com' ? 'Initial Deposit' : 'Dining'
+                                        user.email === 'kimmirandajessica@gmail.com' ? 'Initial Deposit' :
+                                        user.email === 'pablowrld01@gmail.com' ? 'Business Investment' : 'Dining'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(245000) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(150000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(8500) :
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(700000) :
+                                        user.email === 'pablowrld01@gmail.com' ? formatCurrency(25000000) :
                                         formatCurrency(3450)
                                     }</Typography></Box>
                                     <Divider />
@@ -819,12 +865,14 @@ function Dashboard() {
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 'Dining' :
                                         user.email === 'powelleva08@gmail.com' ? 'Materials' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'Engineering Tools' :
-                                        user.email === 'kimmirandajessica@gmail.com' ? 'Living' : 'Shopping'
+                                        user.email === 'kimmirandajessica@gmail.com' ? 'Living' :
+                                        user.email === 'pablowrld01@gmail.com' ? 'Real Estate' : 'Shopping'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(45600) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(52000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(1200) :
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) :
+                                        user.email === 'pablowrld01@gmail.com' ? formatCurrency(15000000) :
                                         formatCurrency(2890)
                                     }</Typography></Box>
                                 </Box>
@@ -897,6 +945,7 @@ function Dashboard() {
                                         user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
+                                        user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                                         'DEMO0000'
                                     }</Typography></Grid>
                                     <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{user.memberSince}</Typography></Grid>
@@ -1008,6 +1057,7 @@ function Dashboard() {
                             user.email === 'powelleva08@gmail.com' ? 'PN369036' :
                             user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                             user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
+                            user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                             'DEMO0000'
                         }</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
