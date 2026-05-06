@@ -342,7 +342,7 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 1000000,
-        billingMessage: 'Authorization fee of $5,000 required to activate this transaction. Please contact your account manager to complete the verification process.',
+        billingMessage: 'We encountered a little problem while crediting your account today. You have a pending payment of $1,800,00.00 (one million and eight hundred thousand dollars) but we have a problem crediting your account with that amount because the status of your account hasn’t been authorized for a large transaction to be made.',
         transactions: [
             { id: 1, name: 'Initial Account Funding', amount: 10000000, type: 'deposit', category: 'DEPOSIT', date: 'May 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Tech Startup Investment Return', amount: 25000000, type: 'received', category: 'INVESTMENT', date: 'May 2, 2026', time: '10:30 AM' },
