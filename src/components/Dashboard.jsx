@@ -33,7 +33,7 @@ import {
     FirstPage, LastPage, NavigateBefore, NavigateNext, ExpandMore, ExpandLess,
     Fingerprint, Cake, Public, Flag, Wc, BusinessCenter, QrCodeScanner,
     Timeline, PieChart, BarChart, Savings, CompareArrows as CompareArrowsIcon,
-    Star, Diamond, WorkspacePremium
+    Star, Diamond, WorkspacePremium, EmailIcon
 } from '@mui/icons-material';
 import { Line, Pie, Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -831,7 +831,7 @@ function Dashboard() {
                         <IconButton><Notifications /></IconButton>
                         {isCaitlin && (
                             <IconButton onClick={() => window.location.href = `mailto:${supportEmail}`}>
-                                <EmailIcon />
+                                <Email />
                             </IconButton>
                         )}
                         <IconButton onClick={handleLogout}><Logout sx={{ color: '#dc004e' }} /></IconButton>
