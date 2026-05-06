@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { auth, db } from '../firebase';
 import { doc, getDoc, updateDoc, arrayUnion, collection, query, where, getDocs } from 'firebase/firestore';
 
-// Material UI imports
+// Material UI imports (Tooltip renamed to MuiTooltip to avoid conflict with chart.js)
 import {
     AppBar, Toolbar, Typography, Button, Container, Grid,
     Paper, Card, CardContent, TextField, Avatar, IconButton,
@@ -11,7 +11,7 @@ import {
     LinearProgress, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Select, MenuItem, FormControl, InputLabel,
     Stepper, Step, StepLabel, Radio, RadioGroup, FormControlLabel,
-    Fab, InputAdornment, Tooltip, Dialog, DialogTitle, DialogContent,
+    Fab, InputAdornment, Tooltip as MuiTooltip, Dialog, DialogTitle, DialogContent,
     DialogActions, List, ListItem, ListItemText, ListItemAvatar,
     Menu, Badge, SpeedDial, SpeedDialAction, Switch, CircularProgress
 } from '@mui/material';
@@ -150,7 +150,19 @@ const TierBadge = styled(Chip)(({ theme, tiertype }) => ({
     height: '32px'
 }));
 
-// ==================== HARDCODED USER DATA (SAME AS BEFORE) ====================
+const BankOwnerBadge = styled(Box)(({ theme }) => ({
+    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
+    color: '#0A1E3F',
+    padding: theme.spacing(0.5, 2),
+    borderRadius: '20px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+    fontWeight: 600,
+    fontSize: '0.875rem'
+}));
+
+// ==================== HARDCODED USER DATA ====================
 const supportEmail = 'consultingzetax@gmail.com';
 
 const usersData = {
@@ -340,7 +352,7 @@ const usersData = {
             { id: 6, name: 'Charity Donation (Red Cross)', amount: 1000000, type: 'sent', category: 'CHARITY', date: 'May 12, 2026', time: '03:20 PM' },
             { id: 7, name: 'New Car Purchase (Tesla)', amount: 120000, type: 'sent', category: 'SHOPPING', date: 'May 14, 2026', time: '11:30 AM' },
             { id: 8, name: 'Luxury Watch', amount: 45000, type: 'sent', category: 'SHOPPING', date: 'May 15, 2026', time: '04:00 PM' },
-            { id: 9, name: 'Private Jet Charter', amount: 75000, type: 'sent', category: 'TRAVEL', date: 'May 16, 2026', time: '09:45 AM' },
+            { id: 9, name: 'Private Jet Charter', amount: 75000, type: 'sent', category: 'TRAVEL', date: 'May 16, 2026', time: '09:45 AM' }
         ]
     }
 };
@@ -394,28 +406,35 @@ function Dashboard() {
     const [editPhone, setEditPhone] = useState(user.phone);
     const [editAddress, setEditAddress] = useState(user.address);
 
-    // ========== NEW FEATURES STATE ==========
-    // Card PIN modal
+    // Modal states
+    const [sendModal, setSendModal] = useState(false);
+    const [depositModal, setDepositModal] = useState(false);
+    const [profileModal, setProfileModal] = useState(false);
     const [cardPinModal, setCardPinModal] = useState(false);
     const [cardPinInput, setCardPinInput] = useState('');
     const [cardPinError, setCardPinError] = useState('');
     const [isCardDetailsVisible, setIsCardDetailsVisible] = useState(false);
     const [showFullCardNumber, setShowFullCardNumber] = useState(false);
     const [showFullCVV, setShowFullCVV] = useState(false);
+    const [receiptModal, setReceiptModal] = useState(false);
+    const [lastTransaction, setLastTransaction] = useState(null);
+    const [filterModal, setFilterModal] = useState(false);
+    const [filterStartDate, setFilterStartDate] = useState('');
+    const [filterEndDate, setFilterEndDate] = useState('');
+    const [filterType, setFilterType] = useState('all');
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
+    const [exportModal, setExportModal] = useState(false);
+    const [securityAlert, setSecurityAlert] = useState({ show: false, amount: 0 });
 
-    // Enhanced payment form
-    const [sendWizardStep, setSendWizardStep] = useState(0);
-    const [sendFormData, setSendFormData] = useState({
-        bankName: '',
-        accountNumber: '',
-        routingNumber: '',
-        accountType: 'checking',
-        recipientName: '',
-        recipientEmail: '',
-        amount: '',
-        purpose: 'personal',
-        reference: ''
-    });
+    // Transfer form states
+    const [recipientAccount, setRecipientAccount] = useState('');
+    const [recipientName, setRecipientName] = useState('');
+    const [amount, setAmount] = useState('');
+    const [transferPurpose, setTransferPurpose] = useState('');
+    const [transferType, setTransferType] = useState('interac');
+    const [transferStep, setTransferStep] = useState(0);
+    const [depositAmount, setDepositAmount] = useState('');
+    const [showCVV, setShowCVV] = useState(false);
     const [beneficiaries, setBeneficiaries] = useState(() => {
         const saved = localStorage.getItem(`beneficiaries_${userEmail}`);
         return saved ? JSON.parse(saved) : [];
@@ -429,25 +448,18 @@ function Dashboard() {
         }
         return 0;
     });
-
-    // Receipt modal
-    const [receiptModal, setReceiptModal] = useState(false);
-    const [lastTransaction, setLastTransaction] = useState(null);
-
-    // Filter modal
-    const [filterModal, setFilterModal] = useState(false);
-    const [filterStartDate, setFilterStartDate] = useState('');
-    const [filterEndDate, setFilterEndDate] = useState('');
-    const [filterType, setFilterType] = useState('all');
-    const [filteredTransactions, setFilteredTransactions] = useState([]);
-
-    // Export statement
-    const [exportModal, setExportModal] = useState(false);
-
-    // Security alert
-    const [securityAlert, setSecurityAlert] = useState({ show: false, amount: 0 });
-
-    // ========== END NEW STATE ==========
+    const [sendFormData, setSendFormData] = useState({
+        bankName: '',
+        accountNumber: '',
+        routingNumber: '',
+        accountType: 'checking',
+        recipientName: '',
+        recipientEmail: '',
+        amount: '',
+        purpose: 'personal',
+        reference: ''
+    });
+    const [sendWizardStep, setSendWizardStep] = useState(0);
 
     const issuedCard = {
         cardholderName: user.fullName,
@@ -496,8 +508,8 @@ function Dashboard() {
         }
     };
 
-    const updateDailyTransferLimit = (amount) => {
-        const newTotal = todayTransferred + amount;
+    const updateDailyTransferLimit = (transferredAmount) => {
+        const newTotal = todayTransferred + transferredAmount;
         localStorage.setItem(`daily_transferred_${userEmail}`, newTotal.toString());
         localStorage.setItem(`daily_transferred_date_${userEmail}`, new Date().toDateString());
         setTodayTransferred(newTotal);
@@ -519,6 +531,7 @@ function Dashboard() {
     const handleSendMoney = () => {
         if (hasBillingMessage) {
             showMessage(user.billingMessage, 'error');
+            setSendModal(false);
             setSendWizardStep(0);
             setSendFormData({
                 bankName: '', accountNumber: '', routingNumber: '', accountType: 'checking',
@@ -528,7 +541,6 @@ function Dashboard() {
         }
 
         if (sendWizardStep === 0) {
-            // Validation for bank details
             if (!sendFormData.bankName || !sendFormData.accountNumber || !sendFormData.routingNumber || !sendFormData.recipientName || !sendFormData.recipientEmail || !sendFormData.amount) {
                 showMessage('Please fill all required fields', 'error');
                 return;
@@ -551,7 +563,6 @@ function Dashboard() {
         }
 
         if (sendWizardStep === 1) {
-            // Confirm and execute transfer
             const transferAmount = parseFloat(sendFormData.amount);
             const newBalance = balance - transferAmount;
             const reference = sendFormData.reference || `TRX${Math.floor(Math.random() * 1000000000)}`;
@@ -590,6 +601,37 @@ function Dashboard() {
             });
             return;
         }
+    };
+
+    const handleDeposit = () => {
+        if (hasBillingMessage) {
+            showMessage(user.billingMessage, 'error');
+            setDepositModal(false);
+            return;
+        }
+        const depositAmountNum = parseFloat(depositAmount);
+        if (depositAmountNum <= 0) {
+            showMessage('Please enter a valid amount', 'error');
+            return;
+        }
+        const newBalance = balance + depositAmountNum;
+        const newTransaction = {
+            id: Date.now(),
+            name: 'Deposit',
+            amount: depositAmountNum,
+            type: 'deposit',
+            category: 'DEPOSIT',
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            time: new Date().toLocaleTimeString(),
+            status: 'completed'
+        };
+        const updatedTransactions = [newTransaction, ...transactions];
+        setBalance(newBalance);
+        setTransactions(updatedTransactions);
+        saveToStorage(newBalance, updatedTransactions);
+        showMessage(`💰 Successfully deposited ${formatCurrency(depositAmountNum)}`, 'success');
+        setDepositModal(false);
+        setDepositAmount('');
     };
 
     const handleSecurityAlertConfirm = () => {
@@ -655,6 +697,14 @@ function Dashboard() {
         URL.revokeObjectURL(url);
         setExportModal(false);
         showMessage('Statement exported successfully', 'success');
+    };
+
+    const handleLogout = async () => {
+        try {
+            await auth.signOut();
+        } catch (error) {
+            showMessage('Logout failed: ' + error.message, 'error');
+        }
     };
 
     useEffect(() => {
@@ -1244,7 +1294,7 @@ function Dashboard() {
                 </Fade>
             </Modal>
 
-            {/* Deposit Modal (simplified) */}
+            {/* Deposit Modal */}
             <Modal open={depositModal} onClose={() => setDepositModal(false)}>
                 <Fade in={depositModal}>
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
