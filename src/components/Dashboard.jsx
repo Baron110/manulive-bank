@@ -151,6 +151,7 @@ const usersData = {
         cardLimit: 250000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
         isDisabled: true,
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Indiana Fever', amount: 2500000, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Nike', amount: 12500, type: 'sent', category: 'ENDORSEMENT', date: 'Apr 3, 2026', time: '02:30 PM' },
@@ -182,6 +183,7 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 100000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Spotify Royalties', amount: 150000, type: 'received', category: 'ROYALTIES', date: 'Apr 1, 2026', time: '08:00 AM' },
             { id: 2, name: 'Apple Music', amount: 75000, type: 'received', category: 'ROYALTIES', date: 'Apr 2, 2026', time: '10:30 AM' },
@@ -213,6 +215,7 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 500000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fee of $15000, Kindly contact your account manager to clear the fees and charges',
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Fashion Show Income', amount: 50000, type: 'received', category: 'INCOME', date: 'Apr 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Fabric Purchase', amount: 3200, type: 'sent', category: 'MATERIALS', date: 'Apr 5, 2026', time: '02:30 PM' }
@@ -243,6 +246,7 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 200000,
         billingMessage: 'Your account has had limited transaction activity from 2024 to 2025. Because of the low number of transactions during this period, your account is currently under review, and you may need to complete additional transactions before certain services, such as fund transfers, can be fully activated.',
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Salary Deposit', amount: 8500, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Engineering Tools', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'Apr 3, 2026', time: '02:00 PM' }
@@ -273,11 +277,11 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 150000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees of $20,000 kindly contact your account manager to clear up fees and charges.',
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Initial Deposit', amount: 700000, type: 'deposit', category: 'DEPOSIT', date: 'Apr 1, 2026', time: '09:00 AM' }
         ]
     },
-    // NEW USER: Owen Alfred Jay
     'pablowrld01@gmail.com': {
         firstName: 'Owen',
         lastName: 'Jay',
@@ -303,11 +307,65 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 1000000,
         billingMessage: 'Authorization fee of $5,000 required to activate this transaction. Please contact your account manager to complete the verification process.',
+        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Business Investment', amount: 25000000, type: 'received', category: 'INVESTMENT', date: 'May 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Real Estate Purchase', amount: 15000000, type: 'sent', category: 'REAL ESTATE', date: 'May 3, 2026', time: '02:30 PM' },
             { id: 3, name: 'Startup Funding', amount: 5000000, type: 'sent', category: 'INVESTMENT', date: 'May 5, 2026', time: '11:15 AM' },
             { id: 4, name: 'Consulting Fee', amount: 250000, type: 'received', category: 'INCOME', date: 'May 8, 2026', time: '09:45 AM' }
+        ]
+    },
+    // NEW USER: Rueben Adam Beach
+    'adambeach001@gmail.com': {
+        firstName: 'Rueben',
+        lastName: 'Beach',
+        fullName: 'Rueben Adam Beach',
+        email: 'adambeach001@gmail.com',
+        username: 'Adam R beach',
+        phone: '+1 213 556 8675',
+        country: 'Canada',
+        state: 'Manitoba',
+        city: 'Winnipeg',
+        address: '383 McMillan Ave, Winnipeg, MB R3L ON3, Canada',
+        dateOfBirth: '11/11/1972',
+        balance: 100000,
+        currency: 'CAD',
+        currencySymbol: '$',
+        accountType: 'Investment Platinum',
+        occupation: 'Actor',
+        gender: 'Male',
+        memberSince: 'May 2026',
+        creditScore: 750,
+        pin: '1122',
+        cardDesign: 'platinum',
+        cardType: 'credit',
+        cardLimit: 50000,
+        billingMessage: 'Please complete your payment to be able to withdraw your funds',
+        bankName: 'MONEY MAVEN INVESTMENT BANK',
+        // Full transaction history - credits and debits that sum to $100,000
+        transactions: [
+            // CREDITS (Incoming)
+            { id: 1, name: 'Film Project Payment (The Revenant)', amount: 50000, type: 'received', category: 'SALARY', date: 'May 1, 2026', time: '10:00 AM' },
+            { id: 2, name: 'Investment Dividend', amount: 5000, type: 'received', category: 'DIVIDEND', date: 'May 2, 2026', time: '11:30 AM' },
+            { id: 3, name: 'Acting Workshop Revenue', amount: 10000, type: 'received', category: 'INCOME', date: 'May 3, 2026', time: '09:15 AM' },
+            { id: 4, name: 'Commercial Shoot (Tim Hortons)', amount: 15000, type: 'received', category: 'ENDORSEMENT', date: 'May 5, 2026', time: '02:00 PM' },
+            { id: 5, name: 'Voice Over Work', amount: 5000, type: 'received', category: 'INCOME', date: 'May 7, 2026', time: '01:00 PM' },
+            { id: 6, name: 'Theatre Performance', amount: 8000, type: 'received', category: 'PERFORMANCE', date: 'May 9, 2026', time: '08:00 PM' },
+            { id: 7, name: 'Stock Market Gain', amount: 7000, type: 'received', category: 'INVESTMENT', date: 'May 11, 2026', time: '03:45 PM' },
+            // DEBITS (Outgoing)
+            { id: 8, name: 'Mortgage Payment', amount: 2000, type: 'sent', category: 'MORTGAGE', date: 'May 2, 2026', time: '12:00 PM' },
+            { id: 9, name: 'Car Payment', amount: 500, type: 'sent', category: 'CAR', date: 'May 3, 2026', time: '01:30 PM' },
+            { id: 10, name: 'Insurance Premium', amount: 300, type: 'sent', category: 'INSURANCE', date: 'May 4, 2026', time: '10:00 AM' },
+            { id: 11, name: 'Investment Fee', amount: 200, type: 'sent', category: 'FEE', date: 'May 5, 2026', time: '11:00 AM' },
+            { id: 12, name: 'Groceries', amount: 400, type: 'sent', category: 'GROCERIES', date: 'May 6, 2026', time: '04:00 PM' },
+            { id: 13, name: 'Dining Out', amount: 150, type: 'sent', category: 'DINING', date: 'May 7, 2026', time: '07:30 PM' },
+            { id: 14, name: 'Utilities Bill', amount: 250, type: 'sent', category: 'BILLS', date: 'May 8, 2026', time: '09:00 AM' },
+            { id: 15, name: 'Internet & Phone', amount: 100, type: 'sent', category: 'BILLS', date: 'May 9, 2026', time: '10:30 AM' },
+            { id: 16, name: 'Gym Membership', amount: 80, type: 'sent', category: 'HEALTH', date: 'May 10, 2026', time: '08:00 AM' },
+            { id: 17, name: 'Netflix Subscription', amount: 20, type: 'sent', category: 'ENTERTAINMENT', date: 'May 10, 2026', time: '12:00 PM' },
+            { id: 18, name: 'Property Tax', amount: 1000, type: 'sent', category: 'TAX', date: 'May 11, 2026', time: '01:00 PM' },
+            { id: 19, name: 'Home Maintenance', amount: 500, type: 'sent', category: 'MAINTENANCE', date: 'May 12, 2026', time: '02:30 PM' },
+            { id: 20, name: 'Charity Donation', amount: 500, type: 'sent', category: 'CHARITY', date: 'May 13, 2026', time: '11:00 AM' },
         ]
     }
 };
@@ -337,6 +395,7 @@ const defaultUser = {
     cardType: 'debit',
     cardLimit: 25000,
     billingMessage: null,
+    bankName: 'QuinCore Bank',
     transactions: []
 };
 
@@ -348,6 +407,7 @@ function Dashboard() {
     const hasBillingMessage = !!user.billingMessage;
     const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
     const isHardcoded = !!usersData[userEmail];
+    const isMoneyMavenUser = userEmail === 'adambeach001@gmail.com'; // Special bank name for Rueben
 
     const storageKey = `quincore_user_${userEmail}`;
 
@@ -386,6 +446,7 @@ function Dashboard() {
                        user.email === 'johnmarkey195@gmail.com' ? '**** **** **** 3500' :
                        user.email === 'kimmirandajessica@gmail.com' ? '**** **** **** 1209' :
                        user.email === 'pablowrld01@gmail.com' ? '**** **** **** 1984' :
+                       user.email === 'adambeach001@gmail.com' ? '**** **** **** 1122' :
                        '**** **** **** 0000',
         expiryDate: '12/27',
         cvv: '***',
@@ -394,10 +455,13 @@ function Dashboard() {
         limit: user.cardLimit
     };
 
+    // Dynamic bank name
+    const bankDisplayName = isMoneyMavenUser ? 'MONEY MAVEN INVESTMENT BANK' : 'QuinCore Bank';
+
     const formatCurrency = (amt) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD',
+            currency: user.currency === 'CAD' ? 'CAD' : 'USD',
             minimumFractionDigits: 2
         }).format(amt);
     };
@@ -606,6 +670,7 @@ function Dashboard() {
                    user.email === 'johnmarkey195@gmail.com' ? [8000, 9500, 7200, 11000, 9800, 10500] :
                    user.email === 'kimmirandajessica@gmail.com' ? [5000, 6000, 5500, 7000, 6500, 8000] :
                    user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 22000000, 19000000, 25000000] :
+                   user.email === 'adambeach001@gmail.com' ? [2000, 1500, 1800, 2200, 1600, 1900] :
                    [12000, 19000, 15000, 22000, 18000, 24000],
             borderColor: '#0A1E3F',
             backgroundColor: 'rgba(10,30,63,0.1)',
@@ -619,6 +684,7 @@ function Dashboard() {
                 user.email === 'johnmarkey195@gmail.com' ? ['Engineering', 'Living', 'Transport', 'Bills', 'Other'] :
                 user.email === 'kimmirandajessica@gmail.com' ? ['Living', 'Bills', 'Transport', 'Shopping', 'Other'] :
                 user.email === 'pablowrld01@gmail.com' ? ['Investments', 'Real Estate', 'Business', 'Consulting', 'Luxury'] :
+                user.email === 'adambeach001@gmail.com' ? ['Salary', 'Investments', 'Bills', 'Mortgage', 'Dining'] :
                 ['Dining', 'Shopping', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
             data: user.email === 'caitlinelizabeth200@gmail.com' ? [45, 20, 15, 12, 8] :
@@ -626,6 +692,7 @@ function Dashboard() {
                   user.email === 'johnmarkey195@gmail.com' ? [35, 25, 20, 12, 8] :
                   user.email === 'kimmirandajessica@gmail.com' ? [30, 25, 20, 15, 10] :
                   user.email === 'pablowrld01@gmail.com' ? [40, 30, 20, 5, 5] :
+                  user.email === 'adambeach001@gmail.com' ? [50, 20, 15, 10, 5] :
                   [30, 25, 20, 15, 10],
             backgroundColor: ['#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E', '#4A6BBE']
         }]
@@ -641,6 +708,7 @@ function Dashboard() {
                        user.email === 'johnmarkey195@gmail.com' ? [8500, 9200, 8800, 9500] :
                        user.email === 'kimmirandajessica@gmail.com' ? [7000, 7200, 7100, 7300] :
                        user.email === 'pablowrld01@gmail.com' ? [25000000, 32000000, 28000000, 35000000] :
+                       user.email === 'adambeach001@gmail.com' ? [7000, 8000, 7500, 6800] :
                        [85000, 92000, 88000, 95000],
                 backgroundColor: '#4CAF50',
             },
@@ -651,6 +719,7 @@ function Dashboard() {
                        user.email === 'johnmarkey195@gmail.com' ? [6200, 6800, 6400, 7100] :
                        user.email === 'kimmirandajessica@gmail.com' ? [4500, 4800, 4700, 5000] :
                        user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 20000000] :
+                       user.email === 'adambeach001@gmail.com' ? [3500, 2800, 3200, 3000] :
                        [62000, 68000, 64000, 71000],
                 backgroundColor: '#f44336',
             }
@@ -676,11 +745,11 @@ function Dashboard() {
                             WebkitTextFillColor: 'transparent',
                             fontFamily: '"Playfair Display", serif'
                         }}>
-                            QuinCore Bank
+                            {bankDisplayName}
                         </Typography>
                         <BankOwnerBadge>
                             <Security sx={{ fontSize: 16 }} />
-                            Elite Banking
+                            {isMoneyMavenUser ? 'Investment Division' : 'Elite Banking'}
                         </BankOwnerBadge>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -710,6 +779,7 @@ function Dashboard() {
                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
+                        user.email === 'adambeach001@gmail.com' ? 'RB1122' :
                         'DEMO0000'
                     }</Typography>
                     {/* DISABLED BADGE - shows for accounts with billingMessage */}
@@ -733,7 +803,7 @@ function Dashboard() {
                 {tabValue === 0 && (
                     <>
                         <BalanceCard elevation={3}>
-                            <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>TOTAL BALANCE (USD)</Typography>
+                            <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>TOTAL BALANCE ({user.currency})</Typography>
                             <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>{formatCurrency(balance)}</Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                 <Chip icon={<ArrowUpward sx={{ fontSize: 16 }} />} label={
@@ -742,6 +812,7 @@ function Dashboard() {
                                     user.email === 'johnmarkey195@gmail.com' ? "+3.1% this month" :
                                     user.email === 'kimmirandajessica@gmail.com' ? "+2.0% this month" :
                                     user.email === 'pablowrld01@gmail.com' ? "+12.5% this month" :
+                                    user.email === 'adambeach001@gmail.com' ? "+5.2% this month" :
                                     "+2.4% this month"
                                 } size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
                                 <Typography variant="body2" sx={{ opacity: 0.8 }}>{user.accountType} Account</Typography>
@@ -774,7 +845,7 @@ function Dashboard() {
                         <Grid container spacing={3} sx={{ mb: 3 }}>
                             <Grid item xs={12} md={8}>
                                 <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Spending Trend (USD)</Typography>
+                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>Spending Trend ({user.currency})</Typography>
                                     <Line data={spendingData} options={{ responsive: true }} />
                                 </Paper>
                             </Grid>
@@ -817,7 +888,7 @@ function Dashboard() {
                     <Grid container spacing={3}>
                         <Grid item xs={12}>
                             <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Income vs Expenses (USD)</Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3 }}>Income vs Expenses ({user.currency})</Typography>
                                 <Bar data={monthlyData} options={{ responsive: true }} />
                             </Paper>
                         </Grid>
@@ -830,13 +901,15 @@ function Dashboard() {
                                         user.email === 'powelleva08@gmail.com' ? '68%' :
                                         user.email === 'johnmarkey195@gmail.com' ? '35%' :
                                         user.email === 'kimmirandajessica@gmail.com' ? '30%' :
-                                        user.email === 'pablowrld01@gmail.com' ? '45%' : '24%'
+                                        user.email === 'pablowrld01@gmail.com' ? '45%' :
+                                        user.email === 'adambeach001@gmail.com' ? '42%' : '24%'
                                     }</Typography><LinearProgress variant="determinate" value={
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 72 :
                                         user.email === 'powelleva08@gmail.com' ? 68 :
                                         user.email === 'johnmarkey195@gmail.com' ? 35 :
                                         user.email === 'kimmirandajessica@gmail.com' ? 30 :
-                                        user.email === 'pablowrld01@gmail.com' ? 45 : 24
+                                        user.email === 'pablowrld01@gmail.com' ? 45 :
+                                        user.email === 'adambeach001@gmail.com' ? 42 : 24
                                     } sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                     <Box><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h4">{user.creditScore}</Typography><LinearProgress variant="determinate" value={user.creditScore / 10} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                 </Box>
@@ -851,13 +924,15 @@ function Dashboard() {
                                         user.email === 'powelleva08@gmail.com' ? 'Fashion Sales' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'Salary' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'Initial Deposit' :
-                                        user.email === 'pablowrld01@gmail.com' ? 'Business Investment' : 'Dining'
+                                        user.email === 'pablowrld01@gmail.com' ? 'Business Investment' :
+                                        user.email === 'adambeach001@gmail.com' ? 'Acting Income' : 'Dining'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(245000) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(150000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(8500) :
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(700000) :
                                         user.email === 'pablowrld01@gmail.com' ? formatCurrency(25000000) :
+                                        user.email === 'adambeach001@gmail.com' ? formatCurrency(50000) :
                                         formatCurrency(3450)
                                     }</Typography></Box>
                                     <Divider />
@@ -866,13 +941,15 @@ function Dashboard() {
                                         user.email === 'powelleva08@gmail.com' ? 'Materials' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'Engineering Tools' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'Living' :
-                                        user.email === 'pablowrld01@gmail.com' ? 'Real Estate' : 'Shopping'
+                                        user.email === 'pablowrld01@gmail.com' ? 'Real Estate' :
+                                        user.email === 'adambeach001@gmail.com' ? 'Mortgage' : 'Shopping'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(45600) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(52000) :
                                         user.email === 'johnmarkey195@gmail.com' ? formatCurrency(1200) :
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) :
                                         user.email === 'pablowrld01@gmail.com' ? formatCurrency(15000000) :
+                                        user.email === 'adambeach001@gmail.com' ? formatCurrency(2000) :
                                         formatCurrency(2890)
                                     }</Typography></Box>
                                 </Box>
@@ -946,6 +1023,7 @@ function Dashboard() {
                                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
+                                        user.email === 'adambeach001@gmail.com' ? 'RB1122' :
                                         'DEMO0000'
                                     }</Typography></Grid>
                                     <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{user.memberSince}</Typography></Grid>
@@ -1003,8 +1081,8 @@ function Dashboard() {
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Send Money</Typography>
                         <Stepper activeStep={transferStep} sx={{ mb: 4 }}>{transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}</Stepper>
                         {transferStep === 0 && (<><TextField fullWidth label="Recipient Account/Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} /><GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton></>)}
-                        {transferStep === 1 && (<><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></>)}
-                        {transferStep === 2 && (<><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: ${parseFloat(amount) || 0}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton></Box></>)}
+                        {transferStep === 1 && (<><TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} /><TextField fullWidth label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} /><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button><GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton></Box></>)}
+                        {transferStep === 2 && (<><Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}><Typography>To: {recipientAccount}</Typography><Typography>Amount: {user.currencySymbol || '$'}{(parseFloat(amount) || 0).toLocaleString()}</Typography><Typography>Purpose: {transferPurpose || 'Not specified'}</Typography></Paper><Box sx={{ display: 'flex', gap: 2 }}><Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button><GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton></Box></>)}
                     </Box>
                 </Fade>
             </Modal>
@@ -1015,7 +1093,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Request Money</Typography>
-                        <><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>
+                        <><TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} /><TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} /><GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -1026,7 +1104,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Pay Bills</Typography>
-                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>
+                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Bill Type</InputLabel><Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}><MenuItem value="Electricity">Electricity</MenuItem><MenuItem value="Water">Water</MenuItem><MenuItem value="Internet">Internet</MenuItem><MenuItem value="Phone">Phone</MenuItem></Select></FormControl><TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} /><GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -1037,7 +1115,7 @@ function Dashboard() {
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
                         <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F' }}>Top Up Account</Typography>
-                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label="Amount (USD)" type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">$</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>
+                        <><FormControl fullWidth sx={{ mb: 2 }}><InputLabel>Method</InputLabel><Select value={transferType} onChange={(e) => setTransferType(e.target.value)}><MenuItem value="bank">Bank Transfer</MenuItem><MenuItem value="card">Credit Card</MenuItem></Select></FormControl><TextField fullWidth label={`Amount (${user.currency})`} type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} /><GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton></>
                     </Box>
                 </Fade>
             </Modal>
@@ -1058,6 +1136,7 @@ function Dashboard() {
                             user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                             user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                             user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
+                            user.email === 'adambeach001@gmail.com' ? 'RB1122' :
                             'DEMO0000'
                         }</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
