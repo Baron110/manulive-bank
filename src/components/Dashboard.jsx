@@ -151,13 +151,13 @@ const usersData = {
         cardLimit: 250000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
         isDisabled: true,
-        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Indiana Fever', amount: 2500000, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Nike', amount: 12500, type: 'sent', category: 'ENDORSEMENT', date: 'Apr 3, 2026', time: '02:30 PM' },
             { id: 3, name: 'State Farm', amount: 500000, type: 'received', category: 'SPONSORSHIP', date: 'Apr 5, 2026', time: '11:00 AM' }
         ]
     },
+    // DOLLY PARTON - NO LONGER DISABLED (billingMessage REMOVED)
     'dollyrparton945@gmail.com': {
         firstName: 'Dolly',
         lastName: 'Parton',
@@ -182,8 +182,7 @@ const usersData = {
         cardDesign: 'gold',
         cardType: 'credit',
         cardLimit: 100000,
-        billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
-        bankName: 'QuinCore Bank',
+        billingMessage: null, // REMOVED - FULLY ACTIVE
         transactions: [
             { id: 1, name: 'Spotify Royalties', amount: 150000, type: 'received', category: 'ROYALTIES', date: 'Apr 1, 2026', time: '08:00 AM' },
             { id: 2, name: 'Apple Music', amount: 75000, type: 'received', category: 'ROYALTIES', date: 'Apr 2, 2026', time: '10:30 AM' },
@@ -215,7 +214,6 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 500000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fee of $15000, Kindly contact your account manager to clear the fees and charges',
-        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Fashion Show Income', amount: 50000, type: 'received', category: 'INCOME', date: 'Apr 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Fabric Purchase', amount: 3200, type: 'sent', category: 'MATERIALS', date: 'Apr 5, 2026', time: '02:30 PM' }
@@ -246,7 +244,6 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 200000,
         billingMessage: 'Your account has had limited transaction activity from 2024 to 2025. Because of the low number of transactions during this period, your account is currently under review, and you may need to complete additional transactions before certain services, such as fund transfers, can be fully activated.',
-        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Salary Deposit', amount: 8500, type: 'received', category: 'SALARY', date: 'Apr 1, 2026', time: '09:00 AM' },
             { id: 2, name: 'Engineering Tools', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'Apr 3, 2026', time: '02:00 PM' }
@@ -277,7 +274,6 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 150000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees of $20,000 kindly contact your account manager to clear up fees and charges.',
-        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Initial Deposit', amount: 700000, type: 'deposit', category: 'DEPOSIT', date: 'Apr 1, 2026', time: '09:00 AM' }
         ]
@@ -307,7 +303,6 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 1000000,
         billingMessage: 'Authorization fee of $5,000 required to activate this transaction. Please contact your account manager to complete the verification process.',
-        bankName: 'QuinCore Bank',
         transactions: [
             { id: 1, name: 'Business Investment', amount: 25000000, type: 'received', category: 'INVESTMENT', date: 'May 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Real Estate Purchase', amount: 15000000, type: 'sent', category: 'REAL ESTATE', date: 'May 3, 2026', time: '02:30 PM' },
@@ -315,7 +310,6 @@ const usersData = {
             { id: 4, name: 'Consulting Fee', amount: 250000, type: 'received', category: 'INCOME', date: 'May 8, 2026', time: '09:45 AM' }
         ]
     },
-    // NEW USER: Rueben Adam Beach
     'adambeach001@gmail.com': {
         firstName: 'Rueben',
         lastName: 'Beach',
@@ -341,31 +335,48 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 50000,
         billingMessage: 'Please complete your payment to be able to withdraw your funds',
-        bankName: 'MONEY MAVEN INVESTMENT BANK',
-        // Full transaction history - credits and debits that sum to $100,000
         transactions: [
-            // CREDITS (Incoming)
-            { id: 1, name: 'Film Project Payment (The Revenant)', amount: 50000, type: 'received', category: 'SALARY', date: 'May 1, 2026', time: '10:00 AM' },
+            { id: 1, name: 'Film Project Payment', amount: 50000, type: 'received', category: 'SALARY', date: 'May 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Investment Dividend', amount: 5000, type: 'received', category: 'DIVIDEND', date: 'May 2, 2026', time: '11:30 AM' },
             { id: 3, name: 'Acting Workshop Revenue', amount: 10000, type: 'received', category: 'INCOME', date: 'May 3, 2026', time: '09:15 AM' },
-            { id: 4, name: 'Commercial Shoot (Tim Hortons)', amount: 15000, type: 'received', category: 'ENDORSEMENT', date: 'May 5, 2026', time: '02:00 PM' },
-            { id: 5, name: 'Voice Over Work', amount: 5000, type: 'received', category: 'INCOME', date: 'May 7, 2026', time: '01:00 PM' },
-            { id: 6, name: 'Theatre Performance', amount: 8000, type: 'received', category: 'PERFORMANCE', date: 'May 9, 2026', time: '08:00 PM' },
-            { id: 7, name: 'Stock Market Gain', amount: 7000, type: 'received', category: 'INVESTMENT', date: 'May 11, 2026', time: '03:45 PM' },
-            // DEBITS (Outgoing)
-            { id: 8, name: 'Mortgage Payment', amount: 2000, type: 'sent', category: 'MORTGAGE', date: 'May 2, 2026', time: '12:00 PM' },
-            { id: 9, name: 'Car Payment', amount: 500, type: 'sent', category: 'CAR', date: 'May 3, 2026', time: '01:30 PM' },
-            { id: 10, name: 'Insurance Premium', amount: 300, type: 'sent', category: 'INSURANCE', date: 'May 4, 2026', time: '10:00 AM' },
-            { id: 11, name: 'Investment Fee', amount: 200, type: 'sent', category: 'FEE', date: 'May 5, 2026', time: '11:00 AM' },
-            { id: 12, name: 'Groceries', amount: 400, type: 'sent', category: 'GROCERIES', date: 'May 6, 2026', time: '04:00 PM' },
-            { id: 13, name: 'Dining Out', amount: 150, type: 'sent', category: 'DINING', date: 'May 7, 2026', time: '07:30 PM' },
-            { id: 14, name: 'Utilities Bill', amount: 250, type: 'sent', category: 'BILLS', date: 'May 8, 2026', time: '09:00 AM' },
-            { id: 15, name: 'Internet & Phone', amount: 100, type: 'sent', category: 'BILLS', date: 'May 9, 2026', time: '10:30 AM' },
-            { id: 16, name: 'Gym Membership', amount: 80, type: 'sent', category: 'HEALTH', date: 'May 10, 2026', time: '08:00 AM' },
-            { id: 17, name: 'Netflix Subscription', amount: 20, type: 'sent', category: 'ENTERTAINMENT', date: 'May 10, 2026', time: '12:00 PM' },
-            { id: 18, name: 'Property Tax', amount: 1000, type: 'sent', category: 'TAX', date: 'May 11, 2026', time: '01:00 PM' },
-            { id: 19, name: 'Home Maintenance', amount: 500, type: 'sent', category: 'MAINTENANCE', date: 'May 12, 2026', time: '02:30 PM' },
-            { id: 20, name: 'Charity Donation', amount: 500, type: 'sent', category: 'CHARITY', date: 'May 13, 2026', time: '11:00 AM' },
+            { id: 4, name: 'Commercial Shoot', amount: 15000, type: 'received', category: 'ENDORSEMENT', date: 'May 5, 2026', time: '02:00 PM' },
+            { id: 5, name: 'Mortgage Payment', amount: 2000, type: 'sent', category: 'MORTGAGE', date: 'May 2, 2026', time: '12:00 PM' },
+            { id: 6, name: 'Car Payment', amount: 500, type: 'sent', category: 'CAR', date: 'May 3, 2026', time: '01:30 PM' }
+        ]
+    },
+    // NEW USER: Baron Quinn - FULLY ACTIVE
+    'baronquin500@gmail.com': {
+        firstName: 'Baron',
+        lastName: 'Quinn',
+        fullName: 'Baron Quin Quinn',
+        email: 'baronquin500@gmail.com',
+        username: 'BARON-QUIN',
+        phone: '+1 (505) 555-0123',
+        country: 'United States',
+        state: 'New Mexico',
+        city: 'Albuquerque',
+        address: '1234 Central Ave SW, Albuquerque, NM 87104',
+        dateOfBirth: '02/02/2002',
+        balance: 500000,
+        currency: 'USD',
+        currencySymbol: '$',
+        accountType: 'Gold Elite',
+        occupation: 'VENDOR',
+        gender: 'Male',
+        memberSince: 'May 2026',
+        creditScore: 720,
+        pin: '5000',
+        cardDesign: 'gold',
+        cardType: 'credit',
+        cardLimit: 100000,
+        billingMessage: null,
+        transactions: [
+            { id: 1, name: 'Vendor Payment - Market Sales', amount: 25000, type: 'received', category: 'INCOME', date: 'May 1, 2026', time: '10:00 AM' },
+            { id: 2, name: 'Inventory Purchase', amount: 5000, type: 'sent', category: 'BUSINESS', date: 'May 3, 2026', time: '02:30 PM' },
+            { id: 3, name: 'Booth Rental Fee', amount: 1500, type: 'sent', category: 'RENT', date: 'May 5, 2026', time: '11:15 AM' },
+            { id: 4, name: 'Product Wholesale', amount: 8000, type: 'received', category: 'SALES', date: 'May 8, 2026', time: '09:45 AM' },
+            { id: 5, name: 'Equipment Purchase', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'May 10, 2026', time: '01:20 PM' },
+            { id: 6, name: 'Marketing Campaign', amount: 800, type: 'sent', category: 'MARKETING', date: 'May 12, 2026', time: '03:00 PM' }
         ]
     }
 };
@@ -395,7 +406,6 @@ const defaultUser = {
     cardType: 'debit',
     cardLimit: 25000,
     billingMessage: null,
-    bankName: 'QuinCore Bank',
     transactions: []
 };
 
@@ -407,7 +417,7 @@ function Dashboard() {
     const hasBillingMessage = !!user.billingMessage;
     const isCaitlin = userEmail === 'caitlinelizabeth200@gmail.com';
     const isHardcoded = !!usersData[userEmail];
-    const isMoneyMavenUser = userEmail === 'adambeach001@gmail.com'; // Special bank name for Rueben
+    const isMoneyMavenUser = userEmail === 'adambeach001@gmail.com';
 
     const storageKey = `quincore_user_${userEmail}`;
 
@@ -447,6 +457,7 @@ function Dashboard() {
                        user.email === 'kimmirandajessica@gmail.com' ? '**** **** **** 1209' :
                        user.email === 'pablowrld01@gmail.com' ? '**** **** **** 1984' :
                        user.email === 'adambeach001@gmail.com' ? '**** **** **** 1122' :
+                       user.email === 'baronquin500@gmail.com' ? '**** **** **** 5000' :
                        '**** **** **** 0000',
         expiryDate: '12/27',
         cvv: '***',
@@ -455,7 +466,7 @@ function Dashboard() {
         limit: user.cardLimit
     };
 
-    // Dynamic bank name
+    // Dynamic bank name with premium font styling
     const bankDisplayName = isMoneyMavenUser ? 'MONEY MAVEN INVESTMENT BANK' : 'QuinCore Bank';
 
     const formatCurrency = (amt) => {
@@ -671,6 +682,7 @@ function Dashboard() {
                    user.email === 'kimmirandajessica@gmail.com' ? [5000, 6000, 5500, 7000, 6500, 8000] :
                    user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 22000000, 19000000, 25000000] :
                    user.email === 'adambeach001@gmail.com' ? [2000, 1500, 1800, 2200, 1600, 1900] :
+                   user.email === 'baronquin500@gmail.com' ? [1500, 2000, 1800, 2500, 2200, 2800] :
                    [12000, 19000, 15000, 22000, 18000, 24000],
             borderColor: '#0A1E3F',
             backgroundColor: 'rgba(10,30,63,0.1)',
@@ -685,6 +697,7 @@ function Dashboard() {
                 user.email === 'kimmirandajessica@gmail.com' ? ['Living', 'Bills', 'Transport', 'Shopping', 'Other'] :
                 user.email === 'pablowrld01@gmail.com' ? ['Investments', 'Real Estate', 'Business', 'Consulting', 'Luxury'] :
                 user.email === 'adambeach001@gmail.com' ? ['Salary', 'Investments', 'Bills', 'Mortgage', 'Dining'] :
+                user.email === 'baronquin500@gmail.com' ? ['Income', 'Business', 'Rent', 'Sales', 'Marketing'] :
                 ['Dining', 'Shopping', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
             data: user.email === 'caitlinelizabeth200@gmail.com' ? [45, 20, 15, 12, 8] :
@@ -693,6 +706,7 @@ function Dashboard() {
                   user.email === 'kimmirandajessica@gmail.com' ? [30, 25, 20, 15, 10] :
                   user.email === 'pablowrld01@gmail.com' ? [40, 30, 20, 5, 5] :
                   user.email === 'adambeach001@gmail.com' ? [50, 20, 15, 10, 5] :
+                  user.email === 'baronquin500@gmail.com' ? [45, 25, 15, 10, 5] :
                   [30, 25, 20, 15, 10],
             backgroundColor: ['#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E', '#4A6BBE']
         }]
@@ -709,6 +723,7 @@ function Dashboard() {
                        user.email === 'kimmirandajessica@gmail.com' ? [7000, 7200, 7100, 7300] :
                        user.email === 'pablowrld01@gmail.com' ? [25000000, 32000000, 28000000, 35000000] :
                        user.email === 'adambeach001@gmail.com' ? [7000, 8000, 7500, 6800] :
+                       user.email === 'baronquin500@gmail.com' ? [25000, 18000, 22000, 30000] :
                        [85000, 92000, 88000, 95000],
                 backgroundColor: '#4CAF50',
             },
@@ -720,6 +735,7 @@ function Dashboard() {
                        user.email === 'kimmirandajessica@gmail.com' ? [4500, 4800, 4700, 5000] :
                        user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 20000000] :
                        user.email === 'adambeach001@gmail.com' ? [3500, 2800, 3200, 3000] :
+                       user.email === 'baronquin500@gmail.com' ? [5000, 6000, 4500, 7000] :
                        [62000, 68000, 64000, 71000],
                 backgroundColor: '#f44336',
             }
@@ -728,23 +744,32 @@ function Dashboard() {
 
     return (
         <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
-            {/* Top Header */}
+            {/* Top Header - PREMIUM FONT STYLING */}
             <AppBar position="static" sx={{ 
                 bgcolor: 'white', 
-                color: '#1A2B3C', 
                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                 borderBottomLeftRadius: '24px',
                 borderBottomRightRadius: '24px'
             }}>
-                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                <Toolbar sx={{ justifyContent: 'space-between', py: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Typography variant="h5" sx={{ 
-                            fontWeight: 700, 
-                            background: 'linear-gradient(135deg, #0A1E3F 0%, #D4AF37 100%)', 
-                            WebkitBackgroundClip: 'text', 
-                            WebkitTextFillColor: 'transparent',
-                            fontFamily: '"Playfair Display", serif'
-                        }}>
+                        <Typography 
+                            variant="h4" 
+                            sx={{ 
+                                fontWeight: 800,
+                                fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.8rem' },
+                                letterSpacing: '3px',
+                                background: 'linear-gradient(135deg, #0A1E3F 0%, #D4AF37 50%, #0A1E3F 100%)',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                fontFamily: '"Playfair Display", "Georgia", "Times New Roman", serif',
+                                textShadow: '2px 2px 4px rgba(0,0,0,0.05)',
+                                '&:hover': {
+                                    letterSpacing: '4px',
+                                    transition: 'all 0.3s ease'
+                                }
+                            }}
+                        >
                             {bankDisplayName}
                         </Typography>
                         <BankOwnerBadge>
@@ -753,15 +778,15 @@ function Dashboard() {
                         </BankOwnerBadge>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton><Notifications /></IconButton>
+                        <IconButton><Notifications sx={{ color: '#0A1E3F' }} /></IconButton>
                         {isCaitlin && (
                             <IconButton onClick={() => window.location.href = `mailto:${supportEmail}`}>
-                                <EmailIcon />
+                                <EmailIcon sx={{ color: '#0A1E3F' }} />
                             </IconButton>
                         )}
                         <IconButton onClick={handleLogout}><Logout sx={{ color: '#dc004e' }} /></IconButton>
                         <IconButton onClick={() => setProfileModal(true)}>
-                            <Avatar sx={{ bgcolor: '#1A3B5E' }}>{user.firstName.charAt(0)}</Avatar>
+                            <Avatar sx={{ bgcolor: '#0A1E3F' }}>{user.firstName.charAt(0)}</Avatar>
                         </IconButton>
                     </Box>
                 </Toolbar>
@@ -780,9 +805,10 @@ function Dashboard() {
                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                         user.email === 'adambeach001@gmail.com' ? 'RB1122' :
+                        user.email === 'baronquin500@gmail.com' ? 'BQ5000' :
                         'DEMO0000'
                     }</Typography>
-                    {/* DISABLED BADGE - shows for accounts with billingMessage */}
+                    {/* DISABLED BADGE - ONLY shows for accounts with billingMessage (Caitlin only now) */}
                     {hasBillingMessage && (
                         <Chip 
                             label="⚠️ ACCOUNT DISABLED - Contact Support" 
@@ -813,6 +839,7 @@ function Dashboard() {
                                     user.email === 'kimmirandajessica@gmail.com' ? "+2.0% this month" :
                                     user.email === 'pablowrld01@gmail.com' ? "+12.5% this month" :
                                     user.email === 'adambeach001@gmail.com' ? "+5.2% this month" :
+                                    user.email === 'baronquin500@gmail.com' ? "+4.8% this month" :
                                     "+2.4% this month"
                                 } size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
                                 <Typography variant="body2" sx={{ opacity: 0.8 }}>{user.accountType} Account</Typography>
@@ -902,14 +929,16 @@ function Dashboard() {
                                         user.email === 'johnmarkey195@gmail.com' ? '35%' :
                                         user.email === 'kimmirandajessica@gmail.com' ? '30%' :
                                         user.email === 'pablowrld01@gmail.com' ? '45%' :
-                                        user.email === 'adambeach001@gmail.com' ? '42%' : '24%'
+                                        user.email === 'adambeach001@gmail.com' ? '42%' :
+                                        user.email === 'baronquin500@gmail.com' ? '38%' : '24%'
                                     }</Typography><LinearProgress variant="determinate" value={
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 72 :
                                         user.email === 'powelleva08@gmail.com' ? 68 :
                                         user.email === 'johnmarkey195@gmail.com' ? 35 :
                                         user.email === 'kimmirandajessica@gmail.com' ? 30 :
                                         user.email === 'pablowrld01@gmail.com' ? 45 :
-                                        user.email === 'adambeach001@gmail.com' ? 42 : 24
+                                        user.email === 'adambeach001@gmail.com' ? 42 :
+                                        user.email === 'baronquin500@gmail.com' ? 38 : 24
                                     } sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                     <Box><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h4">{user.creditScore}</Typography><LinearProgress variant="determinate" value={user.creditScore / 10} sx={{ mt: 1, height: 8, borderRadius: 4 }} /></Box>
                                 </Box>
@@ -925,7 +954,8 @@ function Dashboard() {
                                         user.email === 'johnmarkey195@gmail.com' ? 'Salary' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'Initial Deposit' :
                                         user.email === 'pablowrld01@gmail.com' ? 'Business Investment' :
-                                        user.email === 'adambeach001@gmail.com' ? 'Acting Income' : 'Dining'
+                                        user.email === 'adambeach001@gmail.com' ? 'Acting Income' :
+                                        user.email === 'baronquin500@gmail.com' ? 'Vendor Sales' : 'Dining'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(245000) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(150000) :
@@ -933,6 +963,7 @@ function Dashboard() {
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(700000) :
                                         user.email === 'pablowrld01@gmail.com' ? formatCurrency(25000000) :
                                         user.email === 'adambeach001@gmail.com' ? formatCurrency(50000) :
+                                        user.email === 'baronquin500@gmail.com' ? formatCurrency(25000) :
                                         formatCurrency(3450)
                                     }</Typography></Box>
                                     <Divider />
@@ -942,7 +973,8 @@ function Dashboard() {
                                         user.email === 'johnmarkey195@gmail.com' ? 'Engineering Tools' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'Living' :
                                         user.email === 'pablowrld01@gmail.com' ? 'Real Estate' :
-                                        user.email === 'adambeach001@gmail.com' ? 'Mortgage' : 'Shopping'
+                                        user.email === 'adambeach001@gmail.com' ? 'Mortgage' :
+                                        user.email === 'baronquin500@gmail.com' ? 'Inventory' : 'Shopping'
                                     }</Typography><Typography fontWeight={600}>{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? formatCurrency(45600) :
                                         user.email === 'powelleva08@gmail.com' ? formatCurrency(52000) :
@@ -950,6 +982,7 @@ function Dashboard() {
                                         user.email === 'kimmirandajessica@gmail.com' ? formatCurrency(0) :
                                         user.email === 'pablowrld01@gmail.com' ? formatCurrency(15000000) :
                                         user.email === 'adambeach001@gmail.com' ? formatCurrency(2000) :
+                                        user.email === 'baronquin500@gmail.com' ? formatCurrency(5000) :
                                         formatCurrency(2890)
                                     }</Typography></Box>
                                 </Box>
@@ -1024,6 +1057,7 @@ function Dashboard() {
                                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                                         user.email === 'adambeach001@gmail.com' ? 'RB1122' :
+                                        user.email === 'baronquin500@gmail.com' ? 'BQ5000' :
                                         'DEMO0000'
                                     }</Typography></Grid>
                                     <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{user.memberSince}</Typography></Grid>
@@ -1137,6 +1171,7 @@ function Dashboard() {
                             user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                             user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
                             user.email === 'adambeach001@gmail.com' ? 'RB1122' :
+                            user.email === 'baronquin500@gmail.com' ? 'BQ5000' :
                             'DEMO0000'
                         }</Typography>
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
