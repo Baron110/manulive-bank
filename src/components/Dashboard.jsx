@@ -10,8 +10,8 @@ import {
     Divider, Chip, Modal, Fade, Backdrop, Tab, Tabs,
     LinearProgress, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Select, MenuItem, FormControl, InputLabel,
-    Stepper, Step, StepLabel, Radio, RadioGroup, FormControlLabel,
-    Fab, InputAdornment, CircularProgress, Checkbox
+    Stepper, Step, StepLabel, InputAdornment, CircularProgress,
+    Checkbox, FormControlLabel
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -20,12 +20,22 @@ import {
     ArrowUpward, ArrowDownward, Logout, Close,
     Security, Help, Lock, Email as EmailIcon,
     Visibility, VisibilityOff, AccountBalanceWallet, CreditCard,
-    QrCodeScanner, Schedule, Notes, LocalAtm, SwapHoriz,
-    AccountCircle, Badge, Cake, Public, Map, Phone, LocationOn,
-    Flag, Wc, BusinessCenter, Fingerprint, MoreHoriz, Edit
+    LocalAtm, SwapHoriz, AccountCircle, Badge, Cake, Public, Map, Phone, LocationOn,
+    Flag, Wc, BusinessCenter, Fingerprint, Edit, MoreHoriz
 } from '@mui/icons-material';
 import { Line, Pie, Bar } from 'react-chartjs-2';
-
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    Tooltip,
+    Legend,
+    ArcElement,
+    BarElement
+} from 'chart.js';
 
 ChartJS.register(
     CategoryScale,
@@ -110,31 +120,20 @@ const GoldButton = styled(Button)(({ theme }) => ({
     }
 }));
 
-// ==================== HARDCODED USER DATA WITH 70+ TRANSACTIONS ====================
-const supportEmail = 'consultingzetax@gmail.com';
-
-// Function to generate 70+ transactions from 2023 to present
+// ==================== HELPER FUNCTIONS ====================
 const generateHistoricalTransactions = (userEmail, startingBalance, userType = 'regular') => {
     const transactions = [];
-    let currentBalance = startingBalance;
     let transactionId = 1;
-    
-    const categories = {
-        credit: ['SALARY', 'INVESTMENT', 'DIVIDEND', 'REFUND', 'BONUS', 'ROYALTIES', 'SPONSORSHIP', 'SALES', 'INCOME', 'ENDORSEMENT'],
-        debit: ['SHOPPING', 'DINING', 'BILLS', 'RENT', 'TRANSPORT', 'ENTERTAINMENT', 'HEALTHCARE', 'EDUCATION', 'TRAVEL', 'INSURANCE']
-    };
+    let currentBalance = startingBalance;
     
     const merchants = {
-        SALARY: ['Employer Inc.', 'Company Salary', 'Payroll Deposit'],
-        SHOPPING: ['Amazon', 'Walmart', 'Target', 'Best Buy', 'eBay'],
-        DINING: ['Starbucks', 'McDonalds', 'DoorDash', 'UberEats', 'Local Restaurant'],
-        BILLS: ['Electric Bill', 'Water Bill', 'Internet Bill', 'Phone Bill'],
-        INVESTMENT: ['Stock Dividend', 'Crypto Gain', 'Real Estate ROI'],
-        RENT: ['Monthly Rent', 'Property Lease'],
-        TRANSPORT: ['Uber', 'Lyft', 'Gas Station', 'Public Transit'],
-        ENTERTAINMENT: ['Netflix', 'Spotify', 'Disney+', 'Movie Theater'],
-        HEALTHCARE: ['Pharmacy', 'Doctor Visit', 'Dental Care'],
-        TRAVEL: ['Flight Ticket', 'Hotel Booking', 'Vacation Package']
+        received: ['Salary Deposit', 'Investment Return', 'Dividend Payment', 'Refund', 'Bonus', 'Gift Received', 'Client Payment', 'Freelance Income'],
+        sent: ['Amazon', 'Walmart', 'Netflix', 'Spotify', 'Uber', 'DoorDash', 'Starbucks', 'Apple Store', 'Best Buy', 'Home Depot']
+    };
+    
+    const categories = {
+        received: ['SALARY', 'INVESTMENT', 'DIVIDEND', 'REFUND', 'BONUS', 'GIFT', 'PAYMENT'],
+        sent: ['SHOPPING', 'DINING', 'BILLS', 'ENTERTAINMENT', 'TRANSPORT', 'GROCERIES']
     };
     
     // Generate dates from Jan 2023 to May 2026
@@ -146,45 +145,39 @@ const generateHistoricalTransactions = (userEmail, startingBalance, userType = '
         dates.push(new Date(d));
     }
     
-    // Sort dates
-    dates.sort((a, b) => a - b);
-    
-    // Take up to 75 transactions
     const numTransactions = Math.min(75, dates.length);
     
     for (let i = 0; i < numTransactions; i++) {
         const date = dates[i];
-        const isCredit = Math.random() > 0.6; // 40% debit, 60% credit for most users
-        let amount, category, merchant;
+        const isCredit = Math.random() > 0.4;
+        let amount, name, category;
         
         if (isCredit) {
-            category = categories.credit[Math.floor(Math.random() * categories.credit.length)];
             amount = Math.floor(Math.random() * 50000) + 1000;
-            merchant = merchants[category] ? merchants[category][0] : `${category} Payment`;
+            name = merchants.received[Math.floor(Math.random() * merchants.received.length)];
+            category = categories.received[Math.floor(Math.random() * categories.received.length)];
             currentBalance += amount;
         } else {
-            category = categories.debit[Math.floor(Math.random() * categories.debit.length)];
             amount = Math.floor(Math.random() * 3000) + 50;
-            merchant = merchants[category] ? merchants[category][Math.floor(Math.random() * merchants[category].length)] : `${category} Purchase`;
+            name = merchants.sent[Math.floor(Math.random() * merchants.sent.length)];
+            category = categories.sent[Math.floor(Math.random() * categories.sent.length)];
             currentBalance -= amount;
         }
         
-        // Special handling for Baron Quinn (vendor/business account)
+        // Special handling for Baron Quinn
         if (userEmail === 'baronquin500@gmail.com') {
-            if (category === 'SALES' || category === 'INCOME') {
+            if (isCredit) {
+                name = ['Market Sales', 'Product Wholesale', 'Customer Payment', 'Vendor Income'][Math.floor(Math.random() * 4)];
                 amount = Math.floor(Math.random() * 15000) + 2000;
-                merchant = ['Market Sales', 'Product Wholesale', 'Customer Payment', 'Vendor Income'][Math.floor(Math.random() * 4)];
-                currentBalance += amount;
-            } else if (category === 'SHOPPING' || category === 'BILLS') {
+            } else {
+                name = ['Inventory Purchase', 'Booth Rental', 'Equipment', 'Supplies'][Math.floor(Math.random() * 4)];
                 amount = Math.floor(Math.random() * 5000) + 100;
-                merchant = ['Inventory Purchase', 'Booth Rental', 'Equipment', 'Supplies'][Math.floor(Math.random() * 4)];
-                currentBalance -= amount;
             }
         }
         
         transactions.push({
             id: transactionId++,
-            name: merchant,
+            name: name,
             amount: amount,
             type: isCredit ? 'received' : 'sent',
             category: category,
@@ -197,8 +190,35 @@ const generateHistoricalTransactions = (userEmail, startingBalance, userType = '
     return { transactions, finalBalance: currentBalance };
 };
 
+// ==================== HARDCODED USER DATA ====================
 const usersData = {
-    // CAITLIN CLARK - DISABLED ACCOUNT
+    'baronquin500@gmail.com': {
+        firstName: 'Baron',
+        lastName: 'Quinn',
+        fullName: 'Baron Quin Quinn',
+        email: 'baronquin500@gmail.com',
+        username: 'BARON-QUIN',
+        phone: '+1 (505) 555-0123',
+        country: 'United States',
+        state: 'New Mexico',
+        city: 'Albuquerque',
+        address: '1234 Central Ave SW, Albuquerque, NM 87104',
+        dateOfBirth: '02/02/2002',
+        balance: 500000,
+        currency: 'USD',
+        currencySymbol: '$',
+        accountType: 'Gold Elite',
+        occupation: 'VENDOR',
+        gender: 'Male',
+        memberSince: 'May 2026',
+        creditScore: 720,
+        pin: '5000',
+        cardDesign: 'gold',
+        cardType: 'credit',
+        cardLimit: 100000,
+        billingMessage: null,
+        transactions: generateHistoricalTransactions('baronquin500@gmail.com', 500000, 'vendor').transactions
+    },
     'caitlinelizabeth200@gmail.com': {
         firstName: 'Caitlin',
         lastName: 'Clark',
@@ -214,7 +234,7 @@ const usersData = {
         balance: 10000000,
         currency: 'USD',
         currencySymbol: '$',
-        accountType: 'Platinum Elite (Disabled)',
+        accountType: 'Platinum Elite',
         occupation: 'Basketball Player',
         gender: 'Female',
         memberSince: 'April 2026',
@@ -223,11 +243,9 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 250000,
-        billingMessage: 'Unable to process transaction due to unpaid maintenance fees, kindly contact your account manager to clear up fees and charges.',
-        isDisabled: true,
-        transactions: generateHistoricalTransactions('caitlinelizabeth200@gmail.com', 10000000, 'sports').transactions
+        billingMessage: 'Unable to process transaction due to unpaid maintenance fees.',
+        transactions: generateHistoricalTransactions('caitlinelizabeth200@gmail.com', 10000000).transactions
     },
-    // DOLLY PARTON - FULLY ACTIVE
     'dollyrparton945@gmail.com': {
         firstName: 'Dolly',
         lastName: 'Parton',
@@ -235,7 +253,7 @@ const usersData = {
         email: 'dollyrparton945@gmail.com',
         username: 'DollyWood46',
         phone: '+1 (616) 321-2741',
-        country: 'United States',
+        country: 'USA',
         state: 'Tennessee',
         city: 'Nashville',
         address: '9510 Crockett Rd, Brentwood, TN 37027',
@@ -253,115 +271,7 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 100000,
         billingMessage: null,
-        transactions: generateHistoricalTransactions('dollyrparton945@gmail.com', 500000, 'entertainment').transactions
-    },
-    'powelleva08@gmail.com': {
-        firstName: 'Perry',
-        lastName: 'Novela',
-        fullName: 'Perry Eva Novela',
-        email: 'powelleva08@gmail.com',
-        username: 'Randy Perry',
-        phone: '6154924655',
-        country: 'USA',
-        state: 'Texas',
-        city: 'San Antonio',
-        address: '15150 Blanco Rd, San Antonio, TX 78216',
-        dateOfBirth: '11/25/1993',
-        balance: 25000000,
-        currency: 'USD',
-        currencySymbol: '$',
-        accountType: 'Platinum Elite',
-        occupation: 'fashion designer',
-        gender: 'Female',
-        memberSince: '2024',
-        creditScore: 750,
-        pin: '369036',
-        cardDesign: 'platinum',
-        cardType: 'credit',
-        cardLimit: 500000,
-        billingMessage: 'Unable to process transaction due to unpaid maintenance fee of $15000, Kindly contact your account manager to clear the fees and charges',
-        transactions: generateHistoricalTransactions('powelleva08@gmail.com', 25000000, 'fashion').transactions
-    },
-    'johnmarkey195@gmail.com': {
-        firstName: 'John',
-        lastName: 'Markey',
-        fullName: 'John Erick Markey',
-        email: 'johnmarkey195@gmail.com',
-        username: 'John',
-        phone: '+1 (773) 290-9848',
-        country: 'USA',
-        state: 'Illinois',
-        city: 'Chicago',
-        address: '123 N State St, Chicago, IL 60602, USA',
-        dateOfBirth: '07/03/1984',
-        balance: 800567.27,
-        currency: 'USD',
-        currencySymbol: '$',
-        accountType: 'Gold Elite',
-        occupation: 'geotechnical eng',
-        gender: 'Male',
-        memberSince: 'April 2026',
-        creditScore: 720,
-        pin: '350000',
-        cardDesign: 'gold',
-        cardType: 'credit',
-        cardLimit: 200000,
-        billingMessage: 'Your account has had limited transaction activity from 2024 to 2025. Because of the low number of transactions during this period, your account is currently under review.',
-        transactions: generateHistoricalTransactions('johnmarkey195@gmail.com', 800567.27, 'engineering').transactions
-    },
-    'kimmirandajessica@gmail.com': {
-        firstName: 'Miranda',
-        lastName: 'Jessica',
-        fullName: 'Miranda Kim Jessica',
-        email: 'kimmirandajessica@gmail.com',
-        username: 'Jessica12',
-        phone: '+1 (615) 349-0644',
-        country: 'United States',
-        state: 'Tennessee',
-        city: 'TN',
-        address: '2912 Leatherwood Dr, Nashville, TN 37214',
-        dateOfBirth: '15/02/1993',
-        balance: 700000,
-        currency: 'USD',
-        currencySymbol: '$',
-        accountType: 'Gold Elite',
-        occupation: '',
-        gender: 'Female',
-        memberSince: 'April 2026',
-        creditScore: 700,
-        pin: '1209',
-        cardDesign: 'gold',
-        cardType: 'credit',
-        cardLimit: 150000,
-        billingMessage: 'Unable to process transaction due to unpaid maintenance fees of $20,000 kindly contact your account manager to clear up fees and charges.',
-        transactions: generateHistoricalTransactions('kimmirandajessica@gmail.com', 700000, 'regular').transactions
-    },
-    'pablowrld01@gmail.com': {
-        firstName: 'Owen',
-        lastName: 'Jay',
-        fullName: 'Owen Alfred Jay',
-        email: 'pablowrld01@gmail.com',
-        username: 'Jayowen',
-        phone: '+1 (813) 296-9763',
-        country: 'United States',
-        state: 'Florida',
-        city: 'Tampa',
-        address: '1001 N Dale Mabry Hwy, Tampa, FL 33618',
-        dateOfBirth: '18/09/1992',
-        balance: 100000000,
-        currency: 'USD',
-        currencySymbol: '$',
-        accountType: 'Platinum Elite',
-        occupation: 'Entrepreneur',
-        gender: 'Male',
-        memberSince: 'May 2026',
-        creditScore: 785,
-        pin: '1984',
-        cardDesign: 'platinum',
-        cardType: 'credit',
-        cardLimit: 1000000,
-        billingMessage: 'Authorization fee of $5,000 required to activate this transaction. Please contact your account manager to complete the verification process.',
-        transactions: generateHistoricalTransactions('pablowrld01@gmail.com', 100000000, 'business').transactions
+        transactions: generateHistoricalTransactions('dollyrparton945@gmail.com', 500000).transactions
     },
     'adambeach001@gmail.com': {
         firstName: 'Rueben',
@@ -388,46 +298,7 @@ const usersData = {
         cardType: 'credit',
         cardLimit: 50000,
         billingMessage: 'Please complete your payment to be able to withdraw your funds',
-        transactions: generateHistoricalTransactions('adambeach001@gmail.com', 100000, 'entertainment').transactions
-    },
-    // BARON QUINN - FULLY ACTIVE WITH 70+ TRANSACTIONS
-    'baronquin500@gmail.com': {
-        firstName: 'Baron',
-        lastName: 'Quinn',
-        fullName: 'Baron Quin Quinn',
-        email: 'baronquin500@gmail.com',
-        username: 'BARON-QUIN',
-        phone: '+1 (505) 555-0123',
-        country: 'United States',
-        state: 'New Mexico',
-        city: 'Albuquerque',
-        address: '1234 Central Ave SW, Albuquerque, NM 87104',
-        dateOfBirth: '02/02/2002',
-        balance: 500000,
-        currency: 'USD',
-        currencySymbol: '$',
-        accountType: 'Gold Elite',
-        occupation: 'VENDOR',
-        gender: 'Male',
-        memberSince: 'May 2026',
-        creditScore: 720,
-        pin: '5000',
-        cardDesign: 'gold',
-        cardType: 'credit',
-        cardLimit: 100000,
-        billingMessage: null,
-        transactions: (() => {
-            const { transactions, finalBalance } = generateHistoricalTransactions('baronquin500@gmail.com', 500000, 'vendor');
-            // Add specific vendor transactions
-            const vendorSpecific = [
-                { id: 100, name: 'Market Sales - Weekend Market', amount: 12500, type: 'received', category: 'SALES', date: 'May 15, 2026', time: '06:30 PM', status: 'completed' },
-                { id: 101, name: 'Inventory Purchase - Wholesale', amount: 3800, type: 'sent', category: 'BUSINESS', date: 'May 14, 2026', time: '10:15 AM', status: 'completed' },
-                { id: 102, name: 'Booth Rental - Monthly', amount: 1500, type: 'sent', category: 'RENT', date: 'May 12, 2026', time: '09:00 AM', status: 'completed' },
-                { id: 103, name: 'Customer Payment - Bulk Order', amount: 25000, type: 'received', category: 'SALES', date: 'May 10, 2026', time: '02:45 PM', status: 'completed' },
-                { id: 104, name: 'Equipment Purchase - POS System', amount: 1200, type: 'sent', category: 'EQUIPMENT', date: 'May 8, 2026', time: '11:20 AM', status: 'completed' }
-            ];
-            return [...vendorSpecific, ...transactions.slice(0, 70)];
-        })()
+        transactions: generateHistoricalTransactions('adambeach001@gmail.com', 100000).transactions
     }
 };
 
@@ -465,7 +336,6 @@ function Dashboard() {
     const userEmail = rawEmail.trim().toLowerCase();
     const hardcodedUser = usersData[userEmail];
     const hasBillingMessage = !!hardcodedUser?.billingMessage;
-    const isHardcoded = !!usersData[userEmail];
     const isMoneyMavenUser = userEmail === 'adambeach001@gmail.com';
 
     const [balance, setBalance] = useState(hardcodedUser?.balance || 0);
@@ -486,7 +356,7 @@ function Dashboard() {
     const [topUpModal, setTopUpModal] = useState(false);
     const [profileModal, setProfileModal] = useState(false);
 
-    // Transfer form states (ENHANCED)
+    // Transfer form states
     const [recipientAccount, setRecipientAccount] = useState('');
     const [recipientName, setRecipientName] = useState('');
     const [recipientBank, setRecipientBank] = useState('');
@@ -496,8 +366,8 @@ function Dashboard() {
     const [transferStep, setTransferStep] = useState(0);
     const [depositAmount, setDepositAmount] = useState('');
     const [showCVV, setShowCVV] = useState(false);
-    const [scheduledDate, setScheduledDate] = useState('');
     const [addNote, setAddNote] = useState('');
+    const [scheduledDate, setScheduledDate] = useState('');
     const [saveRecipient, setSaveRecipient] = useState(false);
 
     const user = hardcodedUser || {
@@ -510,15 +380,7 @@ function Dashboard() {
 
     const issuedCard = {
         cardholderName: user.fullName,
-        maskedNumber: userEmail === 'caitlinelizabeth200@gmail.com' ? '**** **** **** 2002' :
-                       userEmail === 'dollyrparton945@gmail.com' ? '**** **** **** 9643' :
-                       userEmail === 'powelleva08@gmail.com' ? '**** **** **** 3690' :
-                       userEmail === 'johnmarkey195@gmail.com' ? '**** **** **** 3500' :
-                       userEmail === 'kimmirandajessica@gmail.com' ? '**** **** **** 1209' :
-                       userEmail === 'pablowrld01@gmail.com' ? '**** **** **** 1984' :
-                       userEmail === 'adambeach001@gmail.com' ? '**** **** **** 1122' :
-                       userEmail === 'baronquin500@gmail.com' ? '**** **** **** 5000' :
-                       '**** **** **** 0000',
+        maskedNumber: '**** **** **** ' + (user.pin || '0000').slice(-4),
         expiryDate: '12/27',
         cvv: Math.floor(Math.random() * 900 + 100).toString(),
         cardDesign: user.cardDesign,
@@ -526,7 +388,6 @@ function Dashboard() {
         limit: user.cardLimit
     };
 
-    // Dynamic bank name with premium font styling and logo
     const bankDisplayName = isMoneyMavenUser ? 'MONEY MAVEN INVESTMENT BANK' : 'QuinCore Bank';
 
     const formatCurrency = (amt) => {
@@ -542,7 +403,18 @@ function Dashboard() {
         setTimeout(() => setMessage(prev => ({ ...prev, show: false })), 6000);
     };
 
-    // FIRESTORE PERSISTENCE FUNCTIONS
+    const resetTransferForm = () => {
+        setRecipientAccount('');
+        setRecipientName('');
+        setRecipientBank('');
+        setAmount('');
+        setTransferPurpose('');
+        setAddNote('');
+        setScheduledDate('');
+        setSaveRecipient(false);
+    };
+
+    // Firestore persistence
     const loadUserDataFromFirestore = async () => {
         if (!currentUser) return;
         
@@ -556,32 +428,11 @@ function Dashboard() {
                 setBalance(data.balance || (hardcodedUser?.balance || 0));
                 setTransactions(data.transactions || hardcodedUser?.transactions || []);
             } else if (hardcodedUser) {
-                // Initialize Firestore with hardcoded user data
                 await setDoc(userDocRef, {
                     email: userEmail,
                     balance: hardcodedUser.balance,
                     transactions: hardcodedUser.transactions,
-                    lastUpdated: serverTimestamp(),
-                    userData: {
-                        firstName: hardcodedUser.firstName,
-                        lastName: hardcodedUser.lastName,
-                        fullName: hardcodedUser.fullName,
-                        phone: hardcodedUser.phone,
-                        address: hardcodedUser.address,
-                        country: hardcodedUser.country,
-                        state: hardcodedUser.state,
-                        city: hardcodedUser.city,
-                        dateOfBirth: hardcodedUser.dateOfBirth,
-                        occupation: hardcodedUser.occupation,
-                        gender: hardcodedUser.gender,
-                        accountType: hardcodedUser.accountType,
-                        creditScore: hardcodedUser.creditScore,
-                        pin: hardcodedUser.pin,
-                        cardDesign: hardcodedUser.cardDesign,
-                        cardType: hardcodedUser.cardType,
-                        cardLimit: hardcodedUser.cardLimit,
-                        billingMessage: hardcodedUser.billingMessage || null
-                    }
+                    lastUpdated: serverTimestamp()
                 });
                 setBalance(hardcodedUser.balance);
                 setTransactions(hardcodedUser.transactions);
@@ -669,17 +520,6 @@ function Dashboard() {
         setSendModal(false);
         resetTransferForm();
         setTransferStep(0);
-    };
-
-    const resetTransferForm = () => {
-        setRecipientAccount('');
-        setRecipientName('');
-        setRecipientBank('');
-        setAmount('');
-        setTransferPurpose('');
-        setAddNote('');
-        setScheduledDate('');
-        setSaveRecipient(false);
     };
 
     const handleDeposit = async () => {
@@ -790,14 +630,7 @@ function Dashboard() {
         labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
         datasets: [{
             label: 'Spending',
-            data: user.email === 'caitlinelizabeth200@gmail.com' ? [120000, 190000, 150000, 220000, 180000, 240000] :
-                   user.email === 'powelleva08@gmail.com' ? [25000, 32000, 28000, 35000, 30000, 40000] :
-                   user.email === 'johnmarkey195@gmail.com' ? [8000, 9500, 7200, 11000, 9800, 10500] :
-                   user.email === 'kimmirandajessica@gmail.com' ? [5000, 6000, 5500, 7000, 6500, 8000] :
-                   user.email === 'pablowrld01@gmail.com' ? [15000000, 18000000, 12000000, 22000000, 19000000, 25000000] :
-                   user.email === 'adambeach001@gmail.com' ? [2000, 1500, 1800, 2200, 1600, 1900] :
-                   user.email === 'baronquin500@gmail.com' ? [1500, 2000, 1800, 2500, 2200, 2800] :
-                   [12000, 19000, 15000, 22000, 18000, 24000],
+            data: [12400, 18900, 15200, 22100, 18300, 24200],
             borderColor: '#D4AF37',
             backgroundColor: 'rgba(212,175,55,0.1)',
             tension: 0.4
@@ -805,9 +638,9 @@ function Dashboard() {
     };
 
     const categoryData = {
-        labels: ['Income', 'Business', 'Shopping', 'Bills', 'Transport'],
+        labels: ['Shopping', 'Dining', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
-            data: user.email === 'baronquin500@gmail.com' ? [45, 25, 15, 10, 5] : [40, 20, 15, 15, 10],
+            data: [30, 25, 20, 15, 10],
             backgroundColor: ['#D4AF37', '#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E']
         }]
     };
@@ -815,16 +648,8 @@ function Dashboard() {
     const monthlyData = {
         labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         datasets: [
-            {
-                label: 'Income',
-                data: user.email === 'baronquin500@gmail.com' ? [25000, 18000, 22000, 30000] : [85000, 92000, 88000, 95000],
-                backgroundColor: '#4CAF50',
-            },
-            {
-                label: 'Expenses',
-                data: user.email === 'baronquin500@gmail.com' ? [5000, 6000, 4500, 7000] : [62000, 68000, 64000, 71000],
-                backgroundColor: '#f44336',
-            }
+            { label: 'Income', data: [28500, 29200, 28800, 29500], backgroundColor: '#4CAF50' },
+            { label: 'Expenses', data: [16200, 16800, 16400, 17100], backgroundColor: '#f44336' }
         ]
     };
 
@@ -838,7 +663,7 @@ function Dashboard() {
 
     return (
         <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
-            {/* Top Header - PREMIUM FONT STYLING WITH LOGO */}
+            {/* Top Header */}
             <AppBar position="static" sx={{ 
                 bgcolor: 'white', 
                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
@@ -847,7 +672,6 @@ function Dashboard() {
             }}>
                 <Toolbar sx={{ justifyContent: 'space-between', py: 1, flexWrap: 'wrap' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                        {/* Bank Logo Icon */}
                         <Avatar sx={{ 
                             bgcolor: 'transparent',
                             background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
@@ -868,11 +692,7 @@ function Dashboard() {
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent',
                                 fontFamily: '"Playfair Display", "Georgia", "Times New Roman", serif',
-                                textShadow: '2px 2px 4px rgba(0,0,0,0.05)',
-                                '&:hover': {
-                                    letterSpacing: '3px',
-                                    transition: 'all 0.3s ease'
-                                }
+                                textShadow: '2px 2px 4px rgba(0,0,0,0.05)'
                             }}
                         >
                             {bankDisplayName}
@@ -893,7 +713,6 @@ function Dashboard() {
                     </Box>
                 </Toolbar>
                 
-                {/* Welcome Subtext */}
                 <Box sx={{ px: 3, pb: 2 }}>
                     <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
                         Welcome back to elite banking, {user.firstName}
@@ -906,17 +725,7 @@ function Dashboard() {
                 <Paper sx={{ p: 3, mb: 3, bgcolor: '#0A1E3F', color: 'white', borderRadius: '20px' }}>
                     <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif' }}>Welcome back, {user.firstName}!</Typography>
                     <Typography variant="subtitle1" sx={{ opacity: 0.8 }}>{user.email}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>Account Number: {
-                        user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' :
-                        user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
-                        user.email === 'powelleva08@gmail.com' ? 'PN369036' :
-                        user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
-                        user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
-                        user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
-                        user.email === 'adambeach001@gmail.com' ? 'RB1122' :
-                        user.email === 'baronquin500@gmail.com' ? 'BQ5000' :
-                        'DEMO0000'
-                    }</Typography>
+                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>Account Number: {user.email === 'baronquin500@gmail.com' ? 'BQ5000' : 'USER' + Math.floor(Math.random() * 10000)}</Typography>
                     
                     {hasBillingMessage && (
                         <Chip 
@@ -981,23 +790,9 @@ function Dashboard() {
                             </Box>
                             <Typography variant="h5" sx={{ fontFamily: 'monospace', letterSpacing: 2, mt: 2 }}>{issuedCard.maskedNumber}</Typography>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                                <Box>
-                                    <Typography variant="caption" sx={{ opacity: 0.7 }}>Cardholder</Typography>
-                                    <Typography sx={{ fontWeight: 500 }}>{issuedCard.cardholderName}</Typography>
-                                </Box>
-                                <Box>
-                                    <Typography variant="caption" sx={{ opacity: 0.7 }}>Expires</Typography>
-                                    <Typography sx={{ fontWeight: 500 }}>{issuedCard.expiryDate}</Typography>
-                                </Box>
-                                <Box>
-                                    <Typography variant="caption" sx={{ opacity: 0.7 }}>CVV</Typography>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                        <Typography sx={{ fontWeight: 500 }}>{showCVV ? issuedCard.cvv : '***'}</Typography>
-                                        <IconButton size="small" onClick={() => setShowCVV(!showCVV)}>
-                                            <Visibility sx={{ fontSize: 14, color: user.cardDesign === 'gold' ? '#000' : 'white' }} />
-                                        </IconButton>
-                                    </Box>
-                                </Box>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>Cardholder</Typography><Typography sx={{ fontWeight: 500 }}>{issuedCard.cardholderName}</Typography></Box>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>Expires</Typography><Typography sx={{ fontWeight: 500 }}>{issuedCard.expiryDate}</Typography></Box>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>CVV</Typography><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography sx={{ fontWeight: 500 }}>{showCVV ? issuedCard.cvv : '***'}</Typography><IconButton size="small" onClick={() => setShowCVV(!showCVV)}><Visibility sx={{ fontSize: 14, color: user.cardDesign === 'gold' ? '#000' : 'white' }} /></IconButton></Box></Box>
                             </Box>
                             <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${user.cardDesign === 'gold' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}` }}>
                                 <Typography variant="caption" sx={{ opacity: 0.7 }}>Card Limit</Typography>
@@ -1077,20 +872,11 @@ function Dashboard() {
                             <Paper sx={{ p: 3, borderRadius: '20px' }}>
                                 <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Top Categories</Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Vendor Sales</Typography>
-                                        <Typography fontWeight={600} color="#D4AF37">{formatCurrency(25000)}</Typography>
-                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Vendor Sales</Typography><Typography fontWeight={600} color="#D4AF37">{formatCurrency(25000)}</Typography></Box>
                                     <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Inventory Purchase</Typography>
-                                        <Typography fontWeight={600} color="#FF3B3B">{formatCurrency(3800)}</Typography>
-                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Inventory Purchase</Typography><Typography fontWeight={600} color="#FF3B3B">{formatCurrency(3800)}</Typography></Box>
                                     <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Typography>Booth Rental</Typography>
-                                        <Typography fontWeight={600} color="#FF3B3B">{formatCurrency(1500)}</Typography>
-                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Booth Rental</Typography><Typography fontWeight={600} color="#FF3B3B">{formatCurrency(1500)}</Typography></Box>
                                 </Box>
                             </Paper>
                         </Grid>
@@ -1115,18 +901,11 @@ function Dashboard() {
                                 <TableBody>
                                     {transactions.slice().reverse().map((t) => (
                                         <TableRow key={t.id}>
-                                            <TableCell>
-                                                <Typography variant="body2">{t.date}</Typography>
-                                                <Typography variant="caption" color="text.secondary">{t.time}</Typography>
-                                            </TableCell>
+                                            <TableCell><Typography variant="body2">{t.date}</Typography><Typography variant="caption" color="text.secondary">{t.time}</Typography></TableCell>
                                             <TableCell>{t.name}</TableCell>
                                             <TableCell><Chip label={t.category} size="small" sx={{ bgcolor: '#D4AF37', color: '#0A1E3F' }} /></TableCell>
                                             <TableCell><Chip label={t.status || 'completed'} size="small" sx={{ bgcolor: '#E8F5E9', color: '#4CAF50' }} /></TableCell>
-                                            <TableCell align="right">
-                                                <Typography sx={{ fontWeight: 600, color: t.amount > 0 ? '#00A86B' : '#FF3B3B' }}>
-                                                    {t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}
-                                                </Typography>
-                                            </TableCell>
+                                            <TableCell align="right"><Typography sx={{ fontWeight: 600, color: t.amount > 0 ? '#00A86B' : '#FF3B3B' }}>{t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}</Typography></TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -1204,7 +983,7 @@ function Dashboard() {
                 )}
             </Container>
 
-            {/* ENHANCED SEND MONEY MODAL */}
+            {/* SEND MONEY MODAL */}
             <Modal open={sendModal} onClose={() => { setSendModal(false); setTransferStep(0); resetTransferForm(); }} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={sendModal}>
                     <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 500 }, maxHeight: '90vh', overflow: 'auto' }}>
@@ -1215,7 +994,6 @@ function Dashboard() {
                             {transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
                         </Stepper>
                         
-                        {/* Step 0: Recipient Info */}
                         {transferStep === 0 && (
                             <>
                                 <TextField fullWidth label="Recipient Account Number or Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} placeholder="Enter account number or email address" />
@@ -1233,10 +1011,9 @@ function Dashboard() {
                             </>
                         )}
                         
-                        {/* Step 1: Amount & Purpose */}
                         {transferStep === 1 && (
                             <>
-                                <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} placeholder="0.00" />
+                                <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
                                 <FormControl fullWidth sx={{ mb: 2 }}>
                                     <InputLabel>Transfer Purpose</InputLabel>
                                     <Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}>
@@ -1258,7 +1035,6 @@ function Dashboard() {
                             </>
                         )}
                         
-                        {/* Step 2: Review Details */}
                         {transferStep === 2 && (
                             <>
                                 <Paper sx={{ p: 3, bgcolor: '#F5F7FA', borderRadius: '16px', mb: 2 }}>
@@ -1270,8 +1046,7 @@ function Dashboard() {
                                     {addNote && <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Note:</Typography><Typography fontWeight={500}>{addNote}</Typography></Box>}
                                     {scheduledDate && <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Scheduled:</Typography><Typography fontWeight={500}>{scheduledDate}</Typography></Box>}
                                     <Divider sx={{ my: 2 }} />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography variant="body2" color="text.secondary">Fee:</Typography><Typography fontWeight={500}>{formatCurrency(0)}</Typography></Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}><Typography variant="body2" color="text.secondary">Total:</Typography><Typography fontWeight={700} sx={{ color: '#D4AF37' }}>{formatCurrency(parseFloat(amount) || 0)}</Typography></Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography variant="body2" color="text.secondary">Total:</Typography><Typography fontWeight={700} sx={{ color: '#D4AF37' }}>{formatCurrency(parseFloat(amount) || 0)}</Typography></Box>
                                 </Paper>
                                 <Box sx={{ display: 'flex', gap: 2 }}>
                                     <Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button>
@@ -1280,7 +1055,6 @@ function Dashboard() {
                             </>
                         )}
                         
-                        {/* Step 3: Confirm */}
                         {transferStep === 3 && (
                             <>
                                 <Paper sx={{ p: 3, bgcolor: '#FFF9E6', borderRadius: '16px', mb: 2, textAlign: 'center' }}>
@@ -1379,7 +1153,7 @@ function Dashboard() {
             <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderRadius: '20px 20px 0 0', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
                 <BottomNavigation showLabels value={navValue} onChange={(e, v) => { setNavValue(v); setTabValue(v); }}>
                     <BottomNavigationAction label="HOME" icon={<Home />} />
-                    <BottomNavigationAction label="TRANSFER" icon={<SendIcon />} onClick={() => setSendModal(true)} />
+                    <BottomNavigationAction label="TRANSFER" icon={<Send />} onClick={() => setSendModal(true)} />
                     <BottomNavigationAction label="STATS" icon={<TrendingUp />} />
                     <BottomNavigationAction label="PROFILE" icon={<Person />} onClick={() => setTabValue(3)} />
                 </BottomNavigation>
@@ -1392,8 +1166,5 @@ function Dashboard() {
         </Box>
     );
 }
-
-// Import Checkbox if not already imported
-import { Checkbox } from '@mui/material';
 
 export default Dashboard;
