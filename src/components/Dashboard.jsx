@@ -11,17 +11,16 @@ import {
     LinearProgress, Table, TableBody, TableCell, TableContainer,
     TableHead, TableRow, Select, MenuItem, FormControl, InputLabel,
     Stepper, Step, StepLabel, InputAdornment, CircularProgress,
-    Checkbox, FormControlLabel
+    Checkbox, FormControlLabel, useMediaQuery, useTheme
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
     AccountBalance, Send, RequestPage, Payment, AddCard,
     Home, TrendingUp, Person, Notifications,
     ArrowUpward, ArrowDownward, Logout, Close,
-    Security, Help, Lock, Email as EmailIcon,
+    Security, Lock, Email as EmailIcon,
     Visibility, VisibilityOff, AccountBalanceWallet, CreditCard,
-    LocalAtm, SwapHoriz, AccountCircle, Badge, Cake, Public, Map, Phone, LocationOn,
-    Flag, Wc, BusinessCenter, Fingerprint, Edit, MoreHoriz
+    Phone, LocationOn, Flag, Cake, Edit, MoreHoriz
 } from '@mui/icons-material';
 import { Line, Pie, Bar } from 'react-chartjs-2';
 import {
@@ -38,145 +37,125 @@ import {
 } from 'chart.js';
 
 ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-    ArcElement,
-    BarElement
+    CategoryScale, LinearScale, PointElement, LineElement,
+    Title, Tooltip, Legend, ArcElement, BarElement
 );
 
-// Styled components
+// Styled components - CLEAN BLACK/DARK THEME
 const BalanceCard = styled(Paper)(({ theme }) => ({
-    background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)',
+    background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
     color: 'white',
-    borderRadius: '24px',
+    borderRadius: '20px',
     padding: theme.spacing(3),
-    position: 'relative',
-    overflow: 'hidden',
     marginBottom: theme.spacing(3),
-    '&::before': {
-        content: '""',
-        position: 'absolute',
-        top: '-50%',
-        right: '-20%',
-        width: '200px',
-        height: '200px',
-        background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-        borderRadius: '50%'
-    }
 }));
 
 const ActionButton = styled(Button)(({ theme }) => ({
-    borderRadius: '16px',
+    borderRadius: '12px',
     padding: theme.spacing(1.5),
     flexDirection: 'column',
     gap: theme.spacing(1),
-    backgroundColor: '#F8FAFD',
-    color: '#1A2B3C',
+    backgroundColor: '#F0F2F5',
+    color: '#1A1A2E',
     textTransform: 'none',
     fontWeight: 600,
-    fontSize: '0.75rem',
+    fontSize: '0.7rem',
     '&:hover': {
-        backgroundColor: '#E8F0FE',
+        backgroundColor: '#E4E6E9',
         transform: 'translateY(-2px)',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-    },
-    transition: 'all 0.2s ease'
+    }
 }));
 
-const ProfileCard = styled(Paper)(({ theme }) => ({
-    background: 'white',
-    borderRadius: '24px',
-    padding: theme.spacing(3),
-    position: 'relative',
-    border: '1px solid rgba(0,0,0,0.05)'
-}));
-
-const BankOwnerBadge = styled(Box)(({ theme }) => ({
-    background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-    color: '#0A1E3F',
-    padding: theme.spacing(0.5, 2),
-    borderRadius: '20px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: theme.spacing(1),
-    fontWeight: 600,
-    fontSize: '0.875rem'
-}));
-
-const GoldButton = styled(Button)(({ theme }) => ({
-    background: 'linear-gradient(135deg, #0A1E3F 0%, #1A3B5E 100%)',
+const DarkButton = styled(Button)(({ theme }) => ({
+    background: '#1A1A2E',
     color: 'white',
-    padding: '12px',
+    padding: '10px',
     borderRadius: '12px',
     textTransform: 'none',
     fontWeight: 600,
     '&:hover': {
-        background: 'linear-gradient(135deg, #1A3B5E 0%, #2A4B7E 100%)',
+        background: '#2A2A3E',
     }
 }));
 
-// ==================== HELPER FUNCTIONS ====================
-const generateHistoricalTransactions = (userEmail, startingBalance, userType = 'regular') => {
+// ==================== GENERATE 70+ TRANSACTIONS (DEBITS & CREDITS) ====================
+const generateFullTransactionHistory = (startingBalance, userType = 'regular') => {
     const transactions = [];
-    let transactionId = 1;
     let currentBalance = startingBalance;
+    let id = 1;
     
-    const merchants = {
-        received: ['Salary Deposit', 'Investment Return', 'Dividend Payment', 'Refund', 'Bonus', 'Gift Received', 'Client Payment', 'Freelance Income'],
-        sent: ['Amazon', 'Walmart', 'Netflix', 'Spotify', 'Uber', 'DoorDash', 'Starbucks', 'Apple Store', 'Best Buy', 'Home Depot']
-    };
-    
-    const categories = {
-        received: ['SALARY', 'INVESTMENT', 'DIVIDEND', 'REFUND', 'BONUS', 'GIFT', 'PAYMENT'],
-        sent: ['SHOPPING', 'DINING', 'BILLS', 'ENTERTAINMENT', 'TRANSPORT', 'GROCERIES']
-    };
-    
-    // Generate dates from Jan 2023 to May 2026
+    // Start from Jan 2023 to present (over 3 years of transactions)
     const startDate = new Date(2023, 0, 1);
     const endDate = new Date(2026, 4, 15);
     const dates = [];
     
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + Math.floor(Math.random() * 3) + 1)) {
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + Math.floor(Math.random() * 5) + 2)) {
         dates.push(new Date(d));
     }
     
-    const numTransactions = Math.min(75, dates.length);
+    // Credit transactions (money in)
+    const credits = [
+        { name: 'Salary Deposit', category: 'SALARY', minAmount: 3000, maxAmount: 8000 },
+        { name: 'Freelance Payment', category: 'INCOME', minAmount: 500, maxAmount: 2500 },
+        { name: 'Investment Return', category: 'INVESTMENT', minAmount: 1000, maxAmount: 5000 },
+        { name: 'Client Payment', category: 'BUSINESS', minAmount: 2000, maxAmount: 10000 },
+        { name: 'Dividend Payout', category: 'DIVIDEND', minAmount: 200, maxAmount: 1500 },
+        { name: 'Tax Refund', category: 'REFUND', minAmount: 500, maxAmount: 2000 },
+        { name: 'Bonus Payment', category: 'BONUS', minAmount: 1000, maxAmount: 3000 },
+        { name: 'Rental Income', category: 'INCOME', minAmount: 1500, maxAmount: 2500 },
+        { name: 'Stock Gains', category: 'INVESTMENT', minAmount: 500, maxAmount: 4000 },
+        { name: 'Gift Received', category: 'GIFT', minAmount: 100, maxAmount: 1000 }
+    ];
     
-    for (let i = 0; i < numTransactions; i++) {
+    // Debit transactions (money out)
+    const debits = [
+        { name: 'Amazon Purchase', category: 'SHOPPING', minAmount: 50, maxAmount: 500 },
+        { name: 'Netflix Subscription', category: 'ENTERTAINMENT', minAmount: 15, maxAmount: 20 },
+        { name: 'Starbucks', category: 'DINING', minAmount: 5, maxAmount: 25 },
+        { name: 'Uber Ride', category: 'TRANSPORT', minAmount: 15, maxAmount: 60 },
+        { name: 'Electric Bill', category: 'BILLS', minAmount: 80, maxAmount: 200 },
+        { name: 'Rent Payment', category: 'RENT', minAmount: 1200, maxAmount: 2000 },
+        { name: 'Groceries', category: 'GROCERIES', minAmount: 100, maxAmount: 300 },
+        { name: 'Dining Out', category: 'DINING', minAmount: 40, maxAmount: 150 },
+        { name: 'Phone Bill', category: 'BILLS', minAmount: 50, maxAmount: 100 },
+        { name: 'Internet Bill', category: 'BILLS', minAmount: 60, maxAmount: 120 },
+        { name: 'Gas Station', category: 'TRANSPORT', minAmount: 30, maxAmount: 80 },
+        { name: 'Movie Tickets', category: 'ENTERTAINMENT', minAmount: 20, maxAmount: 50 },
+        { name: 'Clothing Store', category: 'SHOPPING', minAmount: 50, maxAmount: 200 },
+        { name: 'Pharmacy', category: 'HEALTH', minAmount: 20, minAmount: 100 }
+    ];
+    
+    // Special handling for Baron Quinn (vendor)
+    if (userType === 'vendor') {
+        credits.push({ name: 'Market Sales', category: 'SALES', minAmount: 2000, maxAmount: 15000 });
+        credits.push({ name: 'Product Wholesale', category: 'BUSINESS', minAmount: 5000, maxAmount: 20000 });
+        debits.push({ name: 'Inventory Purchase', category: 'BUSINESS', minAmount: 500, maxAmount: 3000 });
+        debits.push({ name: 'Booth Rental', category: 'RENT', minAmount: 1000, minAmount: 2000 });
+    }
+    
+    for (let i = 0; i < dates.length && transactions.length < 75; i++) {
         const date = dates[i];
+        // 60% credits, 40% debits to maintain positive balance
         const isCredit = Math.random() > 0.4;
+        
         let amount, name, category;
         
         if (isCredit) {
-            amount = Math.floor(Math.random() * 50000) + 1000;
-            name = merchants.received[Math.floor(Math.random() * merchants.received.length)];
-            category = categories.received[Math.floor(Math.random() * categories.received.length)];
+            const credit = credits[Math.floor(Math.random() * credits.length)];
+            amount = Math.floor(Math.random() * (credit.maxAmount - credit.minAmount + 1)) + credit.minAmount;
+            name = credit.name;
+            category = credit.category;
             currentBalance += amount;
         } else {
-            amount = Math.floor(Math.random() * 3000) + 50;
-            name = merchants.sent[Math.floor(Math.random() * merchants.sent.length)];
-            category = categories.sent[Math.floor(Math.random() * categories.sent.length)];
+            const debit = debits[Math.floor(Math.random() * debits.length)];
+            amount = Math.floor(Math.random() * (debit.maxAmount - debit.minAmount + 1)) + debit.minAmount;
+            name = debit.name;
+            category = debit.category;
             currentBalance -= amount;
         }
         
-        // Special handling for Baron Quinn
-        if (userEmail === 'baronquin500@gmail.com') {
-            if (isCredit) {
-                name = ['Market Sales', 'Product Wholesale', 'Customer Payment', 'Vendor Income'][Math.floor(Math.random() * 4)];
-                amount = Math.floor(Math.random() * 15000) + 2000;
-            } else {
-                name = ['Inventory Purchase', 'Booth Rental', 'Equipment', 'Supplies'][Math.floor(Math.random() * 4)];
-                amount = Math.floor(Math.random() * 5000) + 100;
-            }
-        }
-        
         transactions.push({
-            id: transactionId++,
+            id: id++,
             name: name,
             amount: amount,
             type: isCredit ? 'received' : 'sent',
@@ -187,7 +166,10 @@ const generateHistoricalTransactions = (userEmail, startingBalance, userType = '
         });
     }
     
-    return { transactions, finalBalance: currentBalance };
+    // Sort by date (newest first)
+    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    return transactions;
 };
 
 // ==================== HARDCODED USER DATA ====================
@@ -210,14 +192,15 @@ const usersData = {
         accountType: 'Gold Elite',
         occupation: 'VENDOR',
         gender: 'Male',
-        memberSince: 'May 2026',
+        memberSince: 'January 2023',
         creditScore: 720,
         pin: '5000',
-        cardDesign: 'gold',
+        cardDesign: 'black',
         cardType: 'credit',
         cardLimit: 100000,
         billingMessage: null,
-        transactions: generateHistoricalTransactions('baronquin500@gmail.com', 500000, 'vendor').transactions
+        accountNumber: 'QC' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'),
+        transactions: generateFullTransactionHistory(500000, 'vendor')
     },
     'caitlinelizabeth200@gmail.com': {
         firstName: 'Caitlin',
@@ -237,14 +220,15 @@ const usersData = {
         accountType: 'Platinum Elite',
         occupation: 'Basketball Player',
         gender: 'Female',
-        memberSince: 'April 2026',
+        memberSince: 'January 2023',
         creditScore: 780,
         pin: '2002',
-        cardDesign: 'platinum',
+        cardDesign: 'black',
         cardType: 'credit',
         cardLimit: 250000,
         billingMessage: 'Unable to process transaction due to unpaid maintenance fees.',
-        transactions: generateHistoricalTransactions('caitlinelizabeth200@gmail.com', 10000000).transactions
+        accountNumber: 'CC' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'),
+        transactions: generateFullTransactionHistory(10000000, 'sports')
     },
     'dollyrparton945@gmail.com': {
         firstName: 'Dolly',
@@ -264,14 +248,15 @@ const usersData = {
         accountType: 'Gold Elite',
         occupation: 'Singer',
         gender: 'Female',
-        memberSince: 'April 2026',
+        memberSince: 'January 2023',
         creditScore: 810,
         pin: '9643',
-        cardDesign: 'gold',
+        cardDesign: 'black',
         cardType: 'credit',
         cardLimit: 100000,
         billingMessage: null,
-        transactions: generateHistoricalTransactions('dollyrparton945@gmail.com', 500000).transactions
+        accountNumber: 'DP' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'),
+        transactions: generateFullTransactionHistory(500000, 'entertainment')
     },
     'adambeach001@gmail.com': {
         firstName: 'Rueben',
@@ -291,14 +276,15 @@ const usersData = {
         accountType: 'Investment Platinum',
         occupation: 'Actor',
         gender: 'Male',
-        memberSince: 'May 2026',
+        memberSince: 'January 2023',
         creditScore: 750,
         pin: '1122',
-        cardDesign: 'platinum',
+        cardDesign: 'black',
         cardType: 'credit',
         cardLimit: 50000,
         billingMessage: 'Please complete your payment to be able to withdraw your funds',
-        transactions: generateHistoricalTransactions('adambeach001@gmail.com', 100000).transactions
+        accountNumber: 'RB' + Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0'),
+        transactions: generateFullTransactionHistory(100000, 'entertainment')
     }
 };
 
@@ -327,6 +313,7 @@ const defaultUser = {
     cardType: 'debit',
     cardLimit: 25000,
     billingMessage: null,
+    accountNumber: 'DEMO' + Math.floor(Math.random() * 1000000000),
     transactions: []
 };
 
@@ -337,6 +324,10 @@ function Dashboard() {
     const hardcodedUser = usersData[userEmail];
     const hasBillingMessage = !!hardcodedUser?.billingMessage;
     const isMoneyMavenUser = userEmail === 'adambeach001@gmail.com';
+    
+    // Mobile responsive hook
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     const [balance, setBalance] = useState(hardcodedUser?.balance || 0);
     const [transactions, setTransactions] = useState(hardcodedUser?.transactions || []);
@@ -362,19 +353,15 @@ function Dashboard() {
     const [recipientBank, setRecipientBank] = useState('');
     const [amount, setAmount] = useState('');
     const [transferPurpose, setTransferPurpose] = useState('');
-    const [transferType, setTransferType] = useState('interac');
     const [transferStep, setTransferStep] = useState(0);
     const [depositAmount, setDepositAmount] = useState('');
     const [showCVV, setShowCVV] = useState(false);
     const [addNote, setAddNote] = useState('');
-    const [scheduledDate, setScheduledDate] = useState('');
-    const [saveRecipient, setSaveRecipient] = useState(false);
 
     const user = hardcodedUser || {
         ...defaultUser,
         email: userEmail,
         firstName: currentUser?.displayName?.split(' ')[0] || 'User',
-        lastName: currentUser?.displayName?.split(' ')[1] || '',
         fullName: currentUser?.displayName || 'User',
     };
 
@@ -388,7 +375,7 @@ function Dashboard() {
         limit: user.cardLimit
     };
 
-    const bankDisplayName = isMoneyMavenUser ? 'MONEY MAVEN INVESTMENT BANK' : 'QuinCore Bank';
+    const bankDisplayName = isMoneyMavenUser ? 'MONEY MAVEN' : 'QuinCore';
 
     const formatCurrency = (amt) => {
         return new Intl.NumberFormat('en-US', {
@@ -410,8 +397,6 @@ function Dashboard() {
         setAmount('');
         setTransferPurpose('');
         setAddNote('');
-        setScheduledDate('');
-        setSaveRecipient(false);
     };
 
     // Firestore persistence
@@ -506,9 +491,7 @@ function Dashboard() {
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
             time: new Date().toLocaleTimeString(),
             status: 'completed',
-            note: addNote || transferPurpose || 'Money transfer',
-            recipient: recipientAccount,
-            bank: recipientBank || 'QuinCore Bank'
+            note: addNote || transferPurpose || 'Money transfer'
         };
         
         const updatedTransactions = [newTransaction, ...transactions];
@@ -516,7 +499,7 @@ function Dashboard() {
         setTransactions(updatedTransactions);
         await saveToFirestore(newBalance, updatedTransactions);
         
-        showMessage(`✅ Successfully sent ${formatCurrency(transferAmount)} to ${recipientName || recipientAccount}`, 'success');
+        showMessage(`✅ Successfully sent ${formatCurrency(transferAmount)}`, 'success');
         setSendModal(false);
         resetTransferForm();
         setTransferStep(0);
@@ -623,7 +606,7 @@ function Dashboard() {
         }
     };
 
-    const transferSteps = ['Recipient', 'Amount', 'Details', 'Confirm'];
+    const transferSteps = ['Recipient', 'Amount', 'Confirm'];
 
     // Chart data
     const spendingData = {
@@ -631,8 +614,8 @@ function Dashboard() {
         datasets: [{
             label: 'Spending',
             data: [12400, 18900, 15200, 22100, 18300, 24200],
-            borderColor: '#D4AF37',
-            backgroundColor: 'rgba(212,175,55,0.1)',
+            borderColor: '#1A1A2E',
+            backgroundColor: 'rgba(26,26,46,0.1)',
             tension: 0.4
         }]
     };
@@ -641,7 +624,7 @@ function Dashboard() {
         labels: ['Shopping', 'Dining', 'Bills', 'Transport', 'Entertainment'],
         datasets: [{
             data: [30, 25, 20, 15, 10],
-            backgroundColor: ['#D4AF37', '#0A1E3F', '#1A3B5E', '#2A4B7E', '#3A5B9E']
+            backgroundColor: ['#1A1A2E', '#2A2A3E', '#3A3A4E', '#4A4A5E', '#5A5A6E']
         }]
     };
 
@@ -656,184 +639,158 @@ function Dashboard() {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                <CircularProgress sx={{ color: '#D4AF37' }} />
+                <CircularProgress sx={{ color: '#1A1A2E' }} />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ bgcolor: '#F5F8FF', minHeight: '100vh', pb: 7 }}>
-            {/* Top Header */}
+        <Box sx={{ bgcolor: '#F5F7FA', minHeight: '100vh', pb: 7 }}>
+            {/* Top Header - CLEAN BLACK */}
             <AppBar position="static" sx={{ 
                 bgcolor: 'white', 
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                borderBottomLeftRadius: '24px',
-                borderBottomRightRadius: '24px'
+                boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}>
-                <Toolbar sx={{ justifyContent: 'space-between', py: 1, flexWrap: 'wrap' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-                        <Avatar sx={{ 
-                            bgcolor: 'transparent',
-                            background: 'linear-gradient(135deg, #D4AF37 0%, #FFD700 100%)',
-                            width: 48, 
-                            height: 48,
-                            boxShadow: '0 4px 12px rgba(212,175,55,0.3)'
-                        }}>
-                            <AccountBalanceWallet sx={{ color: '#0A1E3F', fontSize: 28 }} />
+                <Toolbar sx={{ justifyContent: 'space-between', py: 1, flexDirection: isMobile ? 'column' : 'row', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: isMobile ? 1 : 0 }}>
+                        <Avatar sx={{ bgcolor: '#1A1A2E', width: 40, height: 40 }}>
+                            <AccountBalanceWallet sx={{ fontSize: 22 }} />
                         </Avatar>
-                        
                         <Typography 
-                            variant="h4" 
+                            variant="h5" 
                             sx={{ 
-                                fontWeight: 800,
-                                fontSize: { xs: '1.4rem', sm: '1.8rem', md: '2.4rem' },
-                                letterSpacing: '2px',
-                                background: 'linear-gradient(135deg, #0A1E3F 0%, #D4AF37 40%, #FFD700 60%, #0A1E3F 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                fontFamily: '"Playfair Display", "Georgia", "Times New Roman", serif',
-                                textShadow: '2px 2px 4px rgba(0,0,0,0.05)'
+                                fontWeight: 700,
+                                color: '#1A1A2E',
+                                fontFamily: '"Inter", "Segoe UI", sans-serif',
+                                letterSpacing: '-0.5px'
                             }}
                         >
                             {bankDisplayName}
                         </Typography>
-                        
-                        <BankOwnerBadge>
-                            <Security sx={{ fontSize: 16 }} />
-                            {isMoneyMavenUser ? 'Investment Division' : 'Elite Banking'}
-                        </BankOwnerBadge>
                     </Box>
                     
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <IconButton><Notifications sx={{ color: '#0A1E3F' }} /></IconButton>
-                        <IconButton onClick={handleLogout}><Logout sx={{ color: '#dc004e' }} /></IconButton>
-                        <IconButton onClick={() => setProfileModal(true)}>
-                            <Avatar sx={{ bgcolor: '#D4AF37', color: '#0A1E3F' }}>{user.firstName?.charAt(0) || 'U'}</Avatar>
+                        <IconButton size="small"><Notifications sx={{ color: '#1A1A2E', fontSize: 22 }} /></IconButton>
+                        <IconButton onClick={handleLogout} size="small"><Logout sx={{ color: '#dc004e', fontSize: 22 }} /></IconButton>
+                        <IconButton onClick={() => setProfileModal(true)} size="small">
+                            <Avatar sx={{ bgcolor: '#1A1A2E', width: 32, height: 32, fontSize: '0.9rem' }}>
+                                {user.firstName?.charAt(0) || 'U'}
+                            </Avatar>
                         </IconButton>
                     </Box>
                 </Toolbar>
-                
-                <Box sx={{ px: 3, pb: 2 }}>
-                    <Typography variant="body2" sx={{ color: '#666', fontStyle: 'italic' }}>
-                        Welcome back to elite banking, {user.firstName}
-                    </Typography>
-                </Box>
             </AppBar>
 
-            <Container maxWidth="lg" sx={{ mt: 3, mb: 4 }}>
-                {/* Welcome Section */}
-                <Paper sx={{ p: 3, mb: 3, bgcolor: '#0A1E3F', color: 'white', borderRadius: '20px' }}>
-                    <Typography variant="h4" sx={{ fontFamily: '"Playfair Display", serif' }}>Welcome back, {user.firstName}!</Typography>
-                    <Typography variant="subtitle1" sx={{ opacity: 0.8 }}>{user.email}</Typography>
-                    <Typography variant="body2" sx={{ mt: 1, opacity: 0.7 }}>Account Number: {user.email === 'baronquin500@gmail.com' ? 'BQ5000' : 'USER' + Math.floor(Math.random() * 10000)}</Typography>
+            <Container maxWidth="lg" sx={{ mt: 2, mb: 4, px: isMobile ? 1 : 3 }}>
+                {/* Welcome Section - COMPACT */}
+                <Paper sx={{ p: 2, mb: 2, bgcolor: '#1A1A2E', color: 'white', borderRadius: '16px' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Welcome back, {user.firstName}!</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.8, fontSize: '0.8rem' }}>{user.email}</Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.6, display: 'block', mt: 0.5 }}>Account: {user.accountNumber}</Typography>
                     
                     {hasBillingMessage && (
-                        <Chip 
-                            label="⚠️ ACCOUNT DISABLED - Contact Support" 
-                            size="small" 
-                            sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} 
-                        />
+                        <Chip label="⚠️ ACCOUNT DISABLED" size="small" sx={{ mt: 1, bgcolor: '#dc004e', color: 'white', height: 24, fontSize: '0.7rem' }} />
                     )}
                 </Paper>
 
-                <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 3 }}>
-                    <Tab label="Dashboard" />
-                    <Tab label="Analytics" />
+                <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)} sx={{ mb: 2, minHeight: 40, '& .MuiTab-root': { fontSize: '0.8rem', py: 1 } }}>
+                    <Tab label="Home" />
                     <Tab label="History" />
                     <Tab label="Profile" />
                 </Tabs>
 
-                {/* DASHBOARD TAB */}
+                {/* HOME TAB */}
                 {tabValue === 0 && (
                     <>
-                        <BalanceCard elevation={3}>
-                            <Typography variant="body2" sx={{ opacity: 0.8, mb: 1 }}>TOTAL BALANCE ({user.currency})</Typography>
-                            <Typography variant="h2" sx={{ fontWeight: 700, mb: 1 }}>{formatCurrency(balance)}</Typography>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <Chip icon={<ArrowUpward sx={{ fontSize: 16 }} />} label="+4.8% this month" size="small" sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
-                                <Typography variant="body2" sx={{ opacity: 0.8 }}>{user.accountType} Account</Typography>
-                            </Box>
+                        <BalanceCard elevation={0}>
+                            <Typography variant="body2" sx={{ opacity: 0.7, mb: 0.5, fontSize: '0.75rem' }}>TOTAL BALANCE</Typography>
+                            <Typography variant="h4" sx={{ fontWeight: 700 }}>{formatCurrency(balance)}</Typography>
+                            <Typography variant="caption" sx={{ opacity: 0.6 }}>{user.accountType}</Typography>
                         </BalanceCard>
 
-                        <Grid container spacing={2} sx={{ mb: 3 }}>
+                        <Grid container spacing={1.5} sx={{ mb: 2 }}>
                             <Grid item xs={3}>
                                 <ActionButton fullWidth onClick={() => setSendModal(true)}>
-                                    <Send sx={{ color: '#D4AF37', fontSize: 24 }} />
+                                    <Send sx={{ fontSize: 20 }} />
                                     <Typography variant="caption">SEND</Typography>
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
                                 <ActionButton fullWidth onClick={() => setRequestModal(true)}>
-                                    <RequestPage sx={{ color: '#D4AF37', fontSize: 24 }} />
+                                    <RequestPage sx={{ fontSize: 20 }} />
                                     <Typography variant="caption">REQUEST</Typography>
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
                                 <ActionButton fullWidth onClick={() => setPayBillsModal(true)}>
-                                    <Payment sx={{ color: '#D4AF37', fontSize: 24 }} />
-                                    <Typography variant="caption">PAY BILLS</Typography>
+                                    <Payment sx={{ fontSize: 20 }} />
+                                    <Typography variant="caption">BILLS</Typography>
                                 </ActionButton>
                             </Grid>
                             <Grid item xs={3}>
                                 <ActionButton fullWidth onClick={() => setTopUpModal(true)}>
-                                    <AddCard sx={{ color: '#D4AF37', fontSize: 24 }} />
+                                    <AddCard sx={{ fontSize: 20 }} />
                                     <Typography variant="caption">TOP UP</Typography>
                                 </ActionButton>
                             </Grid>
                         </Grid>
 
-                        {/* Virtual Card */}
-                        <Paper sx={{ p: 3, borderRadius: '20px', mb: 3, background: user.cardDesign === 'gold' ? 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)' : 'linear-gradient(135deg, #1A1A1A 0%, #0A0A0A 100%)', color: user.cardDesign === 'gold' ? '#000000' : 'white' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography variant="caption" sx={{ letterSpacing: 2, opacity: 0.7 }}>{user.cardDesign?.toUpperCase()} CREDIT CARD</Typography>
-                                <CreditCard sx={{ fontSize: 32, opacity: 0.7 }} />
+                        {/* Virtual Card - COMPACT */}
+                        <Paper sx={{ p: 2, borderRadius: '16px', mb: 2, background: 'linear-gradient(135deg, #1A1A2E 0%, #2A2A3E 100%)', color: 'white' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                <Typography variant="caption" sx={{ opacity: 0.6, letterSpacing: 1 }}>VIRTUAL CARD</Typography>
+                                <CreditCard sx={{ fontSize: 24, opacity: 0.6 }} />
                             </Box>
-                            <Typography variant="h5" sx={{ fontFamily: 'monospace', letterSpacing: 2, mt: 2 }}>{issuedCard.maskedNumber}</Typography>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>Cardholder</Typography><Typography sx={{ fontWeight: 500 }}>{issuedCard.cardholderName}</Typography></Box>
-                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>Expires</Typography><Typography sx={{ fontWeight: 500 }}>{issuedCard.expiryDate}</Typography></Box>
-                                <Box><Typography variant="caption" sx={{ opacity: 0.7 }}>CVV</Typography><Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}><Typography sx={{ fontWeight: 500 }}>{showCVV ? issuedCard.cvv : '***'}</Typography><IconButton size="small" onClick={() => setShowCVV(!showCVV)}><Visibility sx={{ fontSize: 14, color: user.cardDesign === 'gold' ? '#000' : 'white' }} /></IconButton></Box></Box>
+                            <Typography variant="h6" sx={{ fontFamily: 'monospace', letterSpacing: 1 }}>{issuedCard.maskedNumber}</Typography>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.6 }}>Cardholder</Typography><Typography variant="body2">{issuedCard.cardholderName}</Typography></Box>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.6 }}>Expires</Typography><Typography variant="body2">{issuedCard.expiryDate}</Typography></Box>
+                                <Box><Typography variant="caption" sx={{ opacity: 0.6 }}>CVV</Typography><Box sx={{ display: 'flex', alignItems: 'center' }}><Typography variant="body2">{showCVV ? issuedCard.cvv : '***'}</Typography><IconButton size="small" onClick={() => setShowCVV(!showCVV)}><Visibility sx={{ fontSize: 14, color: 'white' }} /></IconButton></Box></Box>
                             </Box>
-                            <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${user.cardDesign === 'gold' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.2)'}` }}>
-                                <Typography variant="caption" sx={{ opacity: 0.7 }}>Card Limit</Typography>
-                                <Typography sx={{ fontWeight: 600 }}>{formatCurrency(issuedCard.limit)}</Typography>
+                            <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                                <Typography variant="caption" sx={{ opacity: 0.6 }}>Limit</Typography>
+                                <Typography variant="body2">{formatCurrency(issuedCard.limit)}</Typography>
                             </Box>
                         </Paper>
 
-                        {/* Charts Row */}
-                        <Grid container spacing={3} sx={{ mb: 3 }}>
-                            <Grid item xs={12} md={8}>
-                                <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Spending Trend ({user.currency})</Typography>
-                                    <Line data={spendingData} options={{ responsive: true }} />
+                        {/* Charts - COMPACT */}
+                        <Grid container spacing={2} sx={{ mb: 2 }}>
+                            <Grid item xs={12}>
+                                <Paper sx={{ p: 2, borderRadius: '16px' }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Spending Trend</Typography>
+                                    <Box sx={{ height: 200 }}>
+                                        <Line data={spendingData} options={{ responsive: true, maintainAspectRatio: false }} />
+                                    </Box>
                                 </Paper>
                             </Grid>
-                            <Grid item xs={12} md={4}>
-                                <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Spending by Category</Typography>
-                                    <Pie data={categoryData} options={{ responsive: true }} />
+                            <Grid item xs={12}>
+                                <Paper sx={{ p: 2, borderRadius: '16px' }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>Categories</Typography>
+                                    <Box sx={{ height: 200 }}>
+                                        <Pie data={categoryData} options={{ responsive: true, maintainAspectRatio: false }} />
+                                    </Box>
                                 </Paper>
                             </Grid>
                         </Grid>
 
-                        {/* Recent Activity */}
-                        <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, color: '#0A1E3F' }}>Recent Activity</Typography>
-                                <Button size="small" endIcon={<MoreHoriz />} onClick={() => setTabValue(2)}>View All</Button>
+                        {/* Recent Activity - COMPACT */}
+                        <Paper sx={{ p: 2, borderRadius: '16px' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Recent Activity</Typography>
+                                <Button size="small" onClick={() => setTabValue(1)}>View All</Button>
                             </Box>
                             {transactions.slice(0, 5).map((t) => (
-                                <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', p: 2, borderBottom: '1px solid #eee', '&:hover': { bgcolor: '#F5F7FA', borderRadius: '12px' } }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        <Avatar sx={{ bgcolor: t.amount > 0 ? '#E3F2E9' : '#FFE9E9', color: t.amount > 0 ? '#00A86B' : '#FF3B3B' }}>
-                                            {t.amount > 0 ? <ArrowDownward /> : <ArrowUpward />}
+                                <Box key={t.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5, borderBottom: '1px solid #eee' }}>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                        <Avatar sx={{ bgcolor: t.amount > 0 ? '#E8F5E9' : '#FFEBEE', width: 32, height: 32 }}>
+                                            {t.amount > 0 ? <ArrowDownward sx={{ fontSize: 16, color: '#4CAF50' }} /> : <ArrowUpward sx={{ fontSize: 16, color: '#f44336' }} />}
                                         </Avatar>
                                         <Box>
-                                            <Typography variant="body1" sx={{ fontWeight: 500 }}>{t.name}</Typography>
-                                            <Typography variant="caption" color="text.secondary">{t.date} • {t.time}</Typography>
+                                            <Typography variant="body2" sx={{ fontWeight: 500 }}>{t.name}</Typography>
+                                            <Typography variant="caption" sx={{ color: '#888' }}>{t.date}</Typography>
                                         </Box>
                                     </Box>
-                                    <Typography sx={{ color: t.amount > 0 ? '#00A86B' : '#FF3B3B', fontWeight: 600 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 600, color: t.amount > 0 ? '#4CAF50' : '#f44336' }}>
                                         {t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}
                                     </Typography>
                                 </Box>
@@ -842,70 +799,35 @@ function Dashboard() {
                     </>
                 )}
 
-                {/* ANALYTICS TAB */}
+                {/* HISTORY TAB - FULL TRANSACTION HISTORY */}
                 {tabValue === 1 && (
-                    <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#0A1E3F' }}>Income vs Expenses ({user.currency})</Typography>
-                                <Bar data={monthlyData} options={{ responsive: true }} />
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Key Metrics</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Monthly Savings Rate</Typography>
-                                        <Typography variant="h4" sx={{ color: '#D4AF37' }}>38%</Typography>
-                                        <LinearProgress variant="determinate" value={38} sx={{ mt: 1, height: 8, borderRadius: 4, bgcolor: '#E0E0E0', '& .MuiLinearProgress-bar': { bgcolor: '#D4AF37' } }} />
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="body2" color="text.secondary">Credit Score</Typography>
-                                        <Typography variant="h4">{user.creditScore || 720}</Typography>
-                                        <LinearProgress variant="determinate" value={(user.creditScore || 720) / 10} sx={{ mt: 1, height: 8, borderRadius: 4, bgcolor: '#E0E0E0', '& .MuiLinearProgress-bar': { bgcolor: '#D4AF37' } }} />
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Top Categories</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Vendor Sales</Typography><Typography fontWeight={600} color="#D4AF37">{formatCurrency(25000)}</Typography></Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Inventory Purchase</Typography><Typography fontWeight={600} color="#FF3B3B">{formatCurrency(3800)}</Typography></Box>
-                                    <Divider />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography>Booth Rental</Typography><Typography fontWeight={600} color="#FF3B3B">{formatCurrency(1500)}</Typography></Box>
-                                </Box>
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                )}
-
-                {/* HISTORY TAB */}
-                {tabValue === 2 && (
-                    <Paper sx={{ p: 3, borderRadius: '20px' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#0A1E3F' }}>Transaction History ({transactions.length} transactions)</Typography>
-                        <TableContainer>
-                            <Table>
+                    <Paper sx={{ p: 2, borderRadius: '16px' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>All Transactions ({transactions.length})</Typography>
+                        <TableContainer sx={{ maxHeight: 500 }}>
+                            <Table stickyHeader size="small">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Date & Time</TableCell>
+                                        <TableCell>Date</TableCell>
                                         <TableCell>Description</TableCell>
-                                        <TableCell>Category</TableCell>
-                                        <TableCell>Status</TableCell>
                                         <TableCell align="right">Amount</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {transactions.slice().reverse().map((t) => (
-                                        <TableRow key={t.id}>
-                                            <TableCell><Typography variant="body2">{t.date}</Typography><Typography variant="caption" color="text.secondary">{t.time}</Typography></TableCell>
-                                            <TableCell>{t.name}</TableCell>
-                                            <TableCell><Chip label={t.category} size="small" sx={{ bgcolor: '#D4AF37', color: '#0A1E3F' }} /></TableCell>
-                                            <TableCell><Chip label={t.status || 'completed'} size="small" sx={{ bgcolor: '#E8F5E9', color: '#4CAF50' }} /></TableCell>
-                                            <TableCell align="right"><Typography sx={{ fontWeight: 600, color: t.amount > 0 ? '#00A86B' : '#FF3B3B' }}>{t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}</Typography></TableCell>
+                                        <TableRow key={t.id} hover>
+                                            <TableCell>
+                                                <Typography variant="caption">{t.date}</Typography>
+                                                <Typography variant="caption" sx={{ color: '#888', display: 'block' }}>{t.time}</Typography>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Typography variant="body2">{t.name}</Typography>
+                                                <Typography variant="caption" sx={{ color: '#888' }}>{t.category}</Typography>
+                                            </TableCell>
+                                            <TableCell align="right">
+                                                <Typography variant="body2" sx={{ fontWeight: 600, color: t.amount > 0 ? '#4CAF50' : '#f44336' }}>
+                                                    {t.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(t.amount))}
+                                                </Typography>
+                                            </TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -915,160 +837,91 @@ function Dashboard() {
                 )}
 
                 {/* PROFILE TAB */}
-                {tabValue === 3 && (
-                    <Grid container spacing={3}>
+                {tabValue === 2 && (
+                    <Grid container spacing={2}>
                         <Grid item xs={12} md={4}>
-                            <ProfileCard>
-                                <Box sx={{ textAlign: 'center', mb: 3 }}>
-                                    <Avatar sx={{ width: 120, height: 120, mx: 'auto', mb: 2, bgcolor: '#D4AF37', color: '#0A1E3F', fontSize: '3rem' }}>{user.firstName?.charAt(0)}{user.lastName?.charAt(0)}</Avatar>
-                                    <Typography variant="h5" sx={{ fontWeight: 600 }}>{user.fullName}</Typography>
-                                    <Typography color="text.secondary" gutterBottom>@{user.username}</Typography>
-                                    <Chip label={user.accountType} sx={{ mt: 1, bgcolor: '#D4AF37', color: '#0A1E3F' }} />
-                                </Box>
-                                <Divider sx={{ my: 2 }} />
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><EmailIcon sx={{ color: '#D4AF37' }} /><Typography variant="body2">{user.email}</Typography></Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Phone sx={{ color: '#D4AF37' }} /><Typography variant="body2">{user.phone || 'Not set'}</Typography></Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><LocationOn sx={{ color: '#D4AF37' }} /><Typography variant="body2">{user.address || 'Not set'}</Typography></Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Cake sx={{ color: '#D4AF37' }} /><Typography variant="body2">{user.dateOfBirth}</Typography></Box>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Flag sx={{ color: '#D4AF37' }} /><Typography variant="body2">{user.country}, {user.state}</Typography></Box>
-                                </Box>
-                            </ProfileCard>
+                            <Paper sx={{ p: 2, textAlign: 'center', borderRadius: '16px' }}>
+                                <Avatar sx={{ width: 80, height: 80, mx: 'auto', mb: 1, bgcolor: '#1A1A2E' }}>{user.firstName?.charAt(0)}{user.lastName?.charAt(0)}</Avatar>
+                                <Typography variant="h6">{user.fullName}</Typography>
+                                <Typography variant="body2" sx={{ color: '#888' }}>@{user.username}</Typography>
+                                <Chip label={user.accountType} size="small" sx={{ mt: 1, bgcolor: '#1A1A2E', color: 'white' }} />
+                            </Paper>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                            <ProfileCard>
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 3, color: '#0A1E3F' }}>Account Details</Typography>
-                                <Grid container spacing={3}>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Number</Typography><Typography variant="h6" sx={{ color: '#D4AF37' }}>BQ5000</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Member Since</Typography><Typography variant="h6">{user.memberSince}</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">PIN Code</Typography><Typography variant="h6">••••</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Credit Score</Typography><Typography variant="h6">{user.creditScore || 720}</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Balance</Typography><Typography variant="h6">{formatCurrency(balance)}</Typography></Grid>
-                                    <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Type</Typography><Typography variant="h6">{user.accountType}</Typography></Grid>
+                            <Paper sx={{ p: 2, borderRadius: '16px' }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 2 }}>Account Details</Typography>
+                                <Grid container spacing={1.5}>
+                                    <Grid item xs={6}><Typography variant="caption" sx={{ color: '#888' }}>Account Number</Typography><Typography variant="body2">{user.accountNumber}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="caption" sx={{ color: '#888' }}>Member Since</Typography><Typography variant="body2">{user.memberSince}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="caption" sx={{ color: '#888' }}>Balance</Typography><Typography variant="body2">{formatCurrency(balance)}</Typography></Grid>
+                                    <Grid item xs={6}><Typography variant="caption" sx={{ color: '#888' }}>Account Type</Typography><Typography variant="body2">{user.accountType}</Typography></Grid>
                                 </Grid>
-                                <Divider sx={{ my: 3 }} />
-                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#0A1E3F' }}>Edit Profile</Typography>
-                                    <Button onClick={() => setEditMode(!editMode)} startIcon={<Edit />}>{editMode ? 'Cancel' : 'Edit'}</Button>
+                                <Divider sx={{ my: 2 }} />
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>Personal Info</Typography>
+                                    <Button size="small" onClick={() => setEditMode(!editMode)} startIcon={<Edit />}>{editMode ? 'Cancel' : 'Edit'}</Button>
                                 </Box>
                                 {editMode ? (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <TextField fullWidth label="Full Name" value={editName} onChange={(e) => setEditName(e.target.value)} />
-                                        <TextField fullWidth label="Phone Number" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} />
-                                        <TextField fullWidth label="Address" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} multiline rows={2} />
-                                        <GoldButton onClick={updateProfile}>Save Changes</GoldButton>
+                                    <Box>
+                                        <TextField fullWidth size="small" label="Full Name" value={editName} onChange={(e) => setEditName(e.target.value)} sx={{ mb: 1 }} />
+                                        <TextField fullWidth size="small" label="Phone" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} sx={{ mb: 1 }} />
+                                        <TextField fullWidth size="small" label="Address" value={editAddress} onChange={(e) => setEditAddress(e.target.value)} multiline rows={2} sx={{ mb: 1 }} />
+                                        <DarkButton fullWidth onClick={updateProfile}>Save</DarkButton>
                                     </Box>
                                 ) : (
-                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                        <Box><Typography variant="caption" color="text.secondary">Full Name</Typography><Typography>{user.fullName}</Typography></Box>
-                                        <Box><Typography variant="caption" color="text.secondary">Phone Number</Typography><Typography>{user.phone || 'Not set'}</Typography></Box>
-                                        <Box><Typography variant="caption" color="text.secondary">Address</Typography><Typography>{user.address || 'Not set'}</Typography></Box>
+                                    <Box>
+                                        <Typography variant="body2"><strong>Email:</strong> {user.email}</Typography>
+                                        <Typography variant="body2"><strong>Phone:</strong> {user.phone || 'Not set'}</Typography>
+                                        <Typography variant="body2"><strong>Address:</strong> {user.address || 'Not set'}</Typography>
+                                        <Typography variant="body2"><strong>Country:</strong> {user.country}</Typography>
                                     </Box>
                                 )}
-                                <Divider sx={{ my: 3 }} />
-                                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: '#0A1E3F' }}>Security Settings</Typography>
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Fingerprint sx={{ color: '#D4AF37' }} /><Box><Typography>Two-Factor Authentication</Typography><Typography variant="caption" color="text.secondary">Protect your account with 2FA</Typography></Box></Box>
-                                        <Button variant="outlined" size="small" sx={{ borderColor: '#D4AF37', color: '#D4AF37' }}>Enable</Button>
-                                    </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}><Lock sx={{ color: '#D4AF37' }} /><Box><Typography>Change PIN</Typography><Typography variant="caption" color="text.secondary">Update your PIN</Typography></Box></Box>
-                                        <Button variant="outlined" size="small" sx={{ borderColor: '#D4AF37', color: '#D4AF37' }}>Update</Button>
-                                    </Box>
-                                </Box>
-                            </ProfileCard>
+                            </Paper>
                         </Grid>
                     </Grid>
                 )}
             </Container>
 
-            {/* SEND MONEY MODAL */}
-            <Modal open={sendModal} onClose={() => { setSendModal(false); setTransferStep(0); resetTransferForm(); }} closeAfterTransition BackdropComponent={Backdrop}>
+            {/* SEND MODAL - SIMPLIFIED */}
+            <Modal open={sendModal} onClose={() => setSendModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={sendModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 500 }, maxHeight: '90vh', overflow: 'auto' }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => { setSendModal(false); setTransferStep(0); resetTransferForm(); }}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F', fontFamily: '"Playfair Display", serif' }}>Send Money</Typography>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '20px', p: 3, width: { xs: '90%', sm: 450 }, maxHeight: '90vh', overflow: 'auto' }}>
+                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setSendModal(false)}><Close /></IconButton>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Send Money</Typography>
                         
-                        <Stepper activeStep={transferStep} sx={{ mb: 4 }}>
+                        <Stepper activeStep={transferStep} sx={{ mb: 3 }}>
                             {transferSteps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
                         </Stepper>
                         
                         {transferStep === 0 && (
                             <>
-                                <TextField fullWidth label="Recipient Account Number or Email" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} placeholder="Enter account number or email address" />
-                                <TextField fullWidth label="Recipient Full Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} placeholder="Enter recipient's full name" />
-                                <FormControl fullWidth sx={{ mb: 2 }}>
-                                    <InputLabel>Recipient's Bank</InputLabel>
-                                    <Select value={recipientBank} onChange={(e) => setRecipientBank(e.target.value)}>
-                                        <MenuItem value="QuinCore Bank">QuinCore Bank</MenuItem>
-                                        <MenuItem value="Money Maven Investment Bank">Money Maven Investment Bank</MenuItem>
-                                        <MenuItem value="Other Bank">Other Bank</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <FormControlLabel control={<Checkbox checked={saveRecipient} onChange={(e) => setSaveRecipient(e.target.checked)} />} label="Save this recipient for future transfers" />
-                                <GoldButton fullWidth onClick={() => setTransferStep(1)}>Continue</GoldButton>
+                                <TextField fullWidth size="small" label="Recipient Email or Account" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} />
+                                <TextField fullWidth size="small" label="Recipient Name" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} sx={{ mb: 2 }} />
+                                <DarkButton fullWidth onClick={() => setTransferStep(1)}>Continue</DarkButton>
                             </>
                         )}
                         
                         {transferStep === 1 && (
                             <>
-                                <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
-                                <FormControl fullWidth sx={{ mb: 2 }}>
-                                    <InputLabel>Transfer Purpose</InputLabel>
-                                    <Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}>
-                                        <MenuItem value="Goods/Services">Goods/Services</MenuItem>
-                                        <MenuItem value="Gift">Gift</MenuItem>
-                                        <MenuItem value="Family Support">Family Support</MenuItem>
-                                        <MenuItem value="Rent Payment">Rent Payment</MenuItem>
-                                        <MenuItem value="Salary">Salary</MenuItem>
-                                        <MenuItem value="Loan Repayment">Loan Repayment</MenuItem>
-                                        <MenuItem value="Other">Other</MenuItem>
-                                    </Select>
-                                </FormControl>
-                                <TextField fullWidth label="Add a Note (Optional)" value={addNote} onChange={(e) => setAddNote(e.target.value)} sx={{ mb: 2 }} placeholder="Add a reference message" multiline rows={2} />
-                                <TextField fullWidth label="Schedule Transfer (Optional)" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} sx={{ mb: 2 }} InputLabelProps={{ shrink: true }} />
-                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                <TextField fullWidth size="small" label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
+                                <TextField fullWidth size="small" label="Purpose" value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)} sx={{ mb: 2 }} />
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button variant="outlined" onClick={() => setTransferStep(0)}>Back</Button>
-                                    <GoldButton onClick={() => setTransferStep(2)}>Continue</GoldButton>
+                                    <DarkButton onClick={() => setTransferStep(2)}>Continue</DarkButton>
                                 </Box>
                             </>
                         )}
                         
                         {transferStep === 2 && (
                             <>
-                                <Paper sx={{ p: 3, bgcolor: '#F5F7FA', borderRadius: '16px', mb: 2 }}>
-                                    <Typography variant="subtitle2" sx={{ color: '#D4AF37', mb: 1 }}>TRANSFER DETAILS</Typography>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">To:</Typography><Typography fontWeight={500}>{recipientName || recipientAccount}</Typography></Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Bank:</Typography><Typography fontWeight={500}>{recipientBank || 'QuinCore Bank'}</Typography></Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Amount:</Typography><Typography fontWeight={700} sx={{ color: '#D4AF37' }}>{formatCurrency(parseFloat(amount) || 0)}</Typography></Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Purpose:</Typography><Typography fontWeight={500}>{transferPurpose || 'Not specified'}</Typography></Box>
-                                    {addNote && <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Note:</Typography><Typography fontWeight={500}>{addNote}</Typography></Box>}
-                                    {scheduledDate && <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}><Typography variant="body2" color="text.secondary">Scheduled:</Typography><Typography fontWeight={500}>{scheduledDate}</Typography></Box>}
-                                    <Divider sx={{ my: 2 }} />
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between' }}><Typography variant="body2" color="text.secondary">Total:</Typography><Typography fontWeight={700} sx={{ color: '#D4AF37' }}>{formatCurrency(parseFloat(amount) || 0)}</Typography></Box>
+                                <Paper sx={{ p: 2, bgcolor: '#F5F7FA', mb: 2 }}>
+                                    <Typography variant="body2"><strong>To:</strong> {recipientName || recipientAccount}</Typography>
+                                    <Typography variant="body2"><strong>Amount:</strong> {formatCurrency(parseFloat(amount) || 0)}</Typography>
+                                    <Typography variant="body2"><strong>Purpose:</strong> {transferPurpose || 'Not specified'}</Typography>
                                 </Paper>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
                                     <Button variant="outlined" onClick={() => setTransferStep(1)}>Back</Button>
-                                    <GoldButton onClick={() => setTransferStep(3)}>Review Transfer</GoldButton>
-                                </Box>
-                            </>
-                        )}
-                        
-                        {transferStep === 3 && (
-                            <>
-                                <Paper sx={{ p: 3, bgcolor: '#FFF9E6', borderRadius: '16px', mb: 2, textAlign: 'center' }}>
-                                    <Security sx={{ fontSize: 48, color: '#D4AF37', mb: 1 }} />
-                                    <Typography variant="h6" sx={{ color: '#0A1E3F', mb: 1 }}>Confirm Transfer</Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Please verify the details below before confirming</Typography>
-                                    <Box sx={{ textAlign: 'left', bgcolor: 'white', p: 2, borderRadius: '12px' }}>
-                                        <Typography variant="body2"><strong>To:</strong> {recipientName || recipientAccount}</Typography>
-                                        <Typography variant="body2"><strong>Amount:</strong> {formatCurrency(parseFloat(amount) || 0)}</Typography>
-                                    </Box>
-                                </Paper>
-                                <Box sx={{ display: 'flex', gap: 2 }}>
-                                    <Button variant="outlined" onClick={() => setTransferStep(2)}>Back</Button>
-                                    <GoldButton onClick={handleSendMoney}>Confirm & Send</GoldButton>
+                                    <DarkButton onClick={handleSendMoney}>Confirm & Send</DarkButton>
                                 </Box>
                             </>
                         )}
@@ -1077,14 +930,14 @@ function Dashboard() {
             </Modal>
 
             {/* REQUEST MODAL */}
-            <Modal open={requestModal} onClose={() => { setRequestModal(false); resetTransferForm(); }} closeAfterTransition BackdropComponent={Backdrop}>
+            <Modal open={requestModal} onClose={() => setRequestModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={requestModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 } }}>
-                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => { setRequestModal(false); resetTransferForm(); }}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F', fontFamily: '"Playfair Display", serif' }}>Request Money</Typography>
-                        <TextField fullWidth label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} />
-                        <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
-                        <GoldButton fullWidth onClick={handleRequestMoney}>Send Request</GoldButton>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '20px', p: 3, width: { xs: '90%', sm: 400 } }}>
+                        <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setRequestModal(false)}><Close /></IconButton>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Request Money</Typography>
+                        <TextField fullWidth size="small" label="From (Email/Account)" value={recipientAccount} onChange={(e) => setRecipientAccount(e.target.value)} sx={{ mb: 2 }} />
+                        <TextField fullWidth size="small" label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
+                        <DarkButton fullWidth onClick={handleRequestMoney}>Send Request</DarkButton>
                     </Box>
                 </Fade>
             </Modal>
@@ -1092,22 +945,21 @@ function Dashboard() {
             {/* PAY BILLS MODAL */}
             <Modal open={payBillsModal} onClose={() => setPayBillsModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={payBillsModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 } }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '20px', p: 3, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setPayBillsModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F', fontFamily: '"Playfair Display", serif' }}>Pay Bills</Typography>
-                        <FormControl fullWidth sx={{ mb: 2 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Pay Bills</Typography>
+                        <FormControl fullWidth size="small" sx={{ mb: 2 }}>
                             <InputLabel>Bill Type</InputLabel>
                             <Select value={transferPurpose} onChange={(e) => setTransferPurpose(e.target.value)}>
-                                <MenuItem value="Electricity">⚡ Electricity</MenuItem>
-                                <MenuItem value="Water">💧 Water</MenuItem>
-                                <MenuItem value="Internet">🌐 Internet</MenuItem>
-                                <MenuItem value="Phone">📱 Phone</MenuItem>
-                                <MenuItem value="Credit Card">💳 Credit Card</MenuItem>
-                                <MenuItem value="Mortgage">🏠 Mortgage</MenuItem>
+                                <MenuItem value="Electricity">Electricity</MenuItem>
+                                <MenuItem value="Water">Water</MenuItem>
+                                <MenuItem value="Internet">Internet</MenuItem>
+                                <MenuItem value="Phone">Phone</MenuItem>
+                                <MenuItem value="Credit Card">Credit Card</MenuItem>
                             </Select>
                         </FormControl>
-                        <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
-                        <GoldButton fullWidth onClick={handlePayBill}>Pay Bill</GoldButton>
+                        <TextField fullWidth size="small" label={`Amount (${user.currency})`} type="number" value={amount} onChange={(e) => setAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
+                        <DarkButton fullWidth onClick={handlePayBill}>Pay Bill</DarkButton>
                     </Box>
                 </Fade>
             </Modal>
@@ -1115,19 +967,11 @@ function Dashboard() {
             {/* TOP UP MODAL */}
             <Modal open={topUpModal} onClose={() => setTopUpModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={topUpModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 450 } }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '20px', p: 3, width: { xs: '90%', sm: 400 } }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setTopUpModal(false)}><Close /></IconButton>
-                        <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, color: '#0A1E3F', fontFamily: '"Playfair Display", serif' }}>Top Up Account</Typography>
-                        <FormControl fullWidth sx={{ mb: 2 }}>
-                            <InputLabel>Payment Method</InputLabel>
-                            <Select value={transferType} onChange={(e) => setTransferType(e.target.value)}>
-                                <MenuItem value="bank">🏦 Bank Transfer</MenuItem>
-                                <MenuItem value="card">💳 Credit/Debit Card</MenuItem>
-                                <MenuItem value="crypto">₿ Cryptocurrency</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <TextField fullWidth label={`Amount (${user.currency})`} type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
-                        <GoldButton fullWidth onClick={handleDeposit}>Add Money</GoldButton>
+                        <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Top Up</Typography>
+                        <TextField fullWidth size="small" label={`Amount (${user.currency})`} type="number" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} sx={{ mb: 2 }} InputProps={{ startAdornment: <InputAdornment position="start">{user.currencySymbol || '$'}</InputAdornment> }} />
+                        <DarkButton fullWidth onClick={handleDeposit}>Add Money</DarkButton>
                     </Box>
                 </Fade>
             </Modal>
@@ -1135,33 +979,32 @@ function Dashboard() {
             {/* PROFILE QUICK MODAL */}
             <Modal open={profileModal} onClose={() => setProfileModal(false)} closeAfterTransition BackdropComponent={Backdrop}>
                 <Fade in={profileModal}>
-                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '24px', p: 4, width: { xs: '90%', sm: 350 }, textAlign: 'center' }}>
+                    <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'white', borderRadius: '20px', p: 3, width: { xs: '90%', sm: 320 }, textAlign: 'center' }}>
                         <IconButton sx={{ position: 'absolute', right: 8, top: 8 }} onClick={() => setProfileModal(false)}><Close /></IconButton>
-                        <Avatar sx={{ width: 80, height: 80, mx: 'auto', mb: 2, bgcolor: '#D4AF37', color: '#0A1E3F' }}>{user.firstName?.charAt(0)}</Avatar>
+                        <Avatar sx={{ width: 70, height: 70, mx: 'auto', mb: 1, bgcolor: '#1A1A2E' }}>{user.firstName?.charAt(0)}</Avatar>
                         <Typography variant="h6">{user.fullName}</Typography>
-                        <Typography variant="body2" color="text.secondary">{user.email}</Typography>
-                        <Divider sx={{ my: 2 }} />
+                        <Typography variant="body2" sx={{ color: '#888' }}>{user.email}</Typography>
+                        <Divider sx={{ my: 1.5 }} />
                         <Typography variant="body2"><strong>Balance:</strong> {formatCurrency(balance)}</Typography>
+                        <Typography variant="body2"><strong>Account:</strong> {user.accountNumber}</Typography>
                         <Typography variant="body2"><strong>Country:</strong> {user.country}</Typography>
-                        {hasBillingMessage && <Chip label="Account Disabled" size="small" sx={{ mt: 2, bgcolor: '#dc004e', color: 'white' }} />}
-                        <GoldButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(3); }}>Full Profile</GoldButton>
+                        <DarkButton fullWidth sx={{ mt: 2 }} onClick={() => { setProfileModal(false); setTabValue(2); }}>Full Profile</DarkButton>
                     </Box>
                 </Fade>
             </Modal>
 
             {/* Bottom Navigation */}
-            <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderRadius: '20px 20px 0 0', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
+            <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderRadius: '12px 12px 0 0', boxShadow: '0 -2px 10px rgba(0,0,0,0.05)' }}>
                 <BottomNavigation showLabels value={navValue} onChange={(e, v) => { setNavValue(v); setTabValue(v); }}>
                     <BottomNavigationAction label="HOME" icon={<Home />} />
-                    <BottomNavigationAction label="TRANSFER" icon={<Send />} onClick={() => setSendModal(true)} />
-                    <BottomNavigationAction label="STATS" icon={<TrendingUp />} />
-                    <BottomNavigationAction label="PROFILE" icon={<Person />} onClick={() => setTabValue(3)} />
+                    <BottomNavigationAction label="HISTORY" icon={<History />} />
+                    <BottomNavigationAction label="PROFILE" icon={<Person />} />
                 </BottomNavigation>
             </Paper>
 
             {/* Message Popup */}
-            <Snackbar open={message.show} autoHideDuration={6000} onClose={() => setMessage(prev => ({ ...prev, show: false }))} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-                <Alert severity={message.type} variant="filled" sx={{ boxShadow: '0 4px 12px rgba(0,0,0,0.15)', maxWidth: '500px' }}>{message.text}</Alert>
+            <Snackbar open={message.show} autoHideDuration={4000} onClose={() => setMessage(prev => ({ ...prev, show: false }))} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                <Alert severity={message.type} variant="filled">{message.text}</Alert>
             </Snackbar>
         </Box>
     );
