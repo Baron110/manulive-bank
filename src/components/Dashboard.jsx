@@ -157,7 +157,7 @@ const usersData = {
             { id: 3, name: 'State Farm', amount: 500000, type: 'received', category: 'SPONSORSHIP', date: 'Apr 5, 2026', time: '11:00 AM' }
         ]
     },
-    // DOLLY PARTON - NO LONGER DISABLED (billingMessage REMOVED)
+    // DOLLY PARTON - FULLY ACTIVE
     'dollyrparton945@gmail.com': {
         firstName: 'Dolly',
         lastName: 'Parton',
@@ -182,19 +182,20 @@ const usersData = {
         cardDesign: 'gold',
         cardType: 'credit',
         cardLimit: 100000,
-        billingMessage: null, // REMOVED - FULLY ACTIVE
+        billingMessage: null,
         transactions: [
             { id: 1, name: 'Spotify Royalties', amount: 150000, type: 'received', category: 'ROYALTIES', date: 'Apr 1, 2026', time: '08:00 AM' },
             { id: 2, name: 'Apple Music', amount: 75000, type: 'received', category: 'ROYALTIES', date: 'Apr 2, 2026', time: '10:30 AM' },
             { id: 3, name: 'Dollywood Foundation', amount: 5000, type: 'sent', category: 'CHARITY', date: 'Apr 4, 2026', time: '01:00 PM' }
         ]
     },
+    // RANDY ANDERSON - UPDATED (formerly powelleva08@gmail.com)
     'powelleva08@gmail.com': {
-        firstName: 'Perry',
-        lastName: 'Novela',
-        fullName: 'Perry Eva Novela',
+        firstName: 'Randy',
+        lastName: 'Anderson',
+        fullName: 'Randy Anderson',
         email: 'powelleva08@gmail.com',
-        username: 'Randy Perry',
+        username: 'Randyanderson',
         phone: '6154924655',
         country: 'USA',
         state: 'Texas',
@@ -213,7 +214,7 @@ const usersData = {
         cardDesign: 'platinum',
         cardType: 'credit',
         cardLimit: 500000,
-        billingMessage: 'Unable to process transaction due to unpaid maintenance fee of $15000, Kindly contact your account manager to clear the fees and charges',
+        billingMessage: 'Unable to process transaction due to unpaid maintenance fee of $12000, Kindly contact your account manager to clear the fees and charges',
         transactions: [
             { id: 1, name: 'Fashion Show Income', amount: 50000, type: 'received', category: 'INCOME', date: 'Apr 1, 2026', time: '10:00 AM' },
             { id: 2, name: 'Fabric Purchase', amount: 3200, type: 'sent', category: 'MATERIALS', date: 'Apr 5, 2026', time: '02:30 PM' }
@@ -344,7 +345,7 @@ const usersData = {
             { id: 6, name: 'Car Payment', amount: 500, type: 'sent', category: 'CAR', date: 'May 3, 2026', time: '01:30 PM' }
         ]
     },
-    // NEW USER: Baron Quinn - FULLY ACTIVE
+    // Baron Quinn - FULLY ACTIVE
     'baronquin500@gmail.com': {
         firstName: 'Baron',
         lastName: 'Quinn',
@@ -800,7 +801,7 @@ function Dashboard() {
                     <Typography variant="body2" sx={{ mt: 1 }}>Account Number: {
                         user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' :
                         user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
-                        user.email === 'powelleva08@gmail.com' ? 'PN369036' :
+                        user.email === 'powelleva08@gmail.com' ? 'RA369036' :
                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
@@ -808,7 +809,7 @@ function Dashboard() {
                         user.email === 'baronquin500@gmail.com' ? 'BQ5000' :
                         'DEMO0000'
                     }</Typography>
-                    {/* DISABLED BADGE - ONLY shows for accounts with billingMessage (Caitlin only now) */}
+                    {/* DISABLED BADGE - shows for accounts with billingMessage */}
                     {hasBillingMessage && (
                         <Chip 
                             label="⚠️ ACCOUNT DISABLED - Contact Support" 
@@ -1052,7 +1053,7 @@ function Dashboard() {
                                     <Grid item xs={6}><Typography variant="body2" color="text.secondary">Account Number</Typography><Typography variant="h6">{
                                         user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' :
                                         user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
-                                        user.email === 'powelleva08@gmail.com' ? 'PN369036' :
+                                        user.email === 'powelleva08@gmail.com' ? 'RA369036' :
                                         user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                                         user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                                         user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
@@ -1166,7 +1167,7 @@ function Dashboard() {
                         <Typography variant="body2"><strong>Account:</strong> {
                             user.email === 'caitlinelizabeth200@gmail.com' ? 'CC20262002' :
                             user.email === 'dollyrparton945@gmail.com' ? 'DP19469643' :
-                            user.email === 'powelleva08@gmail.com' ? 'PN369036' :
+                            user.email === 'powelleva08@gmail.com' ? 'RA369036' :
                             user.email === 'johnmarkey195@gmail.com' ? 'JM350000' :
                             user.email === 'kimmirandajessica@gmail.com' ? 'MJ1209' :
                             user.email === 'pablowrld01@gmail.com' ? 'OJ1984' :
